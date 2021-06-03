@@ -15,13 +15,13 @@ DISCORD_TOKEN=<Your token>
 
 ## Usage
 To run the bot, open a terminal or cli, enter and execute `python bot/`.
-Note that the bot must be added to a server in order to use it. Please refer to [Discord's docs](https://discord.com/developers/docs) to get help setting up you bot.
+Note that the bot must be added to a server in order to use it. Please refer to [Discord's docs](https://discord.com/developers/docs) to get help setting up your bot.
 
-The default bot prefix is `:`. To see the available command type, in Discord, `:help`.
+The default bot prefix is `:`. To see the available commands, type, in Discord, `:help`.
 
 ## Contribution
-As mention in the description, we invite everyone to participate in the development of the bot. You can contribute to the project by simply opening an issue, by improving some current features or even by adding your own features.
-Before contributing please refer to our [contribution guidelines (temporary unavailable)]() and [Code of Conduct for contributor (temporary unavailable)]().
+As mentioned in the description, we invite everyone to participate in the development of the bot. You can contribute to the project by simply opening an issue, by improving some current features or even by adding your own features.
+Before contributing please refer to our [contribution guidelines (temporary unavailable)](#) and [Code of Conduct for contributor (temporary unavailable)](#).
 
 ## Support
 For any other issues or questions feel free to [join](https://discord.gg/6GEF9H9m) our server and have a chat with us.
