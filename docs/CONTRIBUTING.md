@@ -59,6 +59,7 @@ You should always review your own PR first.
 Congratulate yourself, you did it! The Code Socitety thank you for helping us improve our community.
 
 ## Open a Pull Request
+- The name of the PR must be the same as the issue related to the PR.
 - The PR must be linked to the opened issue.
 - The PR must describe what change have been done.
   - Images or examples of the changes are more than welcome if necessary.
