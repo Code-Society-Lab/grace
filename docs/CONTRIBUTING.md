@@ -37,7 +37,7 @@ Once all is setup, you can bring your bot to life by executing `python bot/`.
 - When you changes are done, [open a PR](#open-a-pull-request).
 
 #### Submit your PR
-Once your PR is submited, we (the staff) will [review](#review) it with you. The first thing you're going to want to do is a [self review](u#self-review).
+Once your PR is submited, we (the staff) will [review](#review) it with you. The first thing you're going to want to do is a [self review](#self-review).
 
 ## Review
 We review every Pull Request. The purpose of reviews is to create the best code possible and ensure that the code is secured and respect the guidelines.
