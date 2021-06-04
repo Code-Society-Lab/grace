@@ -3,15 +3,15 @@ We want everybody to be able to contribute to our projects whatever your level o
 
 ### How you can contribute?
 You can contribute to this project in the follwing ways 
-- [Reporting a bug](https://github.com/Code-Society-Lab/grace/new/dev#how-to-report-a-bug)
-- [Proposing new features](https://github.com/Code-Society-Lab/grace/new/dev#propose-a-new-feature)
-- [Submitting a fix](https://github.com/Code-Society-Lab/grace/new/dev#add-changes)
-- [Adding change](https://github.com/Code-Society-Lab/grace/new/dev#add-changes)
+- [Reporting a bug](#report-a-bug)
+- [Proposing new features](#propose-a-new-feature)
+- [Submitting a fix](#add-changes)
+- [Adding changes](#add-changes)
 
 ## Report a bug
 - Open an [issue](https://github.com/Code-Society-Lab/grace/issues) follwing the **bug template**. 
 - Communicate directly with us on the Code Society's [Discord server](https://discord.gg/6GEF9H9m).
-- Fix the bug directly. To do so, follow [add a changes](https://github.com/Code-Society-Lab/grace/new/dev#add-changes).
+- Fix the bug directly. To do so, follow [add a changes](#add-changes).
 
 ## Propose a new feature.
 - Open an [issue](https://github.com/Code-Society-Lab/grace/issues) follwing the **feature request template**.
@@ -33,18 +33,18 @@ Once all is setup, you can bring your bot to life by executing `python bot/`.
 
 ### Adding your changes
 - Start by [Forking the repository](https://docs.github.com/en/github/getting-started-with-github/quickstart/fork-a-repo). 
-- From your forked repository, apply your changes to the code. Don't forget to [setup](https://github.com/Code-Society-Lab/grace/new/dev#setting-up-the-bot) your bot to test it.
-- When you changes are done, [open a PR](https://github.com/Code-Society-Lab/grace/new/dev#open-a-pull-request).
+- From your forked repository, apply your changes to the code. Don't forget to [setup](#setting-up-the-bot) your bot to test it.
+- When you changes are done, [open a PR](#open-a-pull-request).
 
 #### Submit your PR
-Once your PR is submited, we (the staff) will [review](https://github.com/Code-Society-Lab/grace/new/dev#review) it with you. The first thing you're going to want to do is a [self review](https://github.com/Code-Society-Lab/grace/new/dev#self-review).
+Once your PR is submited, we (the staff) will [review](#review) it with you. The first thing you're going to want to do is a [self review](u#self-review).
 
 ## Review
 We review every Pull Request. The purpose of reviews is to create the best code possible and ensure that the code is secured and respect the guidelines.
 
-Reviews are always respectful, acknowledging that everyone did the best possible job with the knowledge they had at the time.<br>
-Reviews discuss content, not the person who created it.<br>
-Reviews are constructive and start conversation around feedback.
+- Reviews are always respectful, acknowledging that everyone did the best possible job with the knowledge they had at the time.<br>
+- Reviews discuss content, not the person who created it.<br>
+- Reviews are constructive and start conversation around feedback.
 
 #### Self review
 You should always review your own PR first.
@@ -55,7 +55,7 @@ You should always review your own PR first.
 - Verify your code for grammar and spelling mistakes (The code and the text must be in **English**).
 - Test your changes to ensure there's not bugs.
 
-#### What to do after your PR is meged?
+#### What to do after your PR is merged?
 Congratulate yourself, you did it! The Code Socitety thank you for helping us improve our community.
 
 ## Open a Pull Request
