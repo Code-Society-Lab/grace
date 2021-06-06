@@ -21,7 +21,7 @@ The default bot prefix is `:`. To see the available commands, type, in Discord, 
 
 ## Contribution
 As mentioned in the description, we invite everyone to participate in the development of the bot. You can contribute to the project by simply opening an issue, by improving some current features or even by adding your own features.
-Before contributing please refer to our [contribution guidelines (temporary unavailable)](#) and [Code of Conduct for contributor (temporary unavailable)](#).
+Before contributing please refer to our [contribution guidelines](https://github.com/Code-Society-Lab/grace/blob/main/docs/CONTRIBUTING.md) and [Code of Conduct for contributor (temporary unavailable)](#).
 
 ## Support
 For any other issues or questions feel free to [join](https://discord.gg/6GEF9H9m) our server and have a chat with us.
