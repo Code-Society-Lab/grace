@@ -1,14 +1,14 @@
 from os import getenv
 from dotenv import load_dotenv
 from logging import critical
+from discord import errors
 from bot.utils.extensions import get_extensions
 from bot.grace import Grace
-from discord import errors
 
 load_dotenv()
 
-token = getenv("DISCORD_TOKEN")
 extensions = get_extensions()
+token = getenv("DISCORD_TOKEN")
 
 try:
     if token:
