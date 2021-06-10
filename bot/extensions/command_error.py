@@ -2,7 +2,7 @@ from logging import warning
 from discord.ext.commands import Cog, MissingRequiredArgument, CommandNotFound, MissingPermissions
 
 
-class CommandError(Cog, name="Grace"):
+class CommandError(Cog):
     def __init__(self, bot):
         self.bot = bot
 
