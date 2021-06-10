@@ -1,4 +1,5 @@
 from logging import info, warning, error, critical
+from discord import Intents
 from discord.ext import commands
 from bot import CONFIG
 from bot.help import Help
@@ -10,7 +11,8 @@ class Grace(commands.Bot):
         super().__init__(
             command_prefix=CONFIG.bot.prefix,
             description="Grace is the official Code Society Discord bot.",
-            help_command=Help()
+            help_command=Help(),
+            intents=Intents.all()
         )
 
     @property
