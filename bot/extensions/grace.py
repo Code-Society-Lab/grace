@@ -1,7 +1,7 @@
-from discord import Embed, Color
+from discord import Embed
 from discord.ext.commands import Cog, command
+from emoji import emojize
 from bot import CONFIG
-from bot.helpers.color_helper import get_color_digit
 
 
 class GraceCog(Cog, name="Grace"):
@@ -12,8 +12,15 @@ class GraceCog(Cog, name="Grace"):
     async def info_command(self, ctx):
         embed = Embed(
             color=self.bot.default_color,
-            title=f"My name is Grace.",
-            description=f"Hi, {ctx.author.mention}. I'm the official Code Society Discord Bot."
+            title=f"My name is Grace",
+            description=f"Hi, {ctx.author.mention}. I'm the official **Code Society** Discord Bot. ",
+            inline=True
+        )
+
+        embed.add_field(
+            name="Fun fact about me",
+            value=f"I'm named after [Grace Hopper](https://en.wikipedia.org/wiki/Grace_Hopper) {emojize(':rabbit:')}",
+            inline=True
         )
 
         embed.set_footer(text=f"Need help? Send {self.bot.command_prefix}help")
