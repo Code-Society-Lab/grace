@@ -13,14 +13,13 @@ class GraceCog(Cog, name="Grace"):
         embed = Embed(
             color=self.bot.default_color,
             title=f"My name is Grace",
-            description=f"Hi, {ctx.author.mention}. I'm the official **Code Society** Discord Bot. ",
-            inline=True
+            description=f"Hi, {ctx.author.mention}. I'm the official **Code Society** Discord Bot.\n\u200b",
         )
 
         embed.add_field(
             name="Fun fact about me",
-            value=f"I'm named after [Grace Hopper](https://en.wikipedia.org/wiki/Grace_Hopper) {emojize(':rabbit:')}",
-            inline=True
+            value=f"I'm named after [Grace Hopper](https://en.wikipedia.org/wiki/Grace_Hopper) {emojize(':rabbit:')}"
+                  "\n\u200b",
         )
 
         embed.set_footer(text=f"Need help? Send {self.bot.command_prefix}help")
