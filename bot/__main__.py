@@ -7,8 +7,8 @@ from bot.grace import Grace
 
 load_dotenv()
 
-extensions = get_extensions()
 token = getenv("DISCORD_TOKEN")
+extensions = get_extensions()
 
 try:
     if token:
