@@ -17,7 +17,7 @@ DISCORD_TOKEN=<Your token>
 To run the bot, open a terminal or cli, enter and execute `python bot/`.
 Note that the bot must be added to a server in order to use it. Please refer to [Discord's docs](https://discord.com/developers/docs) to get help setting up your bot.
 
-The default bot prefix is `:`. To see the available commands, type, in Discord, `:help`.
+The default bot prefix is `::`. To see the available commands, type, in Discord, `::help`.
 
 ## Contribution
 As mentioned in the description, we invite everyone to participate in the development of the bot. You can contribute to the project by simply opening an issue, by improving some current features or even by adding your own features.
