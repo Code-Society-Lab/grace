@@ -1,0 +1,18 @@
+{
+  "bot": {
+    "name": "Grace",
+    "prefix": "::"
+  },
+
+  "style": {
+    "embed_color": "0xfffffe"
+  },
+  "server": {
+    "roles": {
+        "staff": [
+          "Owner",
+          "Moderator"
+        ]
+    }
+  }
+}

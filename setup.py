@@ -1,5 +1,6 @@
 from setuptools import *
 
+
 setup(
     name='Grace',
     description='The Code Society community Bot',
@@ -10,8 +11,10 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
+        'coloredlogs',
         'logger',
         'python-dotenv',
         'discord',
+        'emoji',
     ],
 )

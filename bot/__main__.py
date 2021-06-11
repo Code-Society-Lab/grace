@@ -1,9 +1,9 @@
 from os import getenv
 from dotenv import load_dotenv
 from logging import critical
+from discord import errors
 from bot.utils.extensions import get_extensions
 from bot.grace import Grace
-from discord import errors
 
 load_dotenv()
 
