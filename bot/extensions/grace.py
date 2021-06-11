@@ -1,14 +1,13 @@
 from discord import Embed
 from discord.ext.commands import Cog, command
 from emoji import emojize
-from bot import CONFIG
 
 
 class GraceCog(Cog, name="Grace"):
     def __init__(self, bot):
         self.bot = bot
 
-    @command(name='info', help='Show information about the bot', usage=f'{CONFIG.bot.prefix}info')
+    @command(name='info', help='Show information about the bot', usage=f'info')
     async def info_command(self, ctx):
         embed = Embed(
             color=self.bot.default_color,
