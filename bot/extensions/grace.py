@@ -20,6 +20,19 @@ class GraceCog(Cog, name="Grace"):
             name="Fun fact about me",
             value=f"I'm named after [Grace Hopper](https://en.wikipedia.org/wiki/Grace_Hopper) {emojize(':rabbit:')}"
                   "\n\u200b",
+            inline=False
+        )
+
+        embed.add_field(
+            name=f"{emojize(':test_tube:')} Code Society Lab",
+            value=f"Contribute to our [projects](https://github.com/Code-Society-Lab/grace)\n\u200b",
+            inline=True
+        )
+
+        embed.add_field(
+            name=f"{emojize(':crossed_swords:')} Codewars",
+            value=f"Set your clan to **CodeSoc**\n\u200b",
+            inline=True
         )
 
         embed.set_footer(text=f"Need help? Send {self.bot.command_prefix}help")
