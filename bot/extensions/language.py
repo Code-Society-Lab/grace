@@ -1,6 +1,5 @@
 from discord.ext.commands import Cog
 from discord import Message
-from logging import info
 from nltk.tokenize import TweetTokenizer
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import nltk
@@ -18,11 +17,6 @@ class LinusCog(Cog):
 
         self.tokenizer = TweetTokenizer()
         self.sid = SentimentIntensityAnalyzer()
-
-        try:
-            nltk.data.find('vader_lexicon')
-        except LookupError:
-            nltk.download('vader_lexicon')
 
     async def penguin_react(self, message: Message):
         """
@@ -70,4 +64,9 @@ class LinusCog(Cog):
 
 
 def setup(bot):
+    try:
+        nltk.data.find('vader_lexicon')
+    except LookupError:
+        nltk.download('vader_lexicon')
+
     bot.add_cog(LinusCog(bot))
