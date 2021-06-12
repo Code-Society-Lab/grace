@@ -4,7 +4,6 @@ from discord.ext import commands
 from bot import CONFIG
 from bot.help import Help
 from bot.helpers.color_helper import get_color_digit
-from nltk.tokenize import TweetTokenizer
 
 
 class Grace(commands.Bot):
