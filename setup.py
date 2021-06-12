@@ -16,5 +16,6 @@ setup(
         'python-dotenv',
         'discord',
         'emoji',
+        'nltk',
     ],
 )
