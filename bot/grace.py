@@ -1,9 +1,10 @@
 from logging import info, warning, error, critical
-from discord import Intents
+from discord import Intents, Message
 from discord.ext import commands
 from bot import CONFIG
 from bot.help import Help
 from bot.helpers.color_helper import get_color_digit
+from nltk.tokenize import TweetTokenizer
 
 
 class Grace(commands.Bot):
@@ -25,4 +26,4 @@ class Grace(commands.Bot):
             self.load_extension(extension)
 
     async def on_ready(self):
-        info(f"{self.user.name}#{self.user.id} is online and ready to use")
+        info(f"{self.user.name}#{self.user.id} is online and ready to use!")
