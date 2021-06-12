@@ -49,16 +49,19 @@ class Grace(commands.Bot):
         """
         message_tokens = self.tokenizer.tokenize(message.content)
         tokenlist = map(lambda s: s.lower(), message_tokens)
-        linustarget = [i for i, x in enumerate(tokenlist) if x == 'linus']
+        linustarget = [i for i, x in enumerate(tokenlist) if x == 'linus' or x == '#linus' or x == '#linustorvalds']
         # Get the indices of all linuses in the message
 
         if linustarget:
             fail = False
             for linusindex in linustarget:
-                if message_tokens[linusindex + 1] == 'tech' and message_tokens[linusindex + 2] == 'tips':
-                    fail = True
-                elif message_tokens[linusindex + 1] == 'and' and message_tokens[linusindex + 2] == 'lucy':
-                    fail = True
+                if len(linustarget) >= 3:
+                    if message_tokens[linusindex + 1] == 'tech' and message_tokens[linusindex + 2] == 'tips':
+                        fail = True
+                    elif message_tokens[linusindex + 1] == 'and' and message_tokens[linusindex + 2] == 'lucy':
+                        fail = True
+                    elif 'torvalds' in tokenlist:
+                        fail = False
 
             if not fail:
                 await message.add_reaction('🐧')
