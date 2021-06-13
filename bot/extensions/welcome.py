@@ -11,7 +11,7 @@ class WelcomeCog(Cog):
     async def print_welcome_message(self, member: Member):
         welcome = self.bot.get_channel(CONFIG.server.channels.welcome)
         message = CONFIG.bot.welcome_message.format(
-            member_name=member.display_name,
+            member_name=member.mention,
             info_id=CONFIG.server.channels.info,
             rules_id=CONFIG.server.channels.rules,
             roles_id=CONFIG.server.channels.roles,
