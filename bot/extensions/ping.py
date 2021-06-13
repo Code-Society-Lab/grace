@@ -1,14 +1,18 @@
 from discord.ext.commands import Cog, command
-from bot import CONFIG
-
+from discord import Embed
 
 class Ping(Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @command(name='ping', help='Send pong', usage=f'{CONFIG.bot.prefix}pong')
+    @command(name='ping', help='Send pong', usage='pong')
     async def ping_command(self, ctx):
-        await ctx.send(f"Pong! {round(self.bot.latency * 1000)}ms")
+        embed = Embed(
+            color=self.bot.default_color,
+            description=f"pong :ping_pong:  {round(self.bot.latency * 1000)}ms",
+        )
+
+        await ctx.send(embed=embed);
 
 def setup(bot):
     bot.add_cog(Ping(bot))
