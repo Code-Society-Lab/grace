@@ -17,7 +17,7 @@ class CommandErrorHandler(Cog):
         elif isinstance(command_error, MissingRequiredArgument) or ctx.command:
             await self.send_command_help(ctx)
         else:
-            await ctx.send("An error occurred. Contact the the administrators")
+            await ctx.send("An error occurred. Contact the administrators")
 
     @staticmethod
     def send_command_help(ctx):
