@@ -3,7 +3,7 @@ from discord.ext.commands import Cog, command
 from emoji import emojize
 
 
-class GraceCog(Cog, name="Grace"):
+class GraceCog(Cog, name="Grace", description="Default grace commands"):
     def __init__(self, bot):
         self.bot = bot
 
