@@ -54,7 +54,7 @@ class LinusCog(Cog):
                 sv = self.sid.polarity_scores(message.content)
                 if sv['neu'] + sv['pos'] < sv['neg'] or sv['pos'] == 0.0:
                     fail = True
-                    if sv['neg'] > sv ['pos'] + sv['neu']:
+                    if sv['neg'] + sv['neu'] > sv ['pos']:
                         await message.add_reaction('😡')
                         return
 
