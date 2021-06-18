@@ -1,6 +1,7 @@
 from discord.ext.commands import Cog, command
 from discord import Embed
 
+
 class Ping(Cog):
     def __init__(self, bot):
         self.bot = bot
