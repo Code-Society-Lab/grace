@@ -11,7 +11,7 @@ class Grace(commands.Bot):
         super().__init__(
             command_prefix=CONFIG.bot.prefix,
             description="Grace is the official Code Society Discord bot.",
-            help_command=PrettyHelp(color=get_color_digit(CONFIG.embed_color)),
+            help_command=PrettyHelp(color=self.default_color),
             intents=Intents.all()
         )
 
