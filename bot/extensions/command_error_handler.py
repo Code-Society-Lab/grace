@@ -22,7 +22,7 @@ class CommandErrorHandler(Cog):
     @staticmethod
     def send_command_help(ctx):
         if ctx.command:
-            ctx.send_help(ctx.command)
+            return ctx.send_help(ctx.command)
 
         return ctx.send_help()
 
