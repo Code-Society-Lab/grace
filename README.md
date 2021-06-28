@@ -19,6 +19,8 @@ Note that the bot must be added to a server in order to use it. Please refer to 
 
 The default bot prefix is `::`. To see the available commands, type, in Discord, `::help`.
 
+For now, `pip install .` must be run before `python bot /` when running the bot. Running the directory as a script in pycharm's run configuration will work too. This is liable to change.
+
 ## Contribution
 As mentioned in the description, we invite everyone to participate in the development of the bot. You can contribute to the project by simply opening an issue, by improving some current features or even by adding your own features.
 Before contributing please refer to our [contribution guidelines](https://github.com/Code-Society-Lab/grace/blob/main/docs/CONTRIBUTING.md) and [Code of Conduct for contributor (temporary unavailable)](#).
