@@ -1,15 +1,16 @@
 import discord
-from discord.colour import Color
-from discord.ext.commands import Cog, command
+from discord.ext.commands.cooldowns import BucketType
+from discord.ext.commands import Cog, command, cooldown
 from discord import Embed
 import random
 
 
-class eightball(Cog):
+class EightBall(Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @command(name='eightball', help="Ask a question and be answered by Grace", aliases=['8ball'])
+    @command(name='eightball', aliases=['8ball'], usage='8ball' , help="Ask a question and be answered by Grace")
+    @cooldown(1, 30, BucketType.user)
     async def eightball(self, ctx):
 
         responses = ['Hell no.', 'Prolly not.', 'Idk bro.',
@@ -26,13 +27,13 @@ class eightball(Cog):
                      'Outlook not so good.', 'Very Doubtful']
 
         answer = Embed(
-            title="Grace says: ",
-            Color=0x00ff00,
-            description=random.choice(responses)
+            title= f'{ctx.author.name}, Grace says: ',
+            Color= self.bot.default_color,
+            description=random.choice(responses),
         )
 
         await ctx.send(embed=answer)
 
 
 def setup(bot):
-    bot.add_cog(eightball(bot))
+    bot.add_cog(EightBall(bot))
