@@ -44,8 +44,6 @@ class LinusCog(Cog):
                         fail = True
                 except IndexError:
                     pass
-                if 'torvalds' in tokenlist:
-                    fail = False
 
                 # Here we're using the VADER algorithm to prevent Grace from reacting to messages that
                 # speak negatively about linus. We run whole message through vader and if the aggregated
@@ -54,9 +52,12 @@ class LinusCog(Cog):
                 sv = self.sid.polarity_scores(message.content)
                 if sv['neu'] + sv['pos'] < sv['neg'] or sv['pos'] == 0.0:
                     fail = True
-                    if sv['neg'] + sv['neu'] > sv ['pos']:
+                    if sv['neg'] > sv['pos']:
                         await message.add_reaction('😡')
                         return
+                overrideset = {'torvalds', '#linus', '#linustorvalds', 'torvald', '#linustorvald'}
+                if overrideset & set(tokenlist):
+                    fail = False
 
             if not fail:
                 await message.add_reaction('🐧')
