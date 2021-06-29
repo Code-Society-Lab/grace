@@ -5,11 +5,11 @@ from discord import Embed
 import random
 
 
-class EightBall(Cog):
+class EightBall(Cog, description="Magic Eight Ball"):
     def __init__(self, bot):
         self.bot = bot
 
-    @command(name='eightball', aliases=['8ball'], usage='8ball' , help="Ask a question and be answered by Grace")
+    @command(name='eightball', aliases=['8ball'], usage='eightball or 8ball' , help="Ask a question and be answered by Grace")
     @cooldown(1, 30, BucketType.user)
     async def eightball(self, ctx):
 
