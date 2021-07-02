@@ -5,7 +5,7 @@ import json
 import discord
 
 
-class Activities(Cog, name="Activities",description="Commands regarding Discord Activities in VC" ):
+class Activities(Cog, name="Activities", description="Commands regarding Discord Activities in VC" ):
     def __init__(self, bot):
         self.bot = bot
 
@@ -35,4 +35,4 @@ class Activities(Cog, name="Activities",description="Commands regarding Discord 
 
 
 def setup(bot):
-    bot.add_cog(activities(bot))
+    bot.add_cog(Activities(bot))
