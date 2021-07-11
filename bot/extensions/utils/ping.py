@@ -2,7 +2,7 @@ from discord.ext.commands import Cog, command
 from discord import Embed
 
 
-class Ping(Cog):
+class Ping(Cog, description="Latency test"):
     def __init__(self, bot):
         self.bot = bot
 
