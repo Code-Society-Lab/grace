@@ -18,6 +18,7 @@ setup(
         'discord',
         'emoji',
         'nltk',
-        'discord-pretty-help'
+        'discord-pretty-help',
+        'requests'
     ],
 )
