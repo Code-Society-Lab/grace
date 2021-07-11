@@ -13,6 +13,7 @@ class EightBall(Cog, description="Magic Eight Ball"):
     @cooldown(1, 30, BucketType.user)
     async def eightball(self, ctx):
 
+        responses = CONFIG.extensions.eight_ball
         responses = ['Hell no.', 'Prolly not.', 'Idk bro.',
                      'Prolly.', 'Hell yeah my dude.',
                      'It is certain.', 'It is decidedly so.',
