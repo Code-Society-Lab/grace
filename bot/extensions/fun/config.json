@@ -28,5 +28,23 @@
       "Outlook not so good.",
       "Very Doubtful"
     ]
+  },
+  "quote": {
+    "api_url": "https://api.forismatic.com/api/1.0/?method=getQuote&format=json&lang=en"
+  },
+  "language": {
+    "linus": {
+      "targets": [
+        "linus",
+        "#linus",
+        "#torvalds",
+        "#linustorvalds",
+        "torvalds"
+      ],
+      "reactions": {
+        "positive": "\uD83D\uDC27",
+        "negative": "\uD83D\uDE21"
+      }
+    }
   }
 }
