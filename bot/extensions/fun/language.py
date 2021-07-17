@@ -4,8 +4,10 @@ from nltk.tokenize import TweetTokenizer
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import nltk
 
+from bot import CONFIG
 
-class LinusCog(Cog):
+
+class Language(Cog):
     def __init__(self, bot):
         self.bot = bot
         # I know not everyone working here is familiar with NLTK so I'll explain some of the terminology.
@@ -17,6 +19,11 @@ class LinusCog(Cog):
 
         self.tokenizer = TweetTokenizer()
         self.sid = SentimentIntensityAnalyzer()
+
+        # Linus reaction attributes
+        self.linus_targets = set(CONFIG.extensions.language.linus.targets)
+        self.linus_positive_react = CONFIG.extensions.language.linus.reactions.positive
+        self.linus_negative_react = CONFIG.extensions.language.linus.reactions.negative
 
     async def penguin_react(self, message: Message):
         """
@@ -30,8 +37,7 @@ class LinusCog(Cog):
         """
         message_tokens = self.tokenizer.tokenize(message.content)
         tokenlist = list(map(lambda s: s.lower(), message_tokens))
-        linustarget = [i for i, x in enumerate(tokenlist) if x in {"linus", "#linus", "#torvalds",
-                                                                   "#linustorvalds", "torvalds"}]
+        linustarget = [i for i, x in enumerate(tokenlist) if x in self.linus_targets]
         # Get the indices of all linuses in the message
 
         if linustarget:
@@ -53,14 +59,14 @@ class LinusCog(Cog):
                 if sv['neu'] + sv['pos'] < sv['neg'] or sv['pos'] == 0.0:
                     fail = True
                     if sv['neg'] > sv['pos']:
-                        await message.add_reaction('😡')
+                        await message.add_reaction(self.linus_negative_react)
                         return
-                overrideset = {'torvalds', '#linus', '#linustorvalds', 'torvald', '#linustorvald'}
+                overrideset = self.linus_targets
                 if overrideset & set(tokenlist):
                     fail = False
 
             if not fail:
-                await message.add_reaction('🐧')
+                await message.add_reaction(self.linus_positive_react)
 
     @Cog.listener()
     async def on_message(self, message):
@@ -73,4 +79,4 @@ def setup(bot):
     except LookupError:
         nltk.download('vader_lexicon')
 
-    bot.add_cog(LinusCog(bot))
+    bot.add_cog(Language(bot))
