@@ -4,7 +4,6 @@ from discord.ext import commands
 from pretty_help import PrettyHelp
 from bot import CONFIG
 from bot.helpers.color_helper import get_color_digit
-from bot.models import BASE, ENGINE
 
 
 class Grace(commands.Bot):
@@ -15,8 +14,6 @@ class Grace(commands.Bot):
             help_command=PrettyHelp(color=self.default_color),
             intents=Intents.all()
         )
-
-        BASE.metadata.create_all(ENGINE)
 
     @property
     def default_color(self):

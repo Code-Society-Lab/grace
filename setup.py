@@ -14,7 +14,7 @@ setup(
         'python-dotenv',
         'coloredlogs',
         'logger',
-        'python-dotenv',
+        'sqlalchemy',
         'discord',
         'emoji',
         'nltk',
