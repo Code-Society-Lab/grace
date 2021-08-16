@@ -9,7 +9,7 @@ from bot.helpers.color_helper import get_color_digit
 class Grace(commands.Bot):
     def __init__(self):
         super().__init__(
-            command_prefix=CONFIG.bot.prefix,
+            command_prefix=commands.when_mentioned_or(CONFIG.bot.prefix),
             description="Grace is the official Code Society Discord bot.",
             help_command=PrettyHelp(color=self.default_color),
             intents=Intents.all()
