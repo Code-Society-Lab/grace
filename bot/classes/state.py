@@ -7,5 +7,5 @@ class State(Enum):
     ENABLED = 1
 
     def __str__(self):
-        self.name.capitalize()
+        return self.name.capitalize()
 
