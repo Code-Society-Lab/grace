@@ -7,7 +7,7 @@ import nltk
 from bot import CONFIG
 
 
-class Language(Cog):
+class LanguageCog(Cog):
     def __init__(self, bot):
         self.bot = bot
         # I know not everyone working here is familiar with NLTK so I'll explain some of the terminology.
@@ -79,4 +79,4 @@ def setup(bot):
     except LookupError:
         nltk.download('vader_lexicon')
 
-    bot.add_cog(Language(bot))
+    bot.add_cog(LanguageCog(bot))
