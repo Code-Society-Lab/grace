@@ -2,7 +2,7 @@ from sqlalchemy import Integer, Column, String
 from bot import app
 from bot.classes.state import State
 from bot.utils.extensions import get_extension
-from db.Model import Model
+from db.model import Model
 
 
 class Extension(app.base, Model):
