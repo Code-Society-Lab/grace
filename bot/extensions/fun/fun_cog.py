@@ -5,7 +5,7 @@ from bot import CONFIG
 import random
 
 
-class Fun(Cog, description="Collection of fun commands"):
+class FunCog(Cog, name="Fun", description="Collection of fun commands"):
     def __init__(self, bot):
         self.bot = bot
 
@@ -36,3 +36,7 @@ class Fun(Cog, description="Collection of fun commands"):
         )
 
         await ctx.send(embed=embed)
+
+
+def setup(bot):
+    bot.add_cog(FunCog(bot))
