@@ -5,7 +5,7 @@ from bot import CONFIG
 import random
 
 
-class EightBall(Cog, description="Magic Eight Ball"):
+class Fun(Cog, description="Collection of fun commands"):
     def __init__(self, bot):
         self.bot = bot
 
@@ -25,6 +25,14 @@ class EightBall(Cog, description="Magic Eight Ball"):
 
         await ctx.send(embed=answer_embed)
 
+    @command(name='quote', help='Sends an inspirational quote', usage='::quote get')
+    async def quote_command(self, ctx):
+        response = get(CONFIG.extensions.quote.api_url)
+        quote = '{quoteText} \n-- {quoteAuthor}'.format(**loads(response.text))
 
-def setup(bot):
-    bot.add_cog(EightBall(bot))
+        embed = Embed(
+            color=self.bot.default_color,
+            description=quote,
+        )
+
+        await ctx.send(embed=embed)
