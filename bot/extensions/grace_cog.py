@@ -7,7 +7,7 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
     def __init__(self, bot):
         self.bot = bot
 
-    @command(name='info', help='Show information about the bot', usage=f'info')
+    @command(name='info', help='Show information about the bot')
     async def info_command(self, ctx):
         embed = Embed(
             color=self.bot.default_color,
