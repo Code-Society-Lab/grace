@@ -1,5 +1,6 @@
 from discord import Embed
 from discord.ext.commands import Cog, command
+from discord.utils import get
 from emoji import emojize
 
 
@@ -34,7 +35,11 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
             inline=True
         )
 
-        embed.set_footer(text=f"Need help? Send {self.bot.command_prefix}help")
+        embed.add_field(
+            name="Need help?",
+            value=f"Send '{ctx.prefix}help'",
+            inline=False
+        )
 
         await ctx.send(embed=embed)
 
