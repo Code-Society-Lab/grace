@@ -19,11 +19,14 @@ class Extension(app.base, Model):
 
     @state.setter
     def state(self, new_state):
-        self._state = new_state
+        self._state = new_state.value
 
     @property
     def module(self):
         return get_extension(self.name)
+
+    def is_enabled(self):
+        return self.state == State.ENABLED
 
     def __str__(self):
         return f"{self.id} | {self.module} - {self.state}"
