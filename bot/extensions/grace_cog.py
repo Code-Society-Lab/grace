@@ -1,6 +1,5 @@
 from discord import Embed
 from discord.ext.commands import Cog, command
-from discord.utils import get
 from emoji import emojize
 
 
