@@ -25,4 +25,4 @@ class Test:
     PASSWORD = "Malassi12"
     HOST = "localhost"
     PORT = 5433
-    DATABASE = "grace_tests"
+    DATABASE = "grace_test"
