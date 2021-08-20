@@ -21,4 +21,5 @@ setup(
         'discord-pretty-help',
         'requests'
     ],
+    scripts=['scripts/grace'],
 )
