@@ -6,7 +6,6 @@ from config.application import Application
 extension_configs = get_extensions_config()
 
 app = Application()
-config = app.config
 
 try:
     CONFIG = JsonConfig.load_file("config.json")

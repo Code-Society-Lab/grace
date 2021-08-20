@@ -18,6 +18,10 @@ class Model:
     def where(cls, *args, **kwargs):
         return app.session.query(cls).filter_by(**kwargs)
 
+    @classmethod
+    def count(cls):
+        return len(cls.all())
+
     def save(self, commit=True):
         app.session.add(self)
 

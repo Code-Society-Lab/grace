@@ -1,5 +1,7 @@
+from logging import critical
 from os import getenv
 from sqlalchemy import create_engine
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import declarative_base, sessionmaker
 from config.config import Config
 
@@ -11,11 +13,10 @@ class Application:
         self.config = Config()
         self.token = getenv("DISCORD_TOKEN")
 
-        self.engine = create_engine(self.config.database_uri, echo=self.config.environment.SQLALCHEMY_ECHO)
-        self.base = declarative_base()
+        self.engine = None
+        self.base = None
 
-        self.engine.connect()
-        self.base.metadata.create_all(self.engine)
+        self.load_database()
 
     @property
     def session(self):
@@ -24,6 +25,23 @@ class Application:
             Application._session = session()
 
         return Application._session
+
+    def load_database(self):
+        self.engine = create_engine(self.config.database_uri, echo=self.config.environment.SQLALCHEMY_ECHO)
+        self.base = declarative_base()
+
+        try:
+            self.engine.connect()
+        except OperationalError as e:
+            critical(f"Unable to create the 'Application': {e}")
+            exit()
+
+    def unload_database(self):
+        self.session.close_all()
+
+    def reload_database(self):
+        self.unload_database()
+        self.load_database()
 
     def create_tables(self):
         """Creates all the tables if they are not already created."""
