@@ -3,9 +3,8 @@ from bot.json_config import JsonConfig
 from bot.utils.extensions import get_extensions_config
 from config.application import Application
 
-extension_configs = get_extensions_config()
-
 app = Application()
+extension_configs = get_extensions_config()
 
 try:
     CONFIG = JsonConfig.load_file("config.json")

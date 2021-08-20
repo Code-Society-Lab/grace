@@ -1,5 +1,3 @@
-import logging
-
 from coloredlogs import install
 from config import database
 from os import getenv
