@@ -1,10 +1,12 @@
-from logging import info, warning
-from discord import Intents
+from logging import info, warning, critical
+from discord import Intents, LoginFailure
 from discord.ext import commands
 from pretty_help import PrettyHelp
-from bot import CONFIG
+from bot import CONFIG, app
 from bot.helpers.color_helper import get_color_digit
 from bot.models.extension import Extension
+from bot.utils.extensions import get_extensions
+from bot.utils.models import load_models
 
 
 class Grace(commands.Bot):
@@ -38,3 +40,19 @@ class Grace(commands.Bot):
 
     async def on_ready(self):
         info(f"{self.user.name}#{self.user.id} is online and ready to use!")
+
+
+def start():
+    load_models()
+    extensions = get_extensions()
+
+    try:
+        if app.token:
+            grace_bot = Grace()
+            grace_bot.load_extensions(extensions)
+            grace_bot.run(app.token)
+        else:
+            critical("Token not defined. Add your token in '.env'")
+    except LoginFailure as e:
+        critical(f"{e}")
+        exit()
