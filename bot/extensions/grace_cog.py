@@ -42,6 +42,15 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
 
         await ctx.send(embed=embed)
 
+    @command(name='ping', help='shows the bot latency')
+    async def ping_command(self, ctx):
+        embed = Embed(
+            color=self.bot.default_color,
+            description=f"pong :ping_pong:  {round(self.bot.latency * 1000)}ms",
+        )
+
+        await ctx.send(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(GraceCog(bot))
