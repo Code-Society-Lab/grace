@@ -55,4 +55,3 @@ def start():
             critical("Token not defined. Add your token in '.env'")
     except LoginFailure as e:
         critical(f"{e}")
-        exit()
