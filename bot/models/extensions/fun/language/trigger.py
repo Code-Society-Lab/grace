@@ -26,7 +26,7 @@ class Trigger(app.base, Model):
 
     @property
     def negative_emoji(self):
-        return emojize(self.negative_emoji)
+        return emojize(self.negative_emoji_code)
 
     def add_trigger_word(self, trigger_word):
         TriggerWord(trigger_id=self.id, word=trigger_word).save()
