@@ -3,6 +3,8 @@ from os import getenv
 from sqlalchemy import create_engine
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy_utils import database_exists, create_database, drop_database
+
 from config.config import Config
 
 
@@ -35,6 +37,14 @@ class Application:
         except OperationalError as e:
             critical(f"Unable to create the 'Application': {e}")
             exit()
+
+    def create_database(self):
+        if not database_exists(self.config.database_uri):
+            create_database(self.config.database_uri)
+
+    def drop_database(self):
+        if not database_exists(self.config.database_uri):
+            drop_database(self.config.database_uri)
 
     def unload_database(self):
         self.session.close_all()
