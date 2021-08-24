@@ -1,10 +1,11 @@
-from discord.ext.commands import Cog
+from logging import critical
+
+from discord.ext.commands import Cog, command
 from discord import Message
 from nltk.tokenize import TweetTokenizer
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import nltk
-
-from bot import CONFIG
+from bot.models.extensions.fun.language.trigger import Trigger
 
 
 class LanguageCog(Cog):
@@ -20,10 +21,8 @@ class LanguageCog(Cog):
         self.tokenizer = TweetTokenizer()
         self.sid = SentimentIntensityAnalyzer()
 
-        # Linus reaction attributes
-        self.linus_targets = set(CONFIG.extensions.language.linus.targets)
-        self.linus_positive_react = CONFIG.extensions.language.linus.reactions.positive
-        self.linus_negative_react = CONFIG.extensions.language.linus.reactions.negative
+        # Linus trigger model
+        self.linus_trigger = Trigger.where(name="Linus").first()
 
     async def penguin_react(self, message: Message):
         """
@@ -37,7 +36,7 @@ class LanguageCog(Cog):
         """
         message_tokens = self.tokenizer.tokenize(message.content)
         tokenlist = list(map(lambda s: s.lower(), message_tokens))
-        linustarget = [i for i, x in enumerate(tokenlist) if x in self.linus_targets]
+        linustarget = [i for i, x in enumerate(tokenlist) if x in self.linus_trigger.words]
         # Get the indices of all linuses in the message
 
         if linustarget:
@@ -59,14 +58,14 @@ class LanguageCog(Cog):
                 if sv['neu'] + sv['pos'] < sv['neg'] or sv['pos'] == 0.0:
                     fail = True
                     if sv['neg'] > sv['pos']:
-                        await message.add_reaction(self.linus_negative_react)
+                        await message.add_reaction(self.linus_trigger.negative_emoji)
                         return
-                overrideset = self.linus_targets
-                if overrideset & set(tokenlist):
+                overrideset = self.linus_trigger.words
+                if set(overrideset) & set(tokenlist):
                     fail = False
 
             if not fail:
-                await message.add_reaction(self.linus_positive_react)
+                await message.add_reaction(self.linus_trigger.positive_emoji)
 
     @Cog.listener()
     async def on_message(self, message):
