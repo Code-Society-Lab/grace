@@ -1,23 +1,27 @@
 from discord.ext.commands import Cog
 from logging import info
-from discord import Member, Client
-from bot import CONFIG
+from discord import Member
+from bot.grace import Grace
 
 
 class WelcomeCog(Cog):
-    def __init__(self, bot: Client):
+    def __init__(self, bot: Grace):
         self.bot = bot
+        self.channels = self.bot.config.channels
+        self.welcome_message = self.bot.config.welcome_message
 
     async def print_welcome_message(self, member: Member):
-        welcome = self.bot.get_channel(CONFIG.server.channels.welcome)
-        message = CONFIG.bot.welcome_message.format(
+        welcome_channel = self.bot.get_channel(self.channels.where(name="welcome").first())
+
+        message = self.welcome_message.format(
             member_name=member.mention,
-            info_id=CONFIG.server.channels.info,
-            rules_id=CONFIG.server.channels.rules,
-            roles_id=CONFIG.server.channels.roles,
-            intro_id=CONFIG.server.channels.introductions
+            info_id=self.channels.where(name="info").first(),
+            rules_id=self.channels.where(name="rules").first(),
+            roles_id=self.channels.where(name="roles").first(),
+            intro_id=self.channels.where(name="introductions").first()
         )
-        await welcome.send(message)
+
+        await welcome_channel.send(message)
 
     @Cog.listener()
     async def on_member_join(self, member):
