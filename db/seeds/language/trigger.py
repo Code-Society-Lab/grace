@@ -13,7 +13,7 @@ def seed_database():
     linus_trigger = Trigger(
         name="Linus",
         positive_emoji_code=":penguin:",
-        negative_emoji_code=':rage:',
+        negative_emoji_code=':pouting_face:',
     )
 
     linus_trigger.save()
