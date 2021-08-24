@@ -6,8 +6,8 @@ from bot import app
 from bot.helpers.color_helper import get_color_digit
 from bot.models.bot import Bot
 from bot.models.extension import Extension
-from bot.utils.extensions import get_extensions
-from bot.utils.models import load_models
+from utils.extensions import get_extensions
+from utils.models import load_models
 
 
 class Grace(commands.Bot):

@@ -1,7 +1,7 @@
 from sqlalchemy import Integer, Column, String
 from bot import app
 from bot.classes.state import State
-from bot.utils.extensions import get_extension
+from utils.extensions import get_extension
 from db.model import Model
 
 

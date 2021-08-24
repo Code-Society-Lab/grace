@@ -1,7 +1,7 @@
 from logging import warning, critical
 from sqlalchemy.exc import ProgrammingError, SQLAlchemyError
 from bot import app
-from bot.utils.models import load_models
+from utils.models import load_models
 from db.seed import get_seeds
 
 
