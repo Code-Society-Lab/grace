@@ -27,6 +27,8 @@ def create_all():
 
         app.create_database()
         app.create_tables()
+
+        warning("Database created successfully!")
     except SQLAlchemyError as e:
         critical(f"Error: {e}")
 
@@ -39,6 +41,8 @@ def delete_all():
 
         app.drop_tables()
         app.drop_database()
+
+        warning("Database deleted successfully!")
     except SQLAlchemyError as e:
         critical(f"Error: {e}")
 
