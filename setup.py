@@ -15,6 +15,7 @@ setup(
         'coloredlogs',
         'logger',
         'sqlalchemy',
+        'sqlalchemy-utils',
         'discord',
         'emoji',
         'nltk',

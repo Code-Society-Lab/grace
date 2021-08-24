@@ -1,63 +1,38 @@
 #!/usr/bin/env python
 
 from argparse import ArgumentParser
-from logging import critical, warning, info
-from sqlalchemy.exc import SQLAlchemyError, ProgrammingError
 from config.environments.environment import Environment
-from db.seed import get_seeds
-from bot import app
-from bot.utils.models import load_models
 from bot.grace import start
-
-
-def seed():
-    try:
-        load_models()
-        warning("Seeding...")
-
-        for seed_module in get_seeds():
-            seed_module.seed_database()
-
-            warning("Seeding completed successfully")
-    except ProgrammingError as e:
-        critical(f"Error: {e}")
-
-
-def create():
-    try:
-        load_models()
-        warning("Creating tables...")
-
-        app.create_tables()
-
-        warning("Tables created successfully.")
-    except SQLAlchemyError as e:
-        critical(f"Error: {e}")
+from scripts.database import *
 
 
 def set_environment(environment):
-    from bot import app
-
-    warning(f"setting up environment, {environment}")
+    warning(f"Setting up the environment to '{environment}'")
 
     app.config.set_environment(environment)
     app.reload_database()
 
 
 if __name__ == '__main__':
+    commands = {
+        'start': start,
+        "db create": create_all,
+        "db delete": delete_all,
+        "db seed": seed_tables,
+    }
     parser = ArgumentParser()
-    commands = {"create": create, "seed": seed, "start": start}
 
-    parser.add_argument('command', type=str, help="COMMAND", choices=["start", "create", "seed"])
+    parser.add_argument('command', type=str, nargs="*", help="[CATEGORY (Optional)] [ACTION]")
+
     parser.add_argument(
         '-e',
         type=Environment,
-        help="-e environment (The default is production unless the BOT_ENV environment variable is defined)",
-        choices=list(Environment)
+        choices=list(Environment),
+        help="-e environment (The default is production unless the BOT_ENV environment variable is defined)"
     )
 
     args = parser.parse_args()
-    command = commands.get(args.command)
+    command = commands.get(' '.join(args.command))
 
     if args.e:
         set_environment(args.e)
