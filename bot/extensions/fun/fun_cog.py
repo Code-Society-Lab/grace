@@ -11,7 +11,7 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
     def __init__(self, bot):
         self.bot = bot
 
-    @command(name='eightball', aliases=['8ball'], usage='question', help="Ask a question and be answered.")
+    @command(name='eightball', aliases=['8ball'], help="Ask a question and be answered.", usage="{question}")
     @cooldown(4, 30, BucketType.user)
     async def eightball(self, ctx, *args):
         if args:
@@ -27,7 +27,7 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
 
         await ctx.send(embed=answer_embed)
 
-    @command(name='quote', help='Sends an inspirational quote', usage='')
+    @command(name='quote', help='Sends an inspirational quote')
     async def quote_command(self, ctx):
         response = get('https://api.forismatic.com/api/1.0/?method=getQuote&format=json&lang=en')
         quote = '{quoteText} \n-- {quoteAuthor}'.format(**loads(response.text))
