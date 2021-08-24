@@ -15,4 +15,4 @@ class Bot(app.base, Model):
     default_color_code = Column(String)
 
     welcome_message = Column(String)
-    channels = relationship("BotChannel")
+    channels = relationship("BotChannel", cascade="all")

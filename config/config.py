@@ -19,7 +19,12 @@ class Config:
         load_dotenv()
 
         if not Config.is_environment_loaded():
-            Config.set_environment(Environment(getenv("BOT_ENV")))
+            if getenv("BOT_ENV"):
+                environment = Environment(getenv("BOT_ENV"))
+            else:
+                environment = Environment("production")
+
+            Config.set_environment(environment)
 
     @property
     def database_uri(self):
