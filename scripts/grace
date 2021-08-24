@@ -37,4 +37,7 @@ if __name__ == '__main__':
     if args.e:
         set_environment(args.e)
 
-    command()
+    if command:
+        command()
+    else:
+        parser.error("Command not recognized")
