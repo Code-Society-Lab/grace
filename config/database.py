@@ -2,27 +2,27 @@
 
 
 class Production:
-    ADAPTER = "postgresql"
-    USER = "ruby"
-    PASSWORD = "Malassi12"
+    ADAPTER = "ADAPTER"
+    USER = "USERNAME"
+    PASSWORD = "PASSWORD"
     HOST = "localhost"
-    PORT = 5433
+    PORT = 1234
     DATABASE = "grace_production"
 
 
 class Development:
-    ADAPTER = "postgresql"
-    USER = "ruby"
-    PASSWORD = "Malassi12"
+    ADAPTER = "ADAPTER"
+    USER = "USERNAME"
+    PASSWORD = "PASSWORD"
     HOST = "localhost"
-    PORT = 5433
+    PORT = 1234
     DATABASE = "grace_development"
 
 
 class Test:
-    ADAPTER = "postgresql"
-    USER = "ruby"
-    PASSWORD = "Malassi12"
+    ADAPTER = "ADAPTER"
+    USER = "USERNAME"
+    PASSWORD = "PASSWORD"
     HOST = "localhost"
-    PORT = 5433
+    PORT = 1234
     DATABASE = "grace_test"
