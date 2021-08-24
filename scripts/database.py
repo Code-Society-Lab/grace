@@ -1,48 +1,48 @@
-from logging import warning, critical
-from sqlalchemy.exc import ProgrammingError, SQLAlchemyError
+from logging import warning, critical, info, error
+from sqlalchemy.exc import ProgrammingError, SQLAlchemyError, IntegrityError
 from bot import app
 from utils.models import load_models
 from db.seed import get_seeds
+
+load_models()
 
 
 def seed_tables():
     warning("Seeding tables...")
 
     try:
-        load_models()
+        try:
+            for seed_module in get_seeds():
+                info(f"Seeding {seed_module.__name__}")
+                seed_module.seed_database()
+        except IntegrityError as e:
+            error(f"Error: {e}, Skipping")
 
-        for seed_module in get_seeds():
-            seed_module.seed_database()
-
-            warning("Seeding completed successfully")
+        warning("Seeding completed successfully")
     except ProgrammingError as e:
-        critical(f"Error: {e}")
+        critical(f"Critical Error: {e}")
 
 
 def create_all():
-    warning("Creating all...")
+    warning(f"Creating all...")
 
     try:
-        load_models()
-
         app.create_database()
         app.create_tables()
 
         warning("Database created successfully!")
     except SQLAlchemyError as e:
-        critical(f"Error: {e}")
+        critical(f"Critical Error: {e}")
 
 
 def delete_all():
     warning("Deleting all...")
 
     try:
-        load_models()
-
         app.drop_tables()
         app.drop_database()
 
         warning("Database deleted successfully!")
     except SQLAlchemyError as e:
-        critical(f"Error: {e}")
+        critical(f"Critical Error: {e}")
 
