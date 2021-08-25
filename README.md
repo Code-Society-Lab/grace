@@ -42,7 +42,8 @@ Second, execute the database creation command, `grace db create`.
 
 Finally, seed the database by executing `grace db seed`.
 
-Once the bot is up and running you can execute the commands by using the default prefix (`::`) or by pinging the bot. (Ex. `::help` or `@Grace help`)
+
+You can now start the bot by executing `grace start`. Once the bot is up and running you can execute the commands by using the default prefix (`::`) or by pinging the bot. (Ex. `::help` or `@Grace help`)
 
 _**N.B.** The bot must be added to a server in order to use it. Please refer to [Discord's docs](https://discord.com/developers/docs) to get help setting up your bot._
 
