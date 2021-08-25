@@ -1,12 +1,30 @@
 #!/usr/bin/env python
 
+"""Grace Bot script
+
+This script contains the basic commands needed to manage the bot.
+
+Basic Commands:
+    Bot Command(s):
+        `start` : Start the bot
+    Database Command(s):
+        `db create` : Creates the database and the tables
+        `db delete` : Deletes the tables and the database
+        `db seed` : Seed the database tables (Initialize the default values)
+
+All commands can takes the optional `-e` argument with a string, to define the environment.
+Available environment: (production [default], development, test)
+"""
+
 from argparse import ArgumentParser
-from config.environments.environment import Environment
+from config.environment import Environment
 from bot.grace import start
 from scripts.database import *
 
 
 def set_environment(environment):
+    """Set the environment by the given string (Available: 'production', 'development', 'test')"""
+
     warning(f"Setting up the environment to '{environment}'")
 
     app.config.set_environment(environment)
@@ -23,7 +41,6 @@ if __name__ == '__main__':
     parser = ArgumentParser()
 
     parser.add_argument('command', type=str, nargs="*", help="[CATEGORY (Optional)] [ACTION]")
-
     parser.add_argument(
         '-e',
         type=Environment,

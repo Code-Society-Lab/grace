@@ -50,6 +50,8 @@ class Grace(commands.Bot):
 
 
 def start():
+    """Starts the bot"""
+
     load_models()
     extensions = get_extensions()
 
