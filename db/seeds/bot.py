@@ -3,6 +3,8 @@ from bot.models.bot_channel import BotChannel
 
 
 def seed_database():
+    """The seed function. This function is needed in order for the seed to be executed"""
+
     grace = Bot(
         name="Grace",
         prefix="::",
