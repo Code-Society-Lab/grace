@@ -2,15 +2,15 @@
 
 """Grace Bot script
 
-This script contains the basic commands needed to manage the bot.
+This script contains the commands needed to manage the bot.
 
 Basic Commands:
     Bot Command(s):
-        `start` : Start the bot
+        `start` : Starts the bot (`ctrl+c` to stop the bot)
     Database Command(s):
         `db create` : Creates the database and the tables
         `db delete` : Deletes the tables and the database
-        `db seed` : Seed the database tables (Initialize the default values)
+        `db seed` : Seeds the database tables (Initialize the default values)
 
 All commands can takes the optional `-e` argument with a string, to define the environment.
 Available environment: (production [default], development, test)
