@@ -1,3 +1,8 @@
+"""Database commands
+
+This module contains the additional database commands for the `grace` script.
+"""
+
 from logging import warning, critical, info, error
 from sqlalchemy.exc import ProgrammingError, SQLAlchemyError, IntegrityError
 from bot import app
