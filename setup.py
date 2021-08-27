@@ -14,11 +14,13 @@ setup(
         'python-dotenv',
         'coloredlogs',
         'logger',
-        'python-dotenv',
+        'sqlalchemy',
+        'sqlalchemy-utils',
         'discord',
         'emoji',
         'nltk',
         'discord-pretty-help',
         'requests'
     ],
+    scripts=['scripts/grace'],
 )

@@ -7,7 +7,7 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
     def __init__(self, bot):
         self.bot = bot
 
-    @command(name='info', help='Show information about the bot', usage=f'info')
+    @command(name='info', help='Show information about the bot')
     async def info_command(self, ctx):
         embed = Embed(
             color=self.bot.default_color,
@@ -34,7 +34,20 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
             inline=True
         )
 
-        embed.set_footer(text=f"Need help? Send {self.bot.command_prefix}help")
+        embed.add_field(
+            name="Need help?",
+            value=f"Send '{ctx.prefix}help'",
+            inline=False
+        )
+
+        await ctx.send(embed=embed)
+
+    @command(name='ping', help='shows the bot latency')
+    async def ping_command(self, ctx):
+        embed = Embed(
+            color=self.bot.default_color,
+            description=f"pong :ping_pong:  {round(self.bot.latency * 1000)}ms",
+        )
 
         await ctx.send(embed=embed)
 
