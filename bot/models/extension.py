@@ -10,7 +10,7 @@ class Extension(app.base, Model):
     __tablename__ = "extensions"
 
     id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False, unique=True)
+    name = Column(String(255), nullable=False, unique=True)
     _state = Column("state", Integer, default=1)
 
     @property

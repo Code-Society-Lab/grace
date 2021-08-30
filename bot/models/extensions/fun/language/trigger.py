@@ -10,9 +10,9 @@ class Trigger(app.base, Model):
     __tablename__ = 'triggers'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String, unique=True)
-    positive_emoji_code = Column(String, nullable=False)
-    negative_emoji_code = Column(String, nullable=False)
+    name = Column(String(255), unique=True)
+    positive_emoji_code = Column(String(255), nullable=False)
+    negative_emoji_code = Column(String(255), nullable=False)
     trigger_words = relationship("TriggerWord")
 
     @property

@@ -8,5 +8,5 @@ class Answer(app.base, Model):
     __tablename__ = "answers"
 
     id = Column(Integer, primary_key=True)
-    answer = Column(String, nullable=False)
+    answer = Column(String(255), nullable=False)
 
