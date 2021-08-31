@@ -1,4 +1,4 @@
-from discord.ext.commands import Cog
+from discord.ext.commands import Cog, command
 from logging import info
 from discord import Member
 from bot.grace import Grace
@@ -11,14 +11,15 @@ class WelcomeCog(Cog):
         self.welcome_message = self.bot.config.welcome_message
 
     async def print_welcome_message(self, member: Member):
-        welcome_channel = self.bot.get_channel(self.channels.where(name="welcome").first())
+        welcome_message = self.bot.config.welcome_message
+        welcome_channel = self.bot.get_channel(self.bot.config.get_channel(name="welcome").channel_id)
 
-        message = self.welcome_message.format(
+        message = welcome_message.format(
             member_name=member.mention,
-            info_id=self.channels.where(name="info").first(),
-            rules_id=self.channels.where(name="rules").first(),
-            roles_id=self.channels.where(name="roles").first(),
-            intro_id=self.channels.where(name="introductions").first()
+            info_id=self.bot.config.get_channel(name="info").channel_id,
+            rules_id=self.bot.config.get_channel(name="rules").channel_id,
+            roles_id=self.bot.config.get_channel(name="roles").channel_id,
+            intro_id=self.bot.config.get_channel(name="introductions").channel_id
         )
 
         await welcome_channel.send(message)
