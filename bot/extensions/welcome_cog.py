@@ -25,9 +25,15 @@ class WelcomeCog(Cog):
         await welcome_channel.send(message)
 
     @Cog.listener()
+    async def on_member_update(self, before, after):
+        if not before.bot and (before.pending and not after.pending):
+            info(f"{after.display_name} accepted the rules!")
+            await self.print_welcome_message(after)
+
+    @Cog.listener()
     async def on_member_join(self, member):
-        info(member.display_name)
-        await self.print_welcome_message(member)
+        """Will most probably be used to save the info a future log file"""
+        info(f"{member.display_name} joined the server!")
 
 
 def setup(bot):
