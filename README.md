@@ -47,7 +47,7 @@ You can now start the bot by executing `grace start`. Once the bot is up and run
 
 _**N.B.** The bot must be added to a server in order to use it. Please refer to [Discord's docs](https://discord.com/developers/docs) to get help setting up your bot._
 
-For now, `pip install .` must be run before `python bot /` when running the bot. Running the directory as a script in pycharm's run configuration will work too. This is liable to change.
+For now, `pip install .` must be run before `python bot/` when running the bot. Running the directory as a script in pycharm's run configuration will work too. This is liable to change.
 
 ## Contribution
 As mentioned in the description, we invite everyone to participate in the development of the bot. You can contribute to the project by simply opening an issue, by improving some current features or even by adding your own features.
