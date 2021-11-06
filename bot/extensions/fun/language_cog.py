@@ -1,7 +1,5 @@
-from logging import critical
-
-from discord.ext.commands import Cog, command
-from discord import Message
+from discord.ext.commands import Cog, command, group, has_permissions
+from discord import Message, Embed
 from nltk.tokenize import TweetTokenizer
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import nltk
@@ -21,9 +19,6 @@ class LanguageCog(Cog):
         self.tokenizer = TweetTokenizer()
         self.sid = SentimentIntensityAnalyzer()
 
-        # Linus trigger model
-        self.linus_trigger = Trigger.where(name="Linus").first()
-
     async def penguin_react(self, message: Message):
         """
         Checks to see if a message contains a reference to Linus (torvalds only), will be made more complicated
@@ -34,9 +29,11 @@ class LanguageCog(Cog):
         :param message: A discord message to check for references to our lord and savior.
         :return: None
         """
+        linus_trigger = Trigger.where(name="Linus").first()
+
         message_tokens = self.tokenizer.tokenize(message.content)
         tokenlist = list(map(lambda s: s.lower(), message_tokens))
-        linustarget = [i for i, x in enumerate(tokenlist) if x in self.linus_trigger.words]
+        linustarget = [i for i, x in enumerate(tokenlist) if x in linus_trigger.words]
         # Get the indices of all linuses in the message
 
         if linustarget:
@@ -58,18 +55,60 @@ class LanguageCog(Cog):
                 if sv['neu'] + sv['pos'] < sv['neg'] or sv['pos'] == 0.0:
                     fail = True
                     if sv['neg'] > sv['pos']:
-                        await message.add_reaction(self.linus_trigger.negative_emoji)
+                        await message.add_reaction(linus_trigger.negative_emoji)
                         return
-                overrideset = self.linus_trigger.words
+                overrideset = linus_trigger.words
                 if set(overrideset) & set(tokenlist):
                     fail = False
 
             if not fail:
-                await message.add_reaction(self.linus_trigger.positive_emoji)
+                await message.add_reaction(linus_trigger.positive_emoji)
 
     @Cog.listener()
     async def on_message(self, message):
         await self.penguin_react(message)
+
+    @group(name="triggers", help="Commands to manage triggers")
+    @has_permissions(administrator=True)
+    async def triggers_group(self, ctx):
+        if ctx.invoked_subcommand is None:
+            trigger = Trigger.where(name="Linus").first()
+
+            embed = Embed(
+                color=self.bot.default_color,
+                title=f"Triggers",
+                description="\n".join(trigger.words)
+            )
+
+            await ctx.send(embed=embed)
+
+    @triggers_group.command(name="add")
+    async def add_trigger_word(self, ctx, new_word):
+        trigger = Trigger.where(name="Linus").first()
+
+        if trigger:
+            if new_word in trigger.words:
+                await ctx.send(f"**{new_word}** is already a trigger")
+            else:
+                trigger.add_trigger_word(new_word)
+
+                await ctx.send(f"Trigger **{new_word}** added successfully")
+        else:
+            await ctx.send(f"Unable to add **{new_word}**")
+
+    @triggers_group.command(name="remove")
+    async def remove_trigger_word(self, ctx, old_word):
+        trigger = Trigger.where(name="Linus").first()
+
+        if trigger:
+            if old_word not in trigger.words:
+                await ctx.send(f"**{old_word}** is not a trigger")
+            else:
+                trigger.remove_trigger_word(old_word)
+
+                await ctx.send(f"Trigger **{old_word}** removed successfully")
+        else:
+            await ctx.send(f"Unable to remove **{old_word}**")
 
 
 def setup(bot):
