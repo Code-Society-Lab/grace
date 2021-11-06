@@ -30,3 +30,6 @@ class Trigger(app.base, Model):
 
     def add_trigger_word(self, trigger_word):
         TriggerWord(trigger_id=self.id, word=trigger_word).save()
+
+    def remove_trigger_word(self, trigger_word):
+        TriggerWord.where(trigger_id=self.id, word=trigger_word).first().delete()

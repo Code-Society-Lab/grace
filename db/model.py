@@ -1,3 +1,4 @@
+from sqlalchemy.exc import PendingRollbackError, IntegrityError
 from bot import app
 
 
@@ -11,25 +12,40 @@ class Model:
     def query(cls):
         """Return the model query object
 
-        Ex. ̀Model.query()`
+        :usage
+            Model.query()
+
+        :raises
+            PendingRollbackError, IntegrityError:
+                In case an exception is thrown during the query, the system will rollback
         """
 
-        return app.session.query(cls)
+        try:
+            return app.session.query(cls)
+        except (PendingRollbackError, IntegrityError):
+            app.session.rollback()
+            raise
 
     @classmethod
     def get(cls, primary_key_identifier):
         """Retrieve and returns the records with the given primary key identifier
 
-        Ex. ̀Model.get(5)`
+        :usage
+            Model.get(5)
+
+        :raises
+            PendingRollbackError, IntegrityError:
+                In case an exception is thrown during the query, the system will rollback
         """
 
         return cls.query().get(primary_key_identifier)
 
     @classmethod
     def all(cls):
-        """Retrieve and returns all records
+        """Retrieve and returns all records of the model
 
-        Ex. ̀Model.all()`
+        :usage
+            Model.all()
         """
 
         return cls.query().all()
@@ -38,14 +54,15 @@ class Model:
     def where(cls, **kwargs):
         """Retrieve and returns all records filtered by the given conditions
 
-        Ex. ̀Model.where(name="some name", id=5)`
+        :usage
+            Model.where(name="some name", id=5)
         """
 
         return cls.query().filter_by(**kwargs)
 
     @classmethod
     def count(cls):
-        """Returns the number of records
+        """Returns the number of records for the model
 
         Ex. ̀Model.count()`
         """
@@ -56,22 +73,40 @@ class Model:
         """Saves the model. If commit is set to `True` it will "[f]lush pending changes and commit
         the current transaction.". For more information about `commit`, read sqlalchemy docs.
 
-        Ex. `model.save()`
+        :usage
+            model.save()
+
+        :raises
+            PendingRollbackError, IntegrityError:
+                In case an exception is thrown during the query, the system will rollback
         """
 
-        app.session.add(self)
+        try:
+            app.session.add(self)
 
-        if commit:
-            app.session.commit()
+            if commit:
+                app.session.commit()
+        except (PendingRollbackError, IntegrityError):
+            app.session.rollback()
+            raise
 
     def delete(self, commit=True):
         """Delete the model. If commit is set to `True` it will "flush pending changes and commit
         the current transaction.". For more information about `commit`, read sqlalchemy docs.
 
-        Ex. `model.delete()`
+        :usage
+            model.delete()
+
+        :raises
+            PendingRollbackError, IntegrityError:
+                In case an exception is thrown during the query, the system will rollback
         """
 
-        app.session.delete(self)
+        try:
+            app.session.delete(self)
 
-        if commit:
-            app.session.commit()
+            if commit:
+                app.session.commit()
+        except (PendingRollbackError, IntegrityError):
+            app.session.rollback()
+            raise
