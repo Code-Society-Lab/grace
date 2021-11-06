@@ -82,7 +82,7 @@ class LanguageCog(Cog):
 
             await ctx.send(embed=embed)
 
-    @triggers_group.command(name="add")
+    @triggers_group.command(name="add", help="Add a trigger word", usage="{new_word}")
     async def add_trigger_word(self, ctx, new_word):
         trigger = Trigger.where(name="Linus").first()
 
@@ -96,7 +96,7 @@ class LanguageCog(Cog):
         else:
             await ctx.send(f"Unable to add **{new_word}**")
 
-    @triggers_group.command(name="remove")
+    @triggers_group.command(name="remove", help="Remove a trigger word", usage="{old_word}")
     async def remove_trigger_word(self, ctx, old_word):
         trigger = Trigger.where(name="Linus").first()
 
