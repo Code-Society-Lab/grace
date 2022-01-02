@@ -3,7 +3,7 @@ from config import database
 from os import getenv
 from dotenv import load_dotenv
 from config.environment import Environment
-
+from pathlib import Path
 
 class Config:
     """This class is the application configurations. It loads all the configuration for the given environment
@@ -15,13 +15,13 @@ class Config:
     object, they will all share the same environment. This is to say, that the config objects are identical.
     """
 
-    # The config environment
-    # If you plan on accessing the environment, use the `environment` property
     __environment = None
 
     def __init__(self):
-        load_dotenv()
+        base_path = Path()
+        current_dir = base_path.cwd() / ".env"
 
+        load_dotenv(current_dir)
         bot_env = self.get("BOT_ENV")
 
         if not Config.is_environment_loaded():
@@ -54,8 +54,6 @@ class Config:
 
     @property
     def database_environment(self):
-        """"Returns the current environment database configs"""
-
         databases = {
             'Development': database.Development,
             'Test': database.Test
@@ -65,14 +63,10 @@ class Config:
 
     @property
     def environment(self):
-        """Return the loaded current environment"""
-
         return Config.__environment
 
     @classmethod
     def set_environment(cls, environment):
-        """Set the config environment"""
-
         if isinstance(environment, Environment):
             cls.__environment = environment.get_config()
             cls.load_logs()
@@ -81,14 +75,10 @@ class Config:
 
     @classmethod
     def is_environment_loaded(cls):
-        """Returns `True` if the environment is loaded and false if the environment is not loaded"""
-
         return cls.__environment is not None
 
     @classmethod
     def load_logs(cls):
-        """Loads the logging system"""
-
         install(
             fmt="[%(asctime)s] %(programname)s %(levelname)s %(message)s",
             programname=f"({Config.__environment.__class__.__name__})"
