@@ -38,7 +38,7 @@ class Config:
         database_uri = self.get("DATABASE_URL")
 
         if database_uri:
-            return database_uri
+            return database_uri.replace("postgres://", "postgresql://", 1)
         else:
             return "{adapter}://{user}:{password}@{host}:{port}/{database}".format(
                 adapter=self.database_environment.ADAPTER,
