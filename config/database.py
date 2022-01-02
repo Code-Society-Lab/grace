@@ -11,9 +11,9 @@ class Production:
 
 
 class Development:
-    ADAPTER = "ADAPTER"
-    USER = "USERNAME"
-    PASSWORD = "PASSWORD"
+    ADAPTER = "sqlite"
+    USER = ""
+    PASSWORD = ""
     HOST = "localhost"
     PORT = 1234
     DATABASE = "grace_development"
