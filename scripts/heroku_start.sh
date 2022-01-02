@@ -2,7 +2,10 @@
 
 pip install .
 
-if `echo "select * from bots;" | psql $DATABASE_URL`; then
+bots_query=$(echo "select * from bots;" | psql $DATABASE_URL)
+error="ERROR"
+
+if [[ "$bots_query" == *"$error"* ]]; then
   echo "Config Found, booting"
   grace start
 else
