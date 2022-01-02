@@ -1,1 +1,1 @@
-web: scripts/heroku_start.sh
+worker: scripts/heroku_start.sh
