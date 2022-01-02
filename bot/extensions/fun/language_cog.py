@@ -112,9 +112,5 @@ class LanguageCog(Cog):
 
 
 def setup(bot):
-    try:
-        nltk.data.find('vader_lexicon')
-    except LookupError:
-        nltk.download('vader_lexicon')
 
     bot.add_cog(LanguageCog(bot))
