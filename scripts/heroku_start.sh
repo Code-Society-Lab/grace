@@ -1,5 +1,7 @@
 #!/bin/bash
 
+pip install .
+
 if psql $DATABASE_URL "SELECT * FROM bots;"; then
   echo "Config Found, booting"
   grace start
