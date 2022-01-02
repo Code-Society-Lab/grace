@@ -2,7 +2,6 @@ from discord.ext.commands import Cog, command, group, has_permissions
 from discord import Message, Embed
 from nltk.tokenize import TweetTokenizer
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
-import nltk
 from bot.models.extensions.fun.language.trigger import Trigger
 
 
@@ -18,6 +17,11 @@ class LanguageCog(Cog):
 
         self.tokenizer = TweetTokenizer()
         self.sid = SentimentIntensityAnalyzer()
+
+    async def name_react(self, message: Message):
+        grace_trigger = Trigger.where(name="Grace").first()
+        if self.bot.user.mentioned_in(message) and not message.content.startswith('<@!'):
+            await message.add_reaction(grace_trigger.positive_emoji)
 
     async def penguin_react(self, message: Message):
         """
@@ -67,6 +71,7 @@ class LanguageCog(Cog):
     @Cog.listener()
     async def on_message(self, message):
         await self.penguin_react(message)
+        await self.name_react(message)
 
     @group(name="triggers", help="Commands to manage triggers")
     @has_permissions(administrator=True)
