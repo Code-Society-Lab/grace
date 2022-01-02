@@ -21,3 +21,12 @@ def seed_database():
     for trigger_word in trigger_words:
         linus_trigger.add_trigger_word(trigger_word)
 
+    grace_trigger = Trigger(
+        name="Grace",
+        positive_emoji_code=":blush:",
+        negative_emoji_code=":cry:",
+    )
+
+    grace_trigger.save()
+
+
