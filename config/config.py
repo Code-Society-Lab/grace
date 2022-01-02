@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from config.environment import Environment
 from pathlib import Path
 
+
 class Config:
     """This class is the application configurations. It loads all the configuration for the given environment
 
