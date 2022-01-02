@@ -38,6 +38,9 @@ class Config:
         database_uri = self.get("DATABASE_URL")
 
         if database_uri:
+            # We need this .replace method because Heroku stores the database uri using
+            # 'postgres' as the adapter name, but sqlalchemy does not support this anymore,
+            # and requires the adapter to be declared as 'postgresql'
             return database_uri.replace("postgres://", "postgresql://", 1)
         else:
             return "{adapter}://{user}:{password}@{host}:{port}/{database}".format(

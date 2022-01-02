@@ -20,7 +20,8 @@ setup(
         'emoji',
         'nltk',
         'discord-pretty-help',
-        'requests'
+        'requests',
+        'psycopg2'
     ],
     scripts=['scripts/grace'],
 )
