@@ -35,15 +35,19 @@ class Config:
     @property
     def database_uri(self):
         """Creates and returns the database URI"""
+        database_uri = self.get("DATABASE_URL")
 
-        return "{adapter}://{user}:{password}@{host}:{port}/{database}".format(
-            adapter=self.database_environment.ADAPTER,
-            user=self.database_environment.USER,
-            password=self.database_environment.PASSWORD,
-            host=self.database_environment.HOST,
-            port=self.database_environment.PORT,
-            database=self.database_environment.DATABASE
-        )
+        if database_uri:
+            return database_uri
+        else:
+            return "{adapter}://{user}:{password}@{host}:{port}/{database}".format(
+                adapter=self.database_environment.ADAPTER,
+                user=self.database_environment.USER,
+                password=self.database_environment.PASSWORD,
+                host=self.database_environment.HOST,
+                port=self.database_environment.PORT,
+                database=self.database_environment.DATABASE
+            )
 
     @property
     def database_environment(self):
