@@ -4,7 +4,7 @@ from setuptools import *
 setup(
     name='Grace',
     description='The Code Society community Bot',
-    version='0.0.0',
+    version='1.2.0',
     author='Code Society Lab',
     author_email='',
     python_require='>=3.0',
@@ -20,7 +20,9 @@ setup(
         'emoji',
         'nltk',
         'discord-pretty-help',
-        'requests'
+        'requests',
+        'psycopg2',
+        'psycopg2-binary'
     ],
     scripts=['scripts/grace'],
 )

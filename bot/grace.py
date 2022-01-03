@@ -61,6 +61,6 @@ def start():
             grace_bot.load_extensions(extensions)
             grace_bot.run(app.token)
         else:
-            critical("Token not defined. Add your token in '.env'")
+            critical("Unable to find the token. Make sure your current directory contains an '.env' and that 'DISCORD_TOKEN' is defined")
     except LoginFailure as e:
         critical(f"{e}")
