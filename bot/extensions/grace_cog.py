@@ -51,6 +51,10 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
 
         await ctx.send(embed=embed)
 
+    @command(name='hopper', help='The legend of Grace Hopper')
+    async def hopper_command(self, ctx):
+        await ctx.send("https://www.smbc-comics.com/?id=2516")
+
 
 def setup(bot):
     bot.add_cog(GraceCog(bot))
