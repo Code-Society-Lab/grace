@@ -12,7 +12,6 @@ class ModerationCog(Cog, name="moderation", description="Collection of administr
         self.bot = bot
 
     @command(name='kick', help="Allows a staff member to kick a user based on their behaviour.")
-    @cooldown(1, 5, BucketType.user)
     @has_permissions(kick_members=True)
     async def kick(self, ctx, member: Member, reason="No reason"):
             guild = ctx.guild
@@ -22,7 +21,6 @@ class ModerationCog(Cog, name="moderation", description="Collection of administr
             await guild.kick(user=member)
 
     @command(name='ban', help="Allows a staff member to ban a user based on their behaviour.")
-    @cooldown(1, 5, BucketType.user)
     @has_permissions(ban_members=True)
     async def ban(self, ctx, member: Member, reason="No reason"):
             guild = ctx.guild
