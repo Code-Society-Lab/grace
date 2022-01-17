@@ -1,4 +1,3 @@
-import asyncio
 from discord import Member
 import datetime
 from json import loads
@@ -15,7 +14,7 @@ class ModerationCog(Cog, name="moderation", description="Collection of administr
     @command(name='kick', help="Allows a staff member to kick a user based on their behaviour.")
     @cooldown(1, 5, BucketType.user)
     @has_permissions(kick_members=True)
-    async def kick(self, ctx, member: Member , reason="No reason"):
+    async def kick(self, ctx, member: Member, reason="No reason"):
             guild = ctx.guild
             embed = Embed(title="Grace Moderation - KICK", description=f"{member.mention} has been kicked.", timestamp=datetime.datetime.utcnow())
             embed.add_field(name="Reason: ", value=str(reason), inline=False)
@@ -25,7 +24,7 @@ class ModerationCog(Cog, name="moderation", description="Collection of administr
     @command(name='ban', help="Allows a staff member to ban a user based on their behaviour.")
     @cooldown(1, 5, BucketType.user)
     @has_permissions(ban_members=True)
-    async def ban(self, ctx, member: Member , reason="No reason"):
+    async def ban(self, ctx, member: Member, reason="No reason"):
             guild = ctx.guild
             embed = Embed(title="Grace Moderation - BAN", description=f"{member.mention} has been banned.", timestamp=datetime.datetime.utcnow())
             embed.add_field(name="Reason: ", value=str(reason), inline=False)
@@ -38,8 +37,8 @@ class ModerationCog(Cog, name="moderation", description="Collection of administr
         user = await self.bot.fetch_user(id)
         await ctx.guild.unban(user)
         embed = Embed(title="Grace Moderation - UNBAN", description=f"{user.name} has been unbanned.", timestamp=datetime.datetime.utcnow())
-        await ctx.reply(embed=embed)      
-        
+        await ctx.reply(embed=embed)
+
     @command(name='purge', help="Deletes n amount of messages.")
     @has_permissions(manage_messages=True)
     async def purge(self, ctx, limit: int):
@@ -47,6 +46,7 @@ class ModerationCog(Cog, name="moderation", description="Collection of administr
         embed = Embed(title="Grace Moderation - PURGE", description=f"Chat cleared by {ctx.author.mention}")
         await ctx.send(embed=embed)
         await ctx.message.delete()
+
 
 def setup(bot):
     bot.add_cog(ModerationCog(bot))
