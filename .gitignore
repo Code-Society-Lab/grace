@@ -4,7 +4,5 @@ __pycache__
 Grace.egg-info
 venv
 channel_store
-build/
-*.db
-config/database.cfg
-config/settings.cfg
+config/database.py
+grace_db.db
