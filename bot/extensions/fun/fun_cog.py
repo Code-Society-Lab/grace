@@ -1,7 +1,8 @@
 from json import loads
+from PIL import Image
 from discord.ext.commands.cooldowns import BucketType
 from discord.ext.commands import Cog, command, cooldown
-from discord import Embed
+from discord import Embed, File
 from requests import get
 import random
 from bot.models.extensions.fun.eightball.answer import Answer
@@ -29,7 +30,8 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
 
     @command(name='quote', help='Sends an inspirational quote')
     async def quote_command(self, ctx):
-        response = get('https://api.forismatic.com/api/1.0/?method=getQuote&format=json&lang=en')
+        response = get(
+            'https://api.forismatic.com/api/1.0/?method=getQuote&format=json&lang=en')
         quote = '{quoteText} \n-- {quoteAuthor}'.format(**loads(response.text))
 
         embed = Embed(
@@ -38,6 +40,20 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
         )
 
         await ctx.send(embed=embed)
+
+    @command(name='rgb', help='''Displays the RGB color entered by the user.''')
+    async def color_command(self, ctx, R: int, G: int, B: int):
+        rgb = (R, G, B)
+        img = Image.new('RGB', (200, 200), rgb)
+
+        img.save('color.png')
+        embed = Embed(
+            color=self.bot.default_color,
+            description='Here goes your color!'
+        )
+        embed.set_image(url="attachment://filename.png")
+        file = File('color.png')
+        await ctx.send(embed=embed, file=file)
 
 
 def setup(bot):
