@@ -1,3 +1,4 @@
+import os
 from json import loads
 from PIL import Image
 from discord.ext.commands.cooldowns import BucketType
@@ -42,9 +43,8 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
         await ctx.send(embed=embed)
 
     @command(name='rgb', help='''Displays the RGB color entered by the user.''')
-    async def color_command(self, ctx, R: int, G: int, B: int):
-        rgb = (R, G, B)
-        img = Image.new('RGB', (200, 200), rgb)
+    async def color_command(self, ctx, r: int, g: int, b: int):
+        img = Image.new('RGB', (200, 200), (r, g, b))
 
         img.save('color.png')
         embed = Embed(
@@ -54,6 +54,8 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
         embed.set_image(url="attachment://filename.png")
         file = File('color.png')
         await ctx.send(embed=embed, file=file)
+
+        os.remove('color.png')
 
 
 def setup(bot):
