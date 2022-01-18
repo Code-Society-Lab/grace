@@ -51,7 +51,6 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
             color=self.bot.default_color,
             description='Here goes your color!'
         )
-        embed.set_image(url="attachment://filename.png")
         file = File('color.png')
         await ctx.send(embed=embed, file=file)
 
