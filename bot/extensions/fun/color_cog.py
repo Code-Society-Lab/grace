@@ -35,7 +35,7 @@ class ColorCog(Cog, name="Color", description="Collection of commands to display
     @color_group.command(name='hex', help="Displays the color of the hexcode entered by the user.", usage="color hex {hexadecimal string}"))
     async def hex_command(self, ctx, hex: str):
         if not hex.startswith('#'):
-            hex = '#' + hex
+            hex = f'#{hex}'
 
         img = Image.new('RGB', (200, 200), hex)
 
