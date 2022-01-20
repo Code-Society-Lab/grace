@@ -41,6 +41,5 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
         await ctx.send(embed=embed)
 
 
-
 def setup(bot):
     bot.add_cog(FunCog(bot))
