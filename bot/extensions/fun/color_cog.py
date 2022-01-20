@@ -26,13 +26,13 @@ class ColorCog(Cog, name="Color", description="Collection of commands to display
 
         os.remove('color.png')
 
-    @color_group.command(name='rgb', help="Displays the RGB color entered by the user.")
+    @color_group.command(name='rgb', help="Displays the RGB color entered by the user." usage="color rgb {red integer} {green integer} {blue integer}")
     async def rgb_command(self, ctx, r: int, g: int, b: int):
         img = Image.new('RGB', (200, 200), (r, g, b))
 
         await self.display_color(img, ctx)
 
-    @color_group.command(name='hex', help="Displays the color of the hexcode entered by the user.")
+    @color_group.command(name='hex', help="Displays the color of the hexcode entered by the user.", usage="color hex {hexadecimal string}"))
     async def hex_command(self, ctx, hex: str):
         if not hex.startswith('#'):
             hex = '#' + hex
