@@ -5,7 +5,7 @@ from bot.extensions.utils.command_error_handler import CommandErrorHandler
 from discord import Embed, File
 
 
-class ColorCog(Cog, name="Color", description="Collection of commands to for colors."):
+class ColorCog(Cog, name="Color", description="Collection of commands to bring color in your life."):
     def __init__(self, bot):
         self.bot = bot
 
@@ -45,7 +45,7 @@ class ColorCog(Cog, name="Color", description="Collection of commands to for col
     @show_group.command(
         name='hex',
         help="Displays the color of the hexcode entered by the user.",
-        usage="color hex {hexadecimal string}"
+        usage="color show hex {hexadecimal string}"
     )
     async def hex_command(self, ctx, hex: str):
         if not hex.startswith('#'):
