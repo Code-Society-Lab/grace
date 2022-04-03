@@ -34,7 +34,8 @@ class MusicCog(Cog, name="Music", description="Fun music-related commands."):
             )
 
         else:
-            instrument = Instrument()
+            harmonics = {'atk': 0.1, 'dec': 0.1, 'rls': 0.15, 'sus_factor': 0.6}
+            instrument = Instrument(harmonics=harmonics)
 
             notes = [music_sym.Note(pitch=arg, octave=3) for arg in args]
             track = music_sym.Track(list(range(len(args))), notes)
