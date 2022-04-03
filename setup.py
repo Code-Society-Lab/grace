@@ -25,6 +25,7 @@ setup(
         'psycopg2-binary',
         'scipy',
         'pymusicbox'
+        'pillow',
     ],
     scripts=['scripts/grace'],
 )
