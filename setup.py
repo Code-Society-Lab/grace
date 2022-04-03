@@ -22,7 +22,9 @@ setup(
         'discord-pretty-help',
         'requests',
         'psycopg2',
-        'psycopg2-binary'
+        'psycopg2-binary',
+        'scipy',
+        'pymusicbox'
     ],
     scripts=['scripts/grace'],
 )
