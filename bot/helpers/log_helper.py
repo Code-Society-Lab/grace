@@ -1,34 +1,32 @@
-from discord import Embed, Color
+from logging import info, warning, error, critical
+from discord import Embed
 from datetime import datetime
 
 
-def info(title, description):
-    return LogHelper(title, description, "info")
-
-
-def warning(title, description):
-    return LogHelper(title, description, "warning")
-
-
-def danger(title, description):
-    return LogHelper(title, description, "danger")
+def log(bot, title, description):
+    return LogHelper(bot, title, description)
 
 
 class LogHelper:
-    __DEFAULT_COLOR = Color.from_rgb(0, 123, 255)
     COLORS_BY_LOG_LEVEL = {
-        "danger": Color.from_rgb(220, 53, 69),
-        "warning": Color.from_rgb(255, 193, 7),
-        "info": __DEFAULT_COLOR,
+        "critical": critical,
+        "error": "",
+        "warning": "",
+        "info": "",
     }
 
-    def __init__(self, title, description, log_level="info"):
+    def __init__(self, bot, title, description, log_level=None):
+        self.bot = bot
+        self.channel = bot.get_channel_by_name("moderation_logs")
         self.embed = Embed(
             title=title,
             description=description,
-            color=self.COLORS_BY_LOG_LEVEL.get(log_level, self.__DEFAULT_COLOR),
+            color=self.get_color_by_log_level(log_level),
             timestamp=datetime.utcnow()
         )
+
+    def get_color_by_log_level(self, log_level):
+        return self.COLORS_BY_LOG_LEVEL.get(log_level, self.bot.default_color)
 
     def add_field(self, name, value):
         self.embed.add_field(
@@ -37,5 +35,5 @@ class LogHelper:
             inline=False
         )
 
-    async def send(self, channel):
-        await channel.send(embed=self.embed)
+    def __await__(self):
+        yield from self.channel.send(embed=self.embed).__await__()
