@@ -46,45 +46,39 @@ class Application:
 
     def load_database(self):
         """Loads and connects to the database using the loaded config"""
-
         self.engine = create_engine(self.config.database_uri, echo=self.config.environment.SQLALCHEMY_ECHO)
 
-        try:
-            self.engine.connect()
-        except OperationalError as e:
-            critical(f"Unable to create the 'Application': {e}")
-            exit()
+        if database_exists(self.config.database_uri):
+            try:
+                self.engine.connect()
+            except OperationalError as e:
+                critical(f"Unable to create the 'Application': {e}")
+                exit()
 
     def unload_database(self):
         """Unloads the current database"""
-
         self.engine = None
         Application.__session = None
 
     def reload_database(self):
         """Reload the database. This function can be use in case there's a dynamic environment change."""
-
         self.unload_database()
         self.load_database()
 
     def create_database(self):
-        """Creates the current loaded database"""
-
+        """Creates the database for the current loaded config"""
         if not database_exists(self.config.database_uri):
             create_database(self.config.database_uri)
 
     def drop_database(self):
-        """Drops the current loaded database"""
-
+        """Drops the database for the current loaded config"""
         if not database_exists(self.config.database_uri):
             drop_database(self.config.database_uri)
 
     def create_tables(self):
         """Creates all the tables for the current loaded database"""
-
         self.base.metadata.create_all(self.engine)
 
     def drop_tables(self):
         """Drops all the tables for the current loaded database"""
-
         self.base.metadata.drop_all(self.engine)

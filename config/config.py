@@ -88,5 +88,4 @@ class Config:
     @classmethod
     def get(cls, variable_name):
         """Returns the given environment variable"""
-
         return getenv(variable_name)

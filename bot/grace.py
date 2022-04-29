@@ -1,4 +1,5 @@
 from logging import info, warning, critical
+from typing import List
 from discord import Intents, LoginFailure
 from discord.ext import commands
 from pretty_help import PrettyHelp
@@ -12,27 +13,23 @@ from utils.models import load_models
 
 class Grace(commands.Bot):
     def __init__(self):
-        self.bot_config = Bot.where(name="Grace").first()
+        self.config: Bot = Bot.get_current()
 
         super().__init__(
-            command_prefix=commands.when_mentioned_or(self.bot_config.prefix),
-            description=self.bot_config.description,
+            command_prefix=commands.when_mentioned_or(self.config.prefix),
+            description=self.config.description,
             help_command=PrettyHelp(color=self.default_color),
             intents=Intents.all()
         )
 
     @property
-    def config(self):
-        return self.bot_config
-
-    @property
     def default_color(self):
-        return get_color_digit(self.bot_config.default_color_code)
+        return get_color_digit(self.config.default_color_code)
 
-    def load_extensions(self, modules):
+    def load_extensions(self, modules: List):
         for module in modules:
-            extension_name = module.split(".")[-1]
-            extension = Extension.where(name=extension_name).first()
+            extension_name: str = module.split(".")[-1]
+            extension: Extension = Extension.where(name=extension_name).first()
 
             if not extension:
                 warning(f"{extension_name} is not registered. Registering the extension.")
@@ -45,22 +42,30 @@ class Grace(commands.Bot):
             else:
                 info(f"{module} is disabled, thus it will not be loaded.")
 
+    def get_channel_by_name(self, name: str):
+        return self.get_channel(self.config.get_channel(name=name).channel_id)
+
     async def on_ready(self):
         info(f"{self.user.name}#{self.user.id} is online and ready to use!")
+
+    async def invoke(self, ctx):
+        info(f"'{ctx.command}' has been invoked by {ctx.author} ({ctx.author.nick})")
+        await super().invoke(ctx)
 
 
 def start():
     """Starts the bot"""
 
     load_models()
-    extensions = get_extensions()
+    extensions: List[str] = get_extensions()
 
     try:
         if app.token:
-            grace_bot = Grace()
+            grace_bot: Grace = Grace()
             grace_bot.load_extensions(extensions)
             grace_bot.run(app.token)
         else:
-            critical("Unable to find the token. Make sure your current directory contains an '.env' and that 'DISCORD_TOKEN' is defined")
+            critical("Unable to find the token. Make sure your current directory contains an '.env' and that "
+                     "'DISCORD_TOKEN' is defined")
     except LoginFailure as e:
-        critical(f"{e}")
+        critical(f"Impossible to login in. Err. {e}")
