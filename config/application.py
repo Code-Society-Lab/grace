@@ -1,94 +1,63 @@
-import importlib
-import pkgutil
 from logging import critical
-from coloredlogs import install
 from sqlalchemy import create_engine
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy_utils import database_exists, create_database, drop_database
-from bot import models
 from config.config import Config
 
 
 class Application:
-    """This class is the core of the application In other words, this class that manage the database, the application
-    environment and loads the configurations.
+    """This class is the core of the application, meaning that this class manage the base of the application. In other
+    words, this class that manage the database, the application environment and loads the configurations.
+
+    The application is created in the init of the bot so it accessible across all the app easily.
+    ```
+        app = Application()
+    `̀̀``
+
+    By default the configuration environment is loaded with `production` but it can be change by exporting the `BOT_ENV`
+    environment variable (available environments: `production`, `development`, `test`) or by setting the config with
+    the wanted environment.
 
     Note: The database uses SQLAlchemy ORM (https://www.sqlalchemy.org/).
     """
 
-    __config = None
+    # The current opened session.
+    # To access the session you should use the session property (Ex. `app.session`)
     __session = None
 
     def __init__(self):
-        self.__token = self.config.get("discord", "token")
-        self.__engine = None
-        self.__base = declarative_base()
+        self.config = Config()
+        self.token = self.config.get("DISCORD_TOKEN")
 
-    @property
-    def token(self):
-        return self.__token
+        self.engine = None
+        self.base = declarative_base()
 
-    @property
-    def base(self):
-        return self.__base
+        self.load_database()
 
     @property
     def session(self):
         """Instantiate the session for querying the database."""
-        if not Application.__session:
-            session = sessionmaker(bind=self.__engine)
+        if Application.__session is None:
+            session = sessionmaker(bind=self.engine)
             Application.__session = session()
 
         return Application.__session
 
-    @property
-    def config(self):
-        if not Application.__config:
-            Application.__config = Config()
-
-        return Application.__config
-
-    @property
-    def bot(self):
-        return self.config.client
-
-    def load(self, environment):
-        """Sets the environment and loads all the component of the application"""
-        self.config.set_environment(environment)
-
-        self.load_logs()
-        self.load_models()
-        self.load_database()
-
-    def load_models(self):
-        """Import all models in the `bot/models` folder."""
-        for module in pkgutil.walk_packages(models.__path__, f"{models.__name__}."):
-            if not module.ispkg:
-                importlib.import_module(module.name)
-
-    def load_logs(self):
-        install(
-            self.config.environment.get("log_level"),
-            fmt="[%(asctime)s] %(programname)s %(levelname)s %(message)s",
-            programname=f"{self.bot['name'].capitalize()} ({self.config.current_environment})"
-        )
-
     def load_database(self):
         """Loads and connects to the database using the loaded config"""
-        self.__engine = create_engine(
-            self.config.database_uri,
-            echo=self.config.environment.getboolean("sqlalchemy_echo"))
+        self.engine = create_engine(self.config.database_uri, echo=self.config.environment.SQLALCHEMY_ECHO)
 
         if database_exists(self.config.database_uri):
             try:
-                self.__engine.connect()
+                self.engine.connect()
             except OperationalError as e:
-                critical(f"Unable to load the 'database': {e}")
+                critical(f"Unable to create the 'Application': {e}")
+                exit()
 
     def unload_database(self):
         """Unloads the current database"""
-        Application.__engine = None
+        self.engine = None
         Application.__session = None
 
     def reload_database(self):
@@ -99,21 +68,17 @@ class Application:
     def create_database(self):
         """Creates the database for the current loaded config"""
         if not database_exists(self.config.database_uri):
-            self.load_database()
             create_database(self.config.database_uri)
 
     def drop_database(self):
         """Drops the database for the current loaded config"""
         if not database_exists(self.config.database_uri):
-            self.load_database()
             drop_database(self.config.database_uri)
 
     def create_tables(self):
         """Creates all the tables for the current loaded database"""
-        self.load_database()
-        self.__base.metadata.create_all(self.__engine)
+        self.base.metadata.create_all(self.engine)
 
     def drop_tables(self):
         """Drops all the tables for the current loaded database"""
-        self.load_database()
-        self.__base.metadata.drop_all(self.__engine)
+        self.base.metadata.drop_all(self.engine)
