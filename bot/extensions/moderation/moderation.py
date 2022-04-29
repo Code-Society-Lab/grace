@@ -1,7 +1,6 @@
 from discord import Member
-from datetime import datetime
 from discord.ext.commands import Cog, command, has_permissions
-from discord import Embed
+from bot.helpers.log_helper import log
 
 
 class ModerationCog(Cog, name="moderation", description="Collection of administrative use commands."):
@@ -10,59 +9,37 @@ class ModerationCog(Cog, name="moderation", description="Collection of administr
 
     @command(name='kick', help="Allows a staff member to kick a user based on their behaviour.")
     @has_permissions(kick_members=True)
-    async def kick(self, ctx, member: Member, reason="No reason"):
-        channel = self.bot.get_channel(self.bot.config.get_channel(name="moderation_logs").channel_id)
-        embed = Embed(
-            title="Grace Moderation - KICK",
-            description=f"{member.mention} has been kicked.",
-            timestamp=datetime.utcnow()
-        )
-        embed.add_field(name="Reason: ", value=str(reason), inline=False)
+    async def kick(self, ctx, member: Member, reason="No reason given"):
+        log_event = log(self.bot, "KICK", f"{member.mention} has been kicked.")
+        log_event.add_field("Issuer: ", ctx.author)
+        log_event.add_field("Reason: ", reason)
 
-        await channel.reply(embed=embed)
         await ctx.guild.kick(user=member)
+        await log_event
 
     @command(name='ban', help="Allows a staff member to ban a user based on their behaviour.")
     @has_permissions(ban_members=True)
     async def ban(self, ctx, member: Member, reason="No reason"):
-        channel = self.bot.get_channel(self.bot.config.get_channel(name="moderation_logs").channel_id)
-        embed = Embed(
-            title="Grace Moderation - BAN",
-            description=f"{member.mention} has been banned.",
-            timestamp=datetime.utcnow()
-        )
-        embed.add_field(name="Reason: ", value=str(reason), inline=False)
+        log_event = log(self.bot, "BAN", f"{member.mention} has been banned.")
+        log_event.add_field("Issuer: ", ctx.author.mention)
+        log_event.add_field("Reason: ", reason)
 
-        await channel.send(embed=embed)
-        await ctx.guild.ban(user=member)
+        await ctx.guild.ban(user=member), log_event
 
     @command(name='unban', help="Allows a staff member to unban a user.")
     @has_permissions(ban_members=True)
     async def unban(self, ctx, user_id: int):
         user = await self.bot.fetch_user(user_id)
-        channel = self.bot.get_channel(self.bot.config.get_channel(name="moderation_logs").channel_id)
-        embed = Embed(
-            title="Grace Moderation - UNBAN",
-            description=f"{user.name} has been unbanned.",
-            timestamp=datetime.utcnow()
-        )
 
         await ctx.guild.unban(user)
-        await channel.send(embed=embed)
+        await log(self.bot, "UNBAN", f"{user.name} has been unbanned.")
 
     @command(name='purge', help="Deletes n amount of messages.")
     @has_permissions(manage_messages=True)
     async def purge(self, ctx, limit: int):
-        channel = self.bot.get_channel(self.bot.config.get_channel(name="moderation_logs").channel_id)
-        embed = Embed(
-            title="Grace Moderation - PURGE",
-            description=f"Chat cleared by {ctx.author.mention}",
-            timestamp=datetime.utcnow()
-        )
-
-        await ctx.channel.purge(limit=limit)
-        await channel.send(embed=embed)
         await ctx.message.delete()
+        await ctx.channel.purge(limit=limit)
+        await log(self.bot, "PURGE", f"{limit} message(s) purged by {ctx.author.mention} in {ctx.channel.mention}")
 
 
 def setup(bot):
