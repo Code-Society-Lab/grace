@@ -2,4 +2,4 @@ class Development:
     """Development configuration variable"""
 
     COLOREDLOGS_LOG_LEVEL = "DEBUG"
-    SQLALCHEMY_ECHO = True
+    SQLALCHEMY_ECHO = False

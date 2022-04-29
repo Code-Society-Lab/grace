@@ -1,23 +1,22 @@
+from typing import Any, Dict, Sized
+from sqlalchemy.orm import Query
 from sqlalchemy.exc import PendingRollbackError, IntegrityError
 from bot import app
 
 
 class Model:
-    """This class is the base class of all models.
-
-    It basically defines class methods and methods to simplify using the models.
-    """
+    """Base class of all models containing collection of command to query records."""
 
     @classmethod
-    def query(cls):
+    def query(cls) -> Query:
         """Return the model query object
 
         :usage
             Model.query()
 
-        :raises
+         :raises
             PendingRollbackError, IntegrityError:
-                In case an exception is thrown during the query, the system will rollback
+                In case an exception is thrown during the query, the system will roll back
         """
 
         try:
@@ -27,8 +26,8 @@ class Model:
             raise
 
     @classmethod
-    def get(cls, primary_key_identifier):
-        """Retrieve and returns the records with the given primary key identifier
+    def get(cls, primary_key_identifier: int) -> Any:
+        """Retrieve and returns the records with the given primary key identifier. None if none is found.
 
         :usage
             Model.get(5)
@@ -41,7 +40,7 @@ class Model:
         return cls.query().get(primary_key_identifier)
 
     @classmethod
-    def all(cls):
+    def all(cls) -> Sized:
         """Retrieve and returns all records of the model
 
         :usage
@@ -51,7 +50,20 @@ class Model:
         return cls.query().all()
 
     @classmethod
-    def where(cls, **kwargs):
+    def first(cls, limit: int = 1) -> Query:
+        """Retrieve N firsts records
+
+        :usage
+            Model.first()
+            Model.first(limit=100)
+        """
+
+        if limit == 1:
+            return cls.query().first()
+        return cls.query().limit(limit).all()
+
+    @classmethod
+    def where(cls, **kwargs: Dict[Any, Any]) -> Query:
         """Retrieve and returns all records filtered by the given conditions
 
         :usage
@@ -61,15 +73,15 @@ class Model:
         return cls.query().filter_by(**kwargs)
 
     @classmethod
-    def count(cls):
+    def count(cls) -> int:
         """Returns the number of records for the model
 
         Ex. ̀Model.count()`
         """
 
-        return len(cls.all())
+        return cls.query().count()
 
-    def save(self, commit=True):
+    def save(self, commit: bool = True):
         """Saves the model. If commit is set to `True` it will "[f]lush pending changes and commit
         the current transaction.". For more information about `commit`, read sqlalchemy docs.
 
@@ -90,7 +102,7 @@ class Model:
             app.session.rollback()
             raise
 
-    def delete(self, commit=True):
+    def delete(self, commit: bool = True):
         """Delete the model. If commit is set to `True` it will "flush pending changes and commit
         the current transaction.". For more information about `commit`, read sqlalchemy docs.
 

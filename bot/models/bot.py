@@ -1,9 +1,5 @@
-from logging import info
-
-import sqlalchemy.orm.exc
-from sqlalchemy import String, Column, Integer
+from sqlalchemy import String, Column, Integer, BigInteger
 from sqlalchemy.orm import relationship
-
 from bot import app
 from bot.models.bot_channel import BotChannel
 from db.model import Model
@@ -20,6 +16,10 @@ class Bot(app.base, Model):
 
     welcome_message = Column(String(255))
     channels = relationship("BotChannel", cascade="all")
+
+    @classmethod
+    def get_current(cls):
+        return cls.first()
 
     def get_channel(self, **kwargs):
         """Returns the corresponding channel informations
