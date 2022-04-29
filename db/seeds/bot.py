@@ -1,12 +1,12 @@
 from bot.models.bot import Bot
 from bot.models.bot_channel import BotChannel
+from bot import app
 
 
 def seed_database():
     """The seed function. This function is needed in order for the seed to be executed"""
-
     grace = Bot(
-        name="Grace",
+        name="main",
         prefix="::",
         description="Grace is the official Code Society Discord bot.",
         default_color_code="0xfffffe",
