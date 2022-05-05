@@ -4,6 +4,7 @@ from os import getenv
 from dotenv import load_dotenv
 from config.environment import Environment
 from pathlib import Path
+from config.settings import Settings
 
 
 class Config:
@@ -19,6 +20,8 @@ class Config:
     __environment = None
 
     def __init__(self):
+        self.settings = Settings()
+
         base_path = Path()
         current_dir = base_path.cwd() / ".env"
 
@@ -39,13 +42,13 @@ class Config:
             # and requires the adapter to be declared as 'postgresql'
             return database_uri.replace("postgres://", "postgresql://", 1)
         else:
-            return "{adapter}://{user}:{password}@{host}:{port}/grace_{database}".format(
+            return "{adapter}://{user}:{password}@{host}:{port}/{database}".format(
                 adapter=self.database_environment.ADAPTER,
                 user=self.database_environment.USER,
                 password=self.database_environment.PASSWORD,
                 host=self.database_environment.HOST,
                 port=self.database_environment.PORT,
-                database=self.environment_name.lower()
+                database=f"{self.settings.NAME}_{self.environment_name.lower()}"
             )
 
     @property
