@@ -13,9 +13,8 @@ class Config:
     object, they will all share the same environment. This is to say, that the config objects are identical.
     """
 
-    __environment = None
-
     def __init__(self):
+        self.__environment = None
         self.__config = ConfigParser()
 
         self.__config.read("config/settings.client.cfg")  # Do we want multiple client? Could change with the env?
@@ -65,13 +64,11 @@ class Config:
     def get(self, section_key, value_key):
         return self.__config.get(section_key, value_key)
 
-    @classmethod
-    def set_environment(cls, environment):
+    def set_environment(self, environment):
         if environment in ["production", "development", "test"]:
-            cls.__environment = environment
+            self.__environment = environment
         else:
             raise EnvironmentError("You need to pass a valid environment. [Production, Development, Test]")
 
-    @classmethod
-    def is_environment_loaded(cls):
-        return cls.__environment is not None
+    def is_environment_loaded(self):
+        return self.__environment is not None
