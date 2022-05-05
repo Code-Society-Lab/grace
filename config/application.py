@@ -1,11 +1,11 @@
 import importlib
 import pkgutil
 from logging import critical
+from coloredlogs import install
 from sqlalchemy import create_engine
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy_utils import database_exists, create_database, drop_database
-
 from bot import models
 from config.config import Config
 
@@ -49,6 +49,7 @@ class Application:
     def load(self, environment):
         self.config.set_environment(environment)
 
+        self.load_logs()
         self.load_models()
         self.load_database()
 
@@ -58,6 +59,12 @@ class Application:
         for module in pkgutil.walk_packages(models.__path__, f"{models.__name__}."):
             if not module.ispkg:
                 importlib.import_module(module.name)
+
+    def load_logs(self):
+        install(
+            fmt="[%(asctime)s] %(programname)s %(levelname)s %(message)s",
+            programname=f"Grace ({self.config.environment_name})"
+        )
 
     def load_database(self):
         """Loads and connects to the database using the loaded config"""

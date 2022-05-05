@@ -69,20 +69,12 @@ class Config:
     def set_environment(cls, environment):
         if isinstance(environment, Environment):
             cls.__environment = environment.get_config()
-            cls.load_logs()
         else:
             raise EnvironmentError("You need to pass a valid environment. [Production, Development, Test]")
 
     @classmethod
     def is_environment_loaded(cls):
         return cls.__environment is not None
-
-    @classmethod
-    def load_logs(cls):
-        install(
-            fmt="[%(asctime)s] %(programname)s %(levelname)s %(message)s",
-            programname=f"Grace ({type(Config.__environment).__name__})"
-        )
 
     @classmethod
     def get(cls, variable_name):
