@@ -47,9 +47,10 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     command = commands.get(' '.join(args.command))
+    environment = args.e or Environment.PRODUCTION
 
     if command:
-        set_environment(args.e or Environment.PRODUCTION)
+        set_environment(environment)
         command()
     else:
         parser.error("Command not recognized")
