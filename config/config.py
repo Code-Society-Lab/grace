@@ -1,10 +1,8 @@
-from coloredlogs import install
 from config import database
 from os import getenv
 from dotenv import load_dotenv
 from config.environment import Environment
-from pathlib import Path
-from config.settings import Settings
+from configparser import ConfigParser
 
 
 class Config:
@@ -20,21 +18,17 @@ class Config:
     __environment = None
 
     def __init__(self):
-        self.settings = Settings()
+        self.__config = ConfigParser()
+        self.__config.read('config/settings.client.cfg')  # Do we want multiple client? Could change with the env?
+        self.__config.read("config/database.cfg")
 
-        base_path = Path()
-        current_dir = base_path.cwd() / ".env"
-
-        load_dotenv(current_dir)
-        bot_env = self.get("BOT_ENV")
-
-        if not Config.is_environment_loaded() and bot_env:
-            Config.set_environment(Environment(bot_env))
+        load_dotenv(".env")
 
     @property
     def database_uri(self):
         """Creates and returns the database URI"""
-        database_uri = self.get("DATABASE_URL")
+        # TODO SQLite is supported by SQLAlchmey, thus we need to rework the wat it currently works to get ride of .env
+        database_uri = getenv("DATABASE_URL")
 
         if database_uri:
             # We need this .replace method because Heroku stores the database uri using
@@ -42,23 +36,23 @@ class Config:
             # and requires the adapter to be declared as 'postgresql'
             return database_uri.replace("postgres://", "postgresql://", 1)
         else:
+            # TODO The port should be optional. Maybe we'll need ot create a more complex builder for managing that.
             return "{adapter}://{user}:{password}@{host}:{port}/{database}".format(
-                adapter=self.database_environment.ADAPTER,
-                user=self.database_environment.USER,
-                password=self.database_environment.PASSWORD,
-                host=self.database_environment.HOST,
-                port=self.database_environment.PORT,
-                database=f"{self.settings.NAME}_{self.environment_name.lower()}"
+                adapter=self.database["adapter"],
+                user=self.database["user"],
+                password=self.database["password"],
+                host=self.database["host"],
+                port=self.database["port"],
+                database=f"{self.client['name']}_{self.environment_name.lower()}"
             )
 
     @property
-    def database_environment(self):
-        databases = {
-            'Development': database.Development,
-            'Test': database.Test
-        }
+    def database(self):
+        return self.__config[self.environment_name.lower()]
 
-        return databases.get(self.environment_name, database.Production)
+    @property
+    def client(self):
+        return self.__config["client"]
 
     @property
     def environment(self):
@@ -67,6 +61,9 @@ class Config:
     @property
     def environment_name(self):
         return type(self.environment).__name__
+
+    def get(self, section_key, value_key):
+        return self.__config.get(section_key, value_key)
 
     @classmethod
     def set_environment(cls, environment):
@@ -78,8 +75,3 @@ class Config:
     @classmethod
     def is_environment_loaded(cls):
         return cls.__environment is not None
-
-    @classmethod
-    def get(cls, variable_name):
-        """Returns the given environment variable"""
-        return getenv(variable_name)

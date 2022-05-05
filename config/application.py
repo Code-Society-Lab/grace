@@ -11,28 +11,17 @@ from config.config import Config
 
 
 class Application:
-    """This class is the core of the application, meaning that this class manage the base of the application. In other
-    words, this class that manage the database, the application environment and loads the configurations.
-
-    The application is created in the init of the bot so it accessible across all the app easily.
-    ```
-        app = Application()
-    `̀̀``
-
-    By default the configuration environment is loaded with `production` but it can be change by exporting the `BOT_ENV`
-    environment variable (available environments: `production`, `development`, `test`) or by setting the config with
-    the wanted environment.
+    """This class is the core of the application In other words, this class that manage the database, the application
+    environment and loads the configurations.
 
     Note: The database uses SQLAlchemy ORM (https://www.sqlalchemy.org/).
     """
 
-    # The current opened session.
-    # To access the session you should use the session property (Ex. `app.session`)
     __session = None
 
     def __init__(self):
         self.config = Config()
-        self.token = self.config.get("DISCORD_TOKEN")
+        self.token = self.config.get("discord", "token")
 
         self.engine = None
         self.base = declarative_base()
@@ -48,7 +37,7 @@ class Application:
 
     @property
     def bot(self):
-        return self.config.settings
+        return self.config.client
 
     def load(self, environment):
         """Sets the environment and loads all the component of the application"""
@@ -60,7 +49,6 @@ class Application:
 
     def load_models(self):
         """Import all models in the `bot/models` folder."""
-
         for module in pkgutil.walk_packages(models.__path__, f"{models.__name__}."):
             if not module.ispkg:
                 importlib.import_module(module.name)
@@ -68,7 +56,7 @@ class Application:
     def load_logs(self):
         install(
             fmt="[%(asctime)s] %(programname)s %(levelname)s %(message)s",
-            programname=f"{self.bot.NAME.capitalize()} ({self.config.environment_name})"
+            programname=f"{self.bot['name'].capitalize()} ({self.config.environment_name})"
         )
 
     def load_database(self):
