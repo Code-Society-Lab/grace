@@ -4,7 +4,6 @@ from discord import Intents, LoginFailure
 from discord.ext import commands
 from pretty_help import PrettyHelp
 from bot import app
-from bot.helpers.color_helper import get_color_digit
 from bot.models.bot import Bot
 from bot.models.extension import Extension
 from utils.extensions import get_extensions
@@ -24,7 +23,7 @@ class Grace(commands.Bot):
 
     @property
     def default_color(self):
-        return get_color_digit(self.config.default_color_code)
+        return int(self.config.default_color_code, 16)
 
     def load_extensions(self, modules: List):
         for module in modules:
