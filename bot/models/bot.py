@@ -44,8 +44,8 @@ class Bot(app.base, Model):
                 get_channel(id="827698582861512714")
             ```
         """
-        channel_name = kwargs.get("name", None)
-        channel_id = kwargs.get("id", None)
+        channel_name = kwargs.get("name")
+        channel_id = kwargs.get("id")
 
         if channel_name:
             channel = BotChannel.where(bot_id=self.id, channel_name=channel_name)
@@ -56,5 +56,3 @@ class Bot(app.base, Model):
 
         if channel:
             return channel.first()
-
-        return None
