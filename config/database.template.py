@@ -9,7 +9,7 @@
         You might need to also include the driver used.
 
     USER
-        The should contain the username you're using to connect to the database.
+        This should contain the username you're using to connect to the your database.
 
     PASSWORD
         The password is your database user password.
@@ -31,9 +31,6 @@ class Production:
     HOST = "localhost"
     PORT = 1234
 
-    # This will be removed and build in config
-    DATABASE = "grace_production"
-
 
 class Development:
     ADAPTER = "ADAPTER"
@@ -41,7 +38,6 @@ class Development:
     PASSWORD = "PASSWORD"
     HOST = "localhost"
     PORT = 5432
-    DATABASE = "grace_development"
 
 
 class Test:
@@ -50,4 +46,3 @@ class Test:
     PASSWORD = "PASSWORD"
     HOST = "localhost"
     PORT = 1234
-    DATABASE = "grace_test"
