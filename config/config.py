@@ -25,13 +25,8 @@ class Config:
         load_dotenv(current_dir)
         bot_env = self.get("BOT_ENV")
 
-        if not Config.is_environment_loaded():
-            if bot_env:
-                environment = Environment(bot_env)
-            else:
-                environment = Environment("production")
-
-            Config.set_environment(environment)
+        if not Config.is_environment_loaded() and bot_env:
+            Config.set_environment(Environment(bot_env))
 
     @property
     def database_uri(self):
@@ -44,13 +39,13 @@ class Config:
             # and requires the adapter to be declared as 'postgresql'
             return database_uri.replace("postgres://", "postgresql://", 1)
         else:
-            return "{adapter}://{user}:{password}@{host}:{port}/{database}".format(
+            return "{adapter}://{user}:{password}@{host}:{port}/grace_{database}".format(
                 adapter=self.database_environment.ADAPTER,
                 user=self.database_environment.USER,
                 password=self.database_environment.PASSWORD,
                 host=self.database_environment.HOST,
                 port=self.database_environment.PORT,
-                database=self.database_environment.DATABASE
+                database=self.environment_name.lower()
             )
 
     @property
@@ -60,11 +55,15 @@ class Config:
             'Test': database.Test
         }
 
-        return databases.get(self.environment.__class__.__name__, database.Production)
+        return databases.get(self.environment_name, database.Production)
 
     @property
     def environment(self):
         return Config.__environment
+
+    @property
+    def environment_name(self):
+        return type(self.environment).__name__
 
     @classmethod
     def set_environment(cls, environment):
@@ -82,7 +81,7 @@ class Config:
     def load_logs(cls):
         install(
             fmt="[%(asctime)s] %(programname)s %(levelname)s %(message)s",
-            programname=f"({Config.__environment.__class__.__name__})"
+            programname=f"Grace ({type(Config.__environment).__name__})"
         )
 
     @classmethod

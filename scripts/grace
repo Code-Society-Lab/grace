@@ -24,11 +24,8 @@ from scripts.database import *
 
 def set_environment(environment):
     """Set the environment by the given string (Available: 'production', 'development', 'test')"""
-
-    warning(f"Setting up the environment to '{environment}'")
-
-    app.config.set_environment(environment)
-    app.reload_database()
+    app.load(environment)
+    info(f"Environment set to '{str(environment)}'")
 
 
 if __name__ == '__main__':
@@ -51,10 +48,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
     command = commands.get(' '.join(args.command))
 
-    if args.e:
-        set_environment(args.e)
-
     if command:
+        set_environment(args.e or Environment.PRODUCTION)
         command()
     else:
         parser.error("Command not recognized")
