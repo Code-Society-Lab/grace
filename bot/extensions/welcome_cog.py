@@ -6,14 +6,15 @@ from bot.models.bot_channel import BotChannel
 
 
 class WelcomeCog(Cog):
+    WELCOME_MESSAGE = "Hi {member_name}! Welcome to the **Code Society**.\n\nBefore posting please:\n    - Take a" \
+                      "moment to read the <#{info_id}> and the <#{rules_id}>.\n    - Choose some <#{roles_id}>.\n" \
+                      "- Feel free to introduce yourself in <#{intro_id}>."
+
     def __init__(self, bot: Grace):
         self.bot: Grace = bot
-        self.welcome_message = self.bot.config.welcome_message
 
     def get_welcome_message(self, member: Member):
-        welcome_message = self.bot.config.welcome_message
-
-        return welcome_message.format(
+        return self.WELCOME_MESSAGE.format(
             member_name=member.mention,
             info_id=BotChannel.get_by_name(name="info").channel_id,
             rules_id=BotChannel.get_by_name(name="rules").channel_id,
