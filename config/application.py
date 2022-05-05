@@ -1,8 +1,12 @@
+import importlib
+import pkgutil
 from logging import critical
 from sqlalchemy import create_engine
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy_utils import database_exists, create_database, drop_database
+
+from bot import models
 from config.config import Config
 
 
@@ -33,8 +37,6 @@ class Application:
         self.engine = None
         self.base = declarative_base()
 
-        self.load_database()
-
     @property
     def session(self):
         """Instantiate the session for querying the database."""
@@ -43,6 +45,19 @@ class Application:
             Application.__session = session()
 
         return Application.__session
+
+    def load(self, environment):
+        self.config.set_environment(environment)
+
+        self.load_models()
+        self.load_database()
+
+    def load_models(self):
+        """Import all models in the `bot/models` folder."""
+
+        for module in pkgutil.walk_packages(models.__path__, f"{models.__name__}."):
+            if not module.ispkg:
+                importlib.import_module(module.name)
 
     def load_database(self):
         """Loads and connects to the database using the loaded config"""
@@ -68,17 +83,21 @@ class Application:
     def create_database(self):
         """Creates the database for the current loaded config"""
         if not database_exists(self.config.database_uri):
+            self.load_database()
             create_database(self.config.database_uri)
 
     def drop_database(self):
         """Drops the database for the current loaded config"""
         if not database_exists(self.config.database_uri):
+            self.load_database()
             drop_database(self.config.database_uri)
 
     def create_tables(self):
         """Creates all the tables for the current loaded database"""
+        self.load_database()
         self.base.metadata.create_all(self.engine)
 
     def drop_tables(self):
         """Drops all the tables for the current loaded database"""
+        self.load_database()
         self.base.metadata.drop_all(self.engine)
