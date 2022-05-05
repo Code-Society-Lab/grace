@@ -46,6 +46,10 @@ class Application:
 
         return Application.__session
 
+    @property
+    def bot(self):
+        return self.config.settings
+
     def load(self, environment):
         """Sets the environment and loads all the component of the application"""
         self.config.set_environment(environment)
@@ -64,7 +68,7 @@ class Application:
     def load_logs(self):
         install(
             fmt="[%(asctime)s] %(programname)s %(levelname)s %(message)s",
-            programname=f"Grace ({self.config.environment_name})"
+            programname=f"{self.bot.NAME.capitalize()} ({self.config.environment_name})"
         )
 
     def load_database(self):
@@ -75,8 +79,7 @@ class Application:
             try:
                 self.engine.connect()
             except OperationalError as e:
-                critical(f"Unable to create the 'Application': {e}")
-                exit()
+                critical(f"Unable to load the 'database': {e}")
 
     def unload_database(self):
         """Unloads the current database"""
