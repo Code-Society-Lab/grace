@@ -17,10 +17,10 @@ class Application:
     Note: The database uses SQLAlchemy ORM (https://www.sqlalchemy.org/).
     """
 
+    __config = None
     __session = None
 
     def __init__(self):
-        self.config = Config()
         self.token = self.config.get("discord", "token")
         self.engine = None
         self.base = declarative_base()
@@ -28,11 +28,17 @@ class Application:
     @property
     def session(self):
         """Instantiate the session for querying the database."""
-        if Application.__session is None:
+        if not Application.__session:
             session = sessionmaker(bind=self.engine)
             Application.__session = session()
 
         return Application.__session
+
+    @property
+    def config(self):
+        if not Application.__config:
+            Application.__config = Config()
+        return Application.__config
 
     @property
     def bot(self):
