@@ -56,7 +56,6 @@ class Config:
 
     @property
     def environment(self):
-        # return Config.__environment
         return self.__config[self.__environment]
 
     @property
