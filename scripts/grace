@@ -17,15 +17,14 @@ Available environment: (production [default], development, test)
 """
 
 from argparse import ArgumentParser
-from config.environment import Environment
 from bot.grace import start
 from scripts.database import *
 
 
-def set_environment(environment):
+def set_environment(env):
     """Set the environment by the given string (Available: 'production', 'development', 'test')"""
-    app.load(environment)
-    info(f"Environment set to '{str(environment)}'")
+    app.load(env)
+    info(f"Environment set to '{env}'")
 
 
 if __name__ == '__main__':
@@ -40,14 +39,14 @@ if __name__ == '__main__':
     parser.add_argument('command', type=str, nargs="*", help="[CATEGORY (Optional)] [ACTION]")
     parser.add_argument(
         '-e',
-        type=Environment,
-        choices=list(Environment),
+        type=str,
+        choices=["production", "development", "test"],
         help="-e environment (The default is production unless the BOT_ENV environment variable is defined)"
     )
 
     args = parser.parse_args()
     command = commands.get(' '.join(args.command))
-    environment = args.e or Environment.PRODUCTION
+    environment = args.e or "production"
 
     if command:
         set_environment(environment)
