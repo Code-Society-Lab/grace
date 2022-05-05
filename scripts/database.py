@@ -37,20 +37,14 @@ def create_all():
         critical(f"Critical Error: {e}")
 
 
-def drop_all():
-    warning("Dropping all...")
+def delete_all():
+    warning("Deleting all...")
 
     try:
         app.drop_tables()
         app.drop_database()
 
-        info("Database dropped successfully!")
+        info("Database deleted successfully!")
     except SQLAlchemyError as e:
         critical(f"Critical Error: {e}")
 
-def reset():
-    warning("Resetting the database")
-
-    drop_all()
-    create_all()
-    seed_tables()

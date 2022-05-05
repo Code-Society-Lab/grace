@@ -17,40 +17,39 @@ Available environment: (production [default], development, test)
 """
 
 from argparse import ArgumentParser
+from config.environment import Environment
 from bot.grace import start
 from scripts.database import *
 
 
-def load_application(env):
+def set_environment(environment):
     """Set the environment by the given string (Available: 'production', 'development', 'test')"""
-    app.load(env)
-    info(f"Environment set to '{env}'")
+    app.load(environment)
+    info(f"Environment set to '{str(environment)}'")
 
 
 if __name__ == '__main__':
     commands = {
         'start': start,
         "db create": create_all,
-        "db drop": drop_all,
+        "db delete": delete_all,
         "db seed": seed_tables,
-        "db reset": reset,
     }
     parser = ArgumentParser()
 
     parser.add_argument('command', type=str, nargs="*", help="[CATEGORY (Optional)] [ACTION]")
     parser.add_argument(
         '-e',
-        type=str,
-        choices=["production", "development", "test"],
+        type=Environment,
+        choices=list(Environment),
         help="-e environment (The default is production unless the BOT_ENV environment variable is defined)"
     )
 
     args = parser.parse_args()
     command = commands.get(' '.join(args.command))
-    environment = args.e or "production"
 
     if command:
-        app.load(environment)
+        set_environment(args.e or Environment.PRODUCTION)
         command()
     else:
         parser.error("Command not recognized")
