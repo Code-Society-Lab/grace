@@ -38,6 +38,7 @@ class Application:
     def config(self):
         if not Application.__config:
             Application.__config = Config()
+
         return Application.__config
 
     @property
