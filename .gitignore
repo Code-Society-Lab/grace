@@ -8,4 +8,3 @@ build/
 *.db
 config/database.cfg
 config/settings.client.cfg
-config/database.py

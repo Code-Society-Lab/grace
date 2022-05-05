@@ -1,7 +1,5 @@
-from config import database
 from os import getenv
 from dotenv import load_dotenv
-from config.environment import Environment
 from configparser import ConfigParser
 
 
@@ -19,8 +17,10 @@ class Config:
 
     def __init__(self):
         self.__config = ConfigParser()
-        self.__config.read('config/settings.client.cfg')  # Do we want multiple client? Could change with the env?
+
+        self.__config.read("config/settings.client.cfg")  # Do we want multiple client? Could change with the env?
         self.__config.read("config/database.cfg")
+        self.__config.read("config/environment.cfg")
 
         load_dotenv(".env")
 
@@ -43,12 +43,12 @@ class Config:
                 password=self.database["password"],
                 host=self.database["host"],
                 port=self.database["port"],
-                database=f"{self.client['name']}_{self.environment_name.lower()}"
+                database=f"{self.client['name']}_{self.__environment}"
             )
 
     @property
     def database(self):
-        return self.__config[self.environment_name.lower()]
+        return self.__config[self.__environment]
 
     @property
     def client(self):
@@ -56,19 +56,20 @@ class Config:
 
     @property
     def environment(self):
-        return Config.__environment
+        # return Config.__environment
+        return self.__config[self.__environment]
 
     @property
-    def environment_name(self):
-        return type(self.environment).__name__
+    def current_environment(self):
+        return self.__environment
 
     def get(self, section_key, value_key):
         return self.__config.get(section_key, value_key)
 
     @classmethod
     def set_environment(cls, environment):
-        if isinstance(environment, Environment):
-            cls.__environment = environment.get_config()
+        if environment in ["production", "development", "test"]:
+            cls.__environment = environment
         else:
             raise EnvironmentError("You need to pass a valid environment. [Production, Development, Test]")
 
