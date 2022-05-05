@@ -47,6 +47,7 @@ class Application:
         return Application.__session
 
     def load(self, environment):
+        """Sets the environment and loads all the component of the application"""
         self.config.set_environment(environment)
 
         self.load_logs()
