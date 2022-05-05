@@ -64,4 +64,4 @@ def start():
             critical("Unable to find the token. Make sure your current directory contains an '.env' and that "
                      "'DISCORD_TOKEN' is defined")
     except LoginFailure as e:
-        critical(f"Impossible to login in. Err. {e}")
+        critical(f"Authentication failed : {e}")
