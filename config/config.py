@@ -69,6 +69,3 @@ class Config:
             self.__environment = environment
         else:
             raise EnvironmentError("You need to pass a valid environment. [Production, Development, Test]")
-
-    def is_environment_loaded(self):
-        return self.__environment is not None
