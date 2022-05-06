@@ -1,6 +1,16 @@
-from os import getenv
+import configparser
+from os import getenv, path
 from dotenv import load_dotenv
 from configparser import ConfigParser
+from sqlalchemy.engine import URL
+
+
+class EnvInterpolation(configparser.BasicInterpolation):
+    """Interpolation which expands environment variables in values."""
+
+    def before_get(self, parser, section, option, value, defaults):
+        value = super().before_get(parser, section, option, value, defaults)
+        return path.expandvars(value)
 
 
 class Config:
@@ -14,36 +24,29 @@ class Config:
     """
 
     def __init__(self):
-        self.__environment = None
-        self.__config = ConfigParser()
+        load_dotenv(".env")
 
-        self.__config.read("config/settings.client.cfg")  # Do we want multiple client? Could change with the env?
+        self.__environment = None
+        self.__config = ConfigParser(interpolation=EnvInterpolation())
+
+        # Do we want multiple client? Could change with the env?g
+        self.__config.read("config/settings.client.cfg")
         self.__config.read("config/database.cfg")
         self.__config.read("config/environment.cfg")
 
-        load_dotenv(".env")
-
     @property
     def database_uri(self):
-        """Creates and returns the database URI"""
-        # TODO SQLite is supported by SQLAlchmey, thus we need to rework the wat it currently works to get ride of .env
-        database_uri = getenv("DATABASE_URL")
+        if self.database.get("url"):
+            return self.database.get("url")
 
-        if database_uri:
-            # We need this .replace method because Heroku stores the database uri using
-            # 'postgres' as the adapter name, but sqlalchemy does not support this anymore,
-            # and requires the adapter to be declared as 'postgresql'
-            return database_uri.replace("postgres://", "postgresql://", 1)
-        else:
-            # TODO The port should be optional. Maybe we'll need ot create a more complex builder for managing that.
-            return "{adapter}://{user}:{password}@{host}:{port}/{database}".format(
-                adapter=self.database["adapter"],
-                user=self.database["user"],
-                password=self.database["password"],
-                host=self.database["host"],
-                port=self.database["port"],
-                database=f"{self.client['name']}_{self.__environment}"
-            )
+        return URL.create(
+            self.database["adapter"],
+            self.database.get("user"),
+            self.database.get("password"),
+            self.database.get("host"),
+            self.database.get("port"),
+            self.database.get("database", f"{self.client['name']}_{self.__environment}")
+        )
 
     @property
     def database(self):
@@ -61,8 +64,11 @@ class Config:
     def current_environment(self):
         return self.__environment
 
-    def get(self, section_key, value_key):
-        return self.__config.get(section_key, value_key)
+    def get(self, section_key, value_key, fallback=None):
+        return self.__config.get(section_key, value_key, fallback=fallback)
+
+    def getboolean(self, section_key, value_key):
+        return self.__config.getboolean(section_key, value_key, fallback=False)
 
     def set_environment(self, environment):
         if environment in ["production", "development", "test"]:
