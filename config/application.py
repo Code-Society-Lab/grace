@@ -21,15 +21,24 @@ class Application:
     __session = None
 
     def __init__(self):
-        self.token = self.config.get("discord", "token")
-        self.engine = None
-        self.base = declarative_base()
+        self.__token = self.config.get("discord", "token")
+        self.__engine = None
+        self.__base = declarative_base()
+
+    @property
+    def token(self):
+        return self.__token
+
+    @property
+    def base(self):
+        return self.__base
+        return self.__base
 
     @property
     def session(self):
         """Instantiate the session for querying the database."""
         if not Application.__session:
-            session = sessionmaker(bind=self.engine)
+            session = sessionmaker(bind=self.__engine)
             Application.__session = session()
 
         return Application.__session
@@ -68,19 +77,19 @@ class Application:
 
     def load_database(self):
         """Loads and connects to the database using the loaded config"""
-        self.engine = create_engine(
+        self.__engine = create_engine(
             self.config.database_uri,
             echo=self.config.environment.getboolean("sqlalchemy_echo"))
 
         if database_exists(self.config.database_uri):
             try:
-                self.engine.connect()
+                self.__engine.connect()
             except OperationalError as e:
                 critical(f"Unable to load the 'database': {e}")
 
     def unload_database(self):
         """Unloads the current database"""
-        self.engine = None
+        Application.__engine = None
         Application.__session = None
 
     def reload_database(self):
@@ -103,9 +112,9 @@ class Application:
     def create_tables(self):
         """Creates all the tables for the current loaded database"""
         self.load_database()
-        self.base.metadata.create_all(self.engine)
+        self.__base.metadata.create_all(self.__engine)
 
     def drop_tables(self):
         """Drops all the tables for the current loaded database"""
         self.load_database()
-        self.base.metadata.drop_all(self.engine)
+        self.__base.metadata.drop_all(self.__engine)

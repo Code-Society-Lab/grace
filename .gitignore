@@ -7,4 +7,4 @@ channel_store
 build/
 *.db
 config/database.cfg
-config/settings.client.cfg
+config/settings.cfg
