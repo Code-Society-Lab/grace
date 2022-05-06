@@ -61,7 +61,7 @@ class Application:
 
     def load_logs(self):
         install(
-            self.config.environment["COLOREDLOGS_LOG_LEVEL"],
+            self.config.environment.get("log_level"),
             fmt="[%(asctime)s] %(programname)s %(levelname)s %(message)s",
             programname=f"{self.bot['name'].capitalize()} ({self.config.current_environment})"
         )
@@ -70,7 +70,7 @@ class Application:
         """Loads and connects to the database using the loaded config"""
         self.engine = create_engine(
             self.config.database_uri,
-            echo=self.config.environment.getboolean("SQLALCHEMY_ECHO"))
+            echo=self.config.environment.getboolean("sqlalchemy_echo"))
 
         if database_exists(self.config.database_uri):
             try:
