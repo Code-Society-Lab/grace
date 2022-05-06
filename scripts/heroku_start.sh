@@ -2,6 +2,11 @@
 
 pip install .
 
+cat > config/database.cfg << 'EOF'
+[production]
+url=${DATABASE_URL}
+EOF
+
 bots_query=$(echo "select * from bots;" | psql $DATABASE_URL)
 error="ERROR"
 
