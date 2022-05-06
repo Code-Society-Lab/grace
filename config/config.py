@@ -29,8 +29,7 @@ class Config:
         self.__environment = None
         self.__config = ConfigParser(interpolation=EnvInterpolation())
 
-        # Do we want multiple client? Could change with the env?g
-        self.__config.read("config/settings.client.cfg")
+        self.__config.read(f"config/settings.cfg")
         self.__config.read("config/database.cfg")
         self.__config.read("config/environment.cfg")
 
@@ -66,9 +65,6 @@ class Config:
 
     def get(self, section_key, value_key, fallback=None):
         return self.__config.get(section_key, value_key, fallback=fallback)
-
-    def getboolean(self, section_key, value_key):
-        return self.__config.getboolean(section_key, value_key, fallback=False)
 
     def set_environment(self, environment):
         if environment in ["production", "development", "test"]:
