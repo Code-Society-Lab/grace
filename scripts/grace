@@ -21,7 +21,7 @@ from bot.grace import start
 from scripts.database import *
 
 
-def set_environment(env):
+def load_application(env):
     """Set the environment by the given string (Available: 'production', 'development', 'test')"""
     app.load(env)
     info(f"Environment set to '{env}'")
@@ -49,7 +49,7 @@ if __name__ == '__main__':
     environment = args.e or "production"
 
     if command:
-        set_environment(environment)
+        app.load(environment)
         command()
     else:
         parser.error("Command not recognized")
