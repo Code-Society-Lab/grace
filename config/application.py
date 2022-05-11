@@ -32,7 +32,6 @@ class Application:
     @property
     def base(self):
         return self.__base
-        return self.__base
 
     @property
     def session(self):
