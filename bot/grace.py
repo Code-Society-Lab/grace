@@ -3,6 +3,7 @@ from discord import Intents, LoginFailure
 from discord.ext import commands
 from pretty_help import PrettyHelp
 from bot import app
+from bot.models.channel import Channel
 from bot.models.extension import Extension
 from utils.extensions import get_extensions
 
@@ -40,7 +41,7 @@ class Grace(commands.Bot):
                 info(f"{module} is disabled, thus it will not be loaded.")
 
     def get_channel_by_name(self, name):
-        return self.get_channel(self.config.get_channel(name=name).channel_id)
+        return self.get_channel(Channel.get_by(channel_name=name).channel_id)
 
     async def on_ready(self):
         info(f"{self.user.name}#{self.user.id} is online and ready to use!")
