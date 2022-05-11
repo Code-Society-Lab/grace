@@ -1,4 +1,4 @@
-from discord.ext.commands import Cog, command, group, has_permissions
+from discord.ext.commands import Cog, group, has_permissions
 from discord import Message, Embed
 from nltk.tokenize import TweetTokenizer
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
@@ -19,7 +19,7 @@ class LanguageCog(Cog):
         self.sid = SentimentIntensityAnalyzer()
 
     async def name_react(self, message: Message):
-        grace_trigger = Trigger.where(name="Grace").first()
+        grace_trigger = Trigger.get_by(name="Grace")
         if self.bot.user.mentioned_in(message) and not message.content.startswith('<@!'):
             await message.add_reaction(grace_trigger.positive_emoji)
 
@@ -33,7 +33,7 @@ class LanguageCog(Cog):
         :param message: A discord message to check for references to our lord and savior.
         :return: None
         """
-        linus_trigger = Trigger.where(name="Linus").first()
+        linus_trigger = Trigger.get_by(name="Linus")
 
         message_tokens = self.tokenizer.tokenize(message.content)
         tokenlist = list(map(lambda s: s.lower(), message_tokens))
@@ -77,7 +77,7 @@ class LanguageCog(Cog):
     @has_permissions(administrator=True)
     async def triggers_group(self, ctx):
         if ctx.invoked_subcommand is None:
-            trigger = Trigger.where(name="Linus").first()
+            trigger = Trigger.get_by(name="Linus")
 
             embed = Embed(
                 color=self.bot.default_color,
@@ -89,7 +89,7 @@ class LanguageCog(Cog):
 
     @triggers_group.command(name="add", help="Add a trigger word", usage="{new_word}")
     async def add_trigger_word(self, ctx, new_word):
-        trigger = Trigger.where(name="Linus").first()
+        trigger = Trigger.get_by(name="Linus")
 
         if trigger:
             if new_word in trigger.words:
@@ -103,7 +103,7 @@ class LanguageCog(Cog):
 
     @triggers_group.command(name="remove", help="Remove a trigger word", usage="{old_word}")
     async def remove_trigger_word(self, ctx, old_word):
-        trigger = Trigger.where(name="Linus").first()
+        trigger = Trigger.get_by(name="Linus")
 
         if trigger:
             if old_word not in trigger.words:
