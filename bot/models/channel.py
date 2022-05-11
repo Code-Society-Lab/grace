@@ -10,7 +10,3 @@ class Channel(app.base, Model):
     channel_id = Column(BigInteger, primary_key=True)
 
     UniqueConstraint("channel_name", "channel_id", name="uq_id_cn_cid")
-
-    @classmethod
-    def get_by_name(cls, name):
-        return cls.where(channel_name=name).first()
