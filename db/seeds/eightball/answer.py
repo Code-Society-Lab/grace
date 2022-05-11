@@ -32,5 +32,4 @@ def seed_database():
     ]
 
     for answer in initial_answers:
-        new_answer = Answer(answer=answer)
-        new_answer.save()
+        new_answer = Answer.create(answer=answer)

@@ -10,23 +10,18 @@ def seed_database():
         "torvalds"
     ]
 
-    linus_trigger = Trigger(
+    linus_trigger = Trigger.create(
         name="Linus",
         positive_emoji_code=":penguin:",
         negative_emoji_code=':pouting_face:',
     )
-
-    linus_trigger.save()
-
     for trigger_word in trigger_words:
         linus_trigger.add_trigger_word(trigger_word)
 
-    grace_trigger = Trigger(
+    Trigger.create(
         name="Grace",
         positive_emoji_code=":blush:",
         negative_emoji_code=":cry:",
     )
-
-    grace_trigger.save()
 
 
