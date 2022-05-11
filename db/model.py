@@ -40,6 +40,27 @@ class Model:
         return cls.query().get(primary_key_identifier)
 
     @classmethod
+    def get_by(cls, **kwargs):
+        """Retrieve and returns the record with the given keyword argument. None if none is found.
+
+        Only one argument should be passed. If more than one argument are supplied,
+        a TypeError will be thrown by the function.
+
+        :usage
+            Model.get_by(name="Dr.Strange")
+
+        :raises
+            PendingRollbackError, IntegrityError, TypeError:
+                In case an exception is thrown during the query, the system will rollback
+        """
+        kwargs_count = len(kwargs)
+
+        if kwargs_count > 1:
+            raise TypeError(f"Only one argument is accepted ({kwargs_count} given)")
+
+        return cls.where(**kwargs).first()
+
+    @classmethod
     def all(cls) -> Sized:
         """Retrieve and returns all records of the model
 
@@ -76,10 +97,24 @@ class Model:
     def count(cls) -> int:
         """Returns the number of records for the model
 
-        Ex. ̀Model.count()`
+        :usage
+            Model.count()
         """
 
         return cls.query().count()
+
+    @classmethod
+    def create(cls, auto_save: bool = True, **kwargs) -> Any:
+        """Creates, saves and return a new instance of the model.
+
+        :usage
+            Model.create(name="A name", color="Blue")
+        """
+        model = cls(**kwargs)
+
+        if auto_save:
+            model.save()
+        return model
 
     def save(self, commit: bool = True):
         """Saves the model. If commit is set to `True` it will "[f]lush pending changes and commit

@@ -1,40 +1,37 @@
 from logging import info, warning, critical
-from typing import List
 from discord import Intents, LoginFailure
 from discord.ext import commands
 from pretty_help import PrettyHelp
 from bot import app
-from bot.models.bot import Bot
 from bot.models.extension import Extension
 from utils.extensions import get_extensions
 
 
 class Grace(commands.Bot):
     def __init__(self):
-        self.config: Bot = Bot.get_current()
+        self.config = app.bot
 
         super().__init__(
-            command_prefix=commands.when_mentioned_or(self.config.prefix),
-            description=self.config.description,
+            command_prefix=commands.when_mentioned_or(self.config.get("prefix")),
+            description=self.config.get("description"),
             help_command=PrettyHelp(color=self.default_color),
             intents=Intents.all()
         )
 
     @property
     def default_color(self):
-        return int(self.config.default_color_code, 16)
+        return int(self.config.get("default_color"), 16)
 
     def load_extensions(self):
         modules = get_extensions()
 
         for module in modules:
-            extension_name: str = module.split(".")[-1]
-            extension: Extension = Extension.where(name=extension_name).first()
+            extension_name = module.split(".")[-1]
+            extension = Extension.get_by(name=extension_name)
 
             if not extension:
                 warning(f"{extension_name} is not registered. Registering the extension.")
-                extension = Extension(name=extension_name)
-                extension.save()
+                extension = Extension.create(name=extension_name)
 
             if extension.is_enabled():
                 info(f"Loading {extension.name}")
