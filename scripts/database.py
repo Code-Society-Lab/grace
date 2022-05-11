@@ -48,3 +48,9 @@ def drop_all():
     except SQLAlchemyError as e:
         critical(f"Critical Error: {e}")
 
+def reset():
+    warning("Resetting the database")
+
+    drop_all()
+    create_all()
+    seed_tables()
