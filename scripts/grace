@@ -31,7 +31,7 @@ if __name__ == '__main__':
     commands = {
         'start': start,
         "db create": create_all,
-        "db delete": delete_all,
+        "db drop": drop_all,
         "db seed": seed_tables,
     }
     parser = ArgumentParser()
