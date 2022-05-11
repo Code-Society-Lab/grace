@@ -1,12 +1,27 @@
 import configparser
-from os import getenv, path
+from os import path
 from dotenv import load_dotenv
 from configparser import ConfigParser
 from sqlalchemy.engine import URL
 
 
-class EnvInterpolation(configparser.BasicInterpolation):
-    """Interpolation which expands environment variables in values."""
+class EnvironmentInterpolation(configparser.BasicInterpolation):
+    """Interpolation which expands environment variables in values.
+
+    With this literal '${NAME}', the config will process the value from the given
+    environment variable and use it as it's value in the config.
+
+    This includes exported environment variable (ex. 'export MY_VAR=...') and
+    variable in '.env' files.
+
+    Usage example.
+        token = ${MY_SECRET_VAR}
+
+    In the example above, token will take the value of the environment variable
+    called 'MY_SECRET_VAR'. In case 'MY_SECRET_VAR' doesn't exist, the value will
+    not be evaluated.
+
+    """
 
     def before_get(self, parser, section, option, value, defaults):
         value = super().before_get(parser, section, option, value, defaults)
@@ -27,7 +42,7 @@ class Config:
         load_dotenv(".env")
 
         self.__environment = None
-        self.__config = ConfigParser(interpolation=EnvInterpolation())
+        self.__config = ConfigParser(interpolation=EnvironmentInterpolation())
 
         self.__config.read(f"config/settings.cfg")
         self.__config.read("config/database.cfg")
@@ -49,7 +64,7 @@ class Config:
 
     @property
     def database(self):
-        return self.__config[self.__environment]
+        return self.__config[f"database.{self.__environment}"]
 
     @property
     def client(self):
