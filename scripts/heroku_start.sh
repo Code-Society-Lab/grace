@@ -1,21 +1,25 @@
 #!/bin/bash
 
+generate_config() {
+  config_path=config/database.cfg
+
+  if [ ! -f $config_path ]; then
+    cat heroku.database.template.cfg > $config_path
+  fi
+}
+
+init() {
+  table_count=$(psql -qAt "$DATABASE_URL" -c "select count(*) from information_schema.tables where table_schema = 'public';")
+
+  if [ "$table_count" -eq "0" ]; then
+    echo "Configuring the database"
+
+    generate_config
+    grace db create
+    grace db seed
+  fi
+}
+
 pip install .
-
-cat > config/database.cfg << 'EOF'
-[production]
-url=${DATABASE_URL}
-EOF
-
-bots_query=$(echo "select * from bots;" | psql $DATABASE_URL)
-error="ERROR"
-
-if [[ "$bots_query" == *"$error"* ]]; then
-  echo "Config Found, booting"
-  grace start
-else
-  echo "Config not found, seeding new one"
-  grace db create
-  grace db seed
-  grace start
-fi
+init
+grace start
