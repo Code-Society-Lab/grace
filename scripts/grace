@@ -33,6 +33,7 @@ if __name__ == '__main__':
         "db create": create_all,
         "db drop": drop_all,
         "db seed": seed_tables,
+        "db reset": reset,
     }
     parser = ArgumentParser()
 
