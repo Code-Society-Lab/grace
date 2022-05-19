@@ -4,7 +4,7 @@ from setuptools import *
 setup(
     name='Grace',
     description='The Code Society community Bot',
-    version='1.2.0',
+    version='2.1.0',
     author='Code Society Lab',
     author_email='',
     python_require='>=3.0',
