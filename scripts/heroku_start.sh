@@ -1,7 +1,7 @@
 #!/bin/bash
 
 generate_config() {
-  config_path=config/database.cfg
+  config_path=/app/config/database.cfg
 
   if [ ! -f $config_path ]; then
     cat heroku.database.template.cfg > $config_path
