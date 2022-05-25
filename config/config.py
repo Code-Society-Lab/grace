@@ -44,15 +44,15 @@ class Config:
         self.__environment = None
         self.__config = ConfigParser(interpolation=EnvironmentInterpolation())
 
-        self.__config.read(f"/app/config/settings.cfg")
-        self.__config.read("/app/config/database.cfg")
-        self.__config.read("/app/config/environment.cfg")
+        self.__config.read(f"config/settings.cfg")
+        self.__config.read("config/database.cfg")
+        self.__config.read("config/environment.cfg")
 
     @property
     def database_uri(self):
         if self.database.get("url"):
             url = self.database.get("url")
-            return url if self.database.get("heroku") else url.replace("postgres://", "postgresql://", 1)
+            return url.replace("postgres://", "postgresql://", 1) if self.database.get("heroku") else url
 
         return URL.create(
             self.database["adapter"],
