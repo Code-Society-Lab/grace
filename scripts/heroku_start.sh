@@ -11,7 +11,7 @@ generate_config() {
 init() {
   table_count=$(psql -qAt "$DATABASE_URL" -c "select count(*) from information_schema.tables where table_schema = 'public';")
 
-  if [ "$table_count" -eq "0" ]; then
+  if [ $table_count -eq "0" ]; then
     echo "Configuring the database"
 
     generate_config
