@@ -19,7 +19,6 @@ init() {
   fi
 }
 
-cd /app/ || exit
 generate_config
 
 pip install .
