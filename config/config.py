@@ -44,9 +44,9 @@ class Config:
         self.__environment = None
         self.__config = ConfigParser(interpolation=EnvironmentInterpolation())
 
-        self.__config.read(f"config/settings.cfg")
-        self.__config.read("config/database.cfg")
-        self.__config.read("config/environment.cfg")
+        self.__config.read(f"/app/config/settings.cfg")
+        self.__config.read("/app/config/database.cfg")
+        self.__config.read("/app/config/environment.cfg")
 
     @property
     def database_uri(self):
