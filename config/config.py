@@ -51,8 +51,7 @@ class Config:
     @property
     def database_uri(self):
         if self.database.get("url"):
-            url = self.database.get("url")
-            return url.replace("postgres://", "postgresql://", 1) if self.database.get("heroku") else url
+            return self.database.get("url")
 
         return URL.create(
             self.database["adapter"],
