@@ -20,6 +20,8 @@ init() {
   fi
 }
 
+cd /app/
+
 pip install .
 init
 grace start
