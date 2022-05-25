@@ -14,13 +14,13 @@ init() {
   if [ $table_count -eq "0" ]; then
     echo "Configuring the database"
 
-    generate_config
     grace db create
     grace db seed
   fi
 }
 
-cd /app/
+cd /app/ || exit
+generate_config
 
 pip install .
 init
