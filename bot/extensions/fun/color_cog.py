@@ -1,7 +1,7 @@
 import os
 from PIL import Image
-from discord.ext.commands import Cog, command, group
-from bot.extensions.utils.command_error_handler import CommandErrorHandler
+from discord.ext.commands import Cog, group
+from bot.extensions.command_error_handler import CommandErrorHandler
 from discord import Embed, File
 
 

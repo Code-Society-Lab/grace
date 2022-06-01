@@ -2,7 +2,7 @@ from discord import Embed
 from discord.ext.commands import Cog, has_permissions, ExtensionAlreadyLoaded, ExtensionNotLoaded, group
 from emoji import emojize
 from bot.classes.state import State
-from bot.extensions.utils.command_error_handler import CommandErrorHandler
+from bot.extensions.command_error_handler import CommandErrorHandler
 from bot.models.extension import Extension
 
 
