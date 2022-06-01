@@ -39,18 +39,22 @@ class ModerationCog(Cog, name="moderation", description="Collection of administr
         await ctx.guild.unban(user)
         await log.send(self.get_moderation_channel())
 
-    @command(name='purge', help="Deletes n amount of messages.")
+    @command(name='purge', help="Deletes n amount of messages. If a user is supplied, it will erase only its messages")
     @has_permissions(manage_messages=True)
     async def purge(self, ctx, limit: int, member: Member = None):
-        log = danger("PURGE", f"{limit} message(s) purged by {ctx.author.mention} in {ctx.channel.mention}")
+        message_deleted_count = 0
 
         if member:
             async for message in ctx.channel.history(limit=limit):
                 if message.author == member:
+                    message_deleted_count += 1
                     await message.delete()
         else:
+            message_deleted_count = limit
             await ctx.channel.purge(limit=limit)
-        await log.send(self.get_moderation_channel())
+
+        log_message = f"{message_deleted_count} message(s) purged by {ctx.author.mention} in {ctx.channel.mention}"
+        await danger("PURGE", log_message).send(self.get_moderation_channel())
 
 
 def setup(bot):
