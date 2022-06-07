@@ -25,9 +25,9 @@ You can contribute to this project in the follwing ways
 ### Setting up the bot
 Installing Grace is fairly simple. You can do it in three short step.
 
-0. [Install Python and dependencies](#install-Python-and-dependencies)
+0. [Install Python and dependencies](#install-python-and-dependencies)
 1. [Set up your app and token](#set-up-your-app-and-token)
-2. [Configure the database](#configure-the-database)
+2. [Configuring the database](#configuring-the-database)
 
 #### Install Python and dependencies
 0. The first step is pretty simple, install [Python](https://www.python.org/downloads/). You need to install Python 3.0 or
@@ -42,19 +42,16 @@ First, if you didn't already do it, [register](https://discord.com/developers/do
 bot with Discord. Then, create a file called `.env` in the project directory. Open your new `.env` file and add 
 `DISCORD_TOKEN=<Your token>` inside. (Replace <You token> by your discord token).
 
-> It's imperative that you don't share that file nor the information inside it to anyone. 
+> Do not share that file nor the information inside it to anyone. 
 
-#### Configure the database
+#### Configuring the database
 In order for the bot to work, you need to connect it to a database. SQLite, MySQL/MariaDB, PostgresSQL, Oracle and 
 Microsoft SQL Server are all supported. ([Supported dialects](https://docs.sqlalchemy.org/en/14/dialects/index.html)) 
-
-You can have three database configurations, one for each environment. Each section is delimited by 
-`[database.<environment>]`. 
 
 To set up the connection to your database, create a new file in the `config` folder and call it `database.cfg`. You can 
 have three database configurations, one for each environment. Each section is delimited by `[database.<environment>]`. 
 
-The next mandatory step is to set up the _adapter dialect + drivers (optional)_. The rest will depend on your database.
+The next step is to set up the _adapter dialect + drivers (optional)_. The rest will depend on your database.
 Bellow, you'll find example for common configuration (note that you need to replace the values for your database values).
 
 > You can also use `config/database.template.cfg` to help you set up your database.
@@ -87,7 +84,7 @@ port = 5432
 ```
 
 #### Creating the tables and seeding the database
-The last step is to create the tables and add data to the database. Simple execut the following commands :
+The last step is to create the tables and add data to them. Simply execute the following commands :
 - `grace db create`
 - `grace db seed`
 
