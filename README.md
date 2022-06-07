@@ -7,49 +7,46 @@ Grace is the official Code Society discord bot. The goal is to allow every membe
 ## Installation
 Installing Grace is fairly simple. You can do it in three short step.
 
-0. [Install Python and dependencies](#install-Python-and-dependencies)
+0. [Install Python and dependencies](#install-python-and-dependencies)
 1. [Set up your app and token](#set-up-your-app-and-token)
-2. [Configure the database](#configure-the-database)
+2. [Configuring the database](#configuring-the-database)
 
 
 ### Install Python and dependencies
 0. The first step is pretty simple, install [Python](https://www.python.org/downloads/). You need to install Python 3.0 or
 higher.
 
-1. In the `grace` directory project, open a terminal (Linus/MacOS) or cmd (Windows) and execute `pip install -e .` 
-(recommend for development) or `pip install .` to install all the dependencies needed in order to make the bot work. 
-Wait until the process is finished.
+1. In the `grace` directory, open a terminal (Linus/MacOS) or cmd (Windows) and execute `pip install -e .` 
+(recommended for development) or `pip install .` to install all the dependencies needed. 
 
 ### Set up your app and token
-First, if you didn't already do it, [register](https://discord.com/developers/docs/getting-started#creating-an-app) your 
+If you didn't already do it, [create](https://discord.com/developers/docs/getting-started#creating-an-app) your 
 bot with Discord. Then, create a file called `.env` in the project directory. Open your new `.env` file and add 
-`DISCORD_TOKEN=<Your token>` inside. (Replace <You token> by your discord token).
+`DISCORD_TOKEN=<Your token>` inside. (Replace <Your token> by your discord token).
 
-> It's imperative that you don't share that file nor the information inside it to anyone. 
+> Do not share that file nor the information inside it to anyone. 
 
-### Configure the database
-In order for the bot to work, you need to connect it to a database. SQLite, MySQL/MariaDB, PostgresSQL, Oracle and 
-Microsoft SQL Server are all supported. ([Supported dialects](https://docs.sqlalchemy.org/en/14/dialects/index.html)) 
-
-You can have three database configurations, one for each environment. Each section is delimited by 
-`[database.<environment>]`. 
+### Configuring the database
+In order for the bot to work, you need to connect it to a database. Supported databases are SQLite, MySQL/MariaDB, 
+PostgresSQL, Oracle and Microsoft SQL Server. ([Supported dialects](https://docs.sqlalchemy.org/en/14/dialects/index.html)) 
 
 To set up the connection to your database, create a new file in the `config` folder and call it `database.cfg`. You can 
-have three database configurations, one for each environment. Each section is delimited by `[database.<environment>]`. 
+have three database configurations, one for each environment (production, test and development). Each section is 
+delimited by `[database.<environment>]`. 
 
-The next mandatory step is to set up the _adapter dialect + drivers (optional)_. The rest will depend on your database.
-Bellow, you'll find example for common configuration (note that you need to replace the values for your database values).
+The next step is to set up the adapter _dialect + drivers (optional)_. The rest will depend on your database.
+Bellow, you'll find examples of common configuration.
 
-> You can also use `config/database.template.cfg` to help you set up your database.
+> You can also use `config/database.template.cfg` to help you set up your `database.cfg`.
 
-#### SQLite Database
+#### SQLite
 ```ini
 [database.development]
 adapter = sqlite
 database = grace.db
 ```
 
-#### Mysql server
+#### MySQL/MariaDB
 ```ini
 [database.development]
 adapter = mysql
@@ -59,7 +56,7 @@ host = localhost
 port = 3306
 ```
 
-#### Postgresql server
+#### PostgreSQL
 ```ini
 [database.development]
 adapter = postgresql+psycopg2
@@ -69,23 +66,22 @@ host = localhost
 port = 5432
 ```
 
-#### Creating the tables and seeding the database
-The last step is to create the tables and add data to the database. Simple execut the following commands :
+The last step is to create the tables and add data to them. Simply execute the following commands :
 - `grace db create`
 - `grace db seed`
 
 ---
 
 ## Usage
-The bot comes with a script to **manage** it.
+The bot comes with a script to **manage** it. 
 
 ### Basic Commands:
 - **Bot Command(s)**:
-  - `start` : Starts the bot (`ctrl+c` to stop the bot)
+  - `grace start` : Starts the bot (`ctrl+c` to stop the bot)
 - **Database Command(s)**:
-    - `db create` : Creates the database and the tables
-    - `db drop` : Deletes the tables and the database
-    - `db seed` : Seeds the tables (Initialize the default values)
+    - `grace db create` : Creates the database and the tables
+    - `grace db drop` : Deletes the tables and the database
+    - `grace db seed` : Seeds the tables (Initialize the default values)
     
 All commands can take the optional `-e` argument with a string to define the environment.<br>
 Available environment: (production [default], development, test)
