@@ -2,56 +2,99 @@
 # Grace
 Grace is the official Code Society discord bot. The goal is to allow every member of the Code Society to participate in the development of the server's bot. 
 
+---
+
 ## Installation
-Installing Grace is fairly simple.
+Installing Grace is fairly simple. You can do it in three short step.
 
-0. Install [Python](https://www.python.org/downloads/). Note that the bot is developed under Python 3.0+ so be sure to have a recent version of Python.
-1. In the `grace` directory project do, open a terminal (Linus/MacOS) or cmd (Windows) and execute `pip install -e .` (recommend for development) or `pip install .` to install all the dependencies needed in order to make the bot work. 
-2. In the same directory, create an environment file called `.env`. This file will contain your bot token. (The token is necessary to communicate with Discord. [Discord docs](https://discord.com/developers/docs))
+0. [Install Python and dependencies](#install-python-and-dependencies)
+1. [Set up your app and token](#set-up-your-app-and-token)
+2. [Configuring the database](#configuring-the-database)
 
-```.env
-DISCORD_TOKEN=<Your token>
-BOT_ENV=<production, development, test> # optional
+
+### Install Python and dependencies
+0. The first step is pretty simple, install [Python](https://www.python.org/downloads/). You need to install Python 3.0 or
+higher.
+
+1. In the `grace` directory, open a terminal (Linus/MacOS) or cmd (Windows) and execute `pip install -e .` 
+(recommended for development) or `pip install .` to install all the dependencies needed. 
+
+### Set up your app and token
+If you didn't already do it, [create](https://discord.com/developers/docs/getting-started#creating-an-app) your 
+bot with Discord. Then, create a file called `.env` in the project directory. Open your new `.env` file and add 
+`DISCORD_TOKEN=<Your token>` inside. (Replace <Your token> by your discord token).
+
+> Do not share that file nor the information inside it to anyone. 
+
+### Configuring the database
+In order for the bot to work, you need to connect it to a database. Supported databases are SQLite, MySQL/MariaDB, 
+PostgresSQL, Oracle and Microsoft SQL Server. ([Supported dialects](https://docs.sqlalchemy.org/en/14/dialects/index.html)) 
+
+To set up the connection to your database, create a new file in the `config` folder and call it `database.cfg`. You can 
+have three database configurations, one for each environment (production, test and development). Each section is 
+delimited by `[database.<environment>]`. 
+
+The next step is to set up the adapter _dialect + drivers (optional)_. The rest will depend on your database.
+Bellow, you'll find examples of common configuration.
+
+> You can also use `config/database.template.cfg` to help you set up your `database.cfg`.
+
+#### SQLite
+```ini
+[database.development]
+adapter = sqlite
+database = grace.db
 ```
 
+#### MySQL/MariaDB
+```ini
+[database.development]
+adapter = mysql
+user = grace
+password = GraceHopper1234
+host = localhost
+port = 3306
+```
+
+#### PostgreSQL
+```ini
+[database.development]
+adapter = postgresql+psycopg2
+user = grace
+password = GraceHopper1234
+host = localhost
+port = 5432
+```
+
+The last step is to create the tables and add data to them. Simply execute the following commands :
+- `grace db create`
+- `grace db seed`
+
+---
+
 ## Usage
-The bot comes with a script to **manage** it.
+The bot comes with a script to **manage** it. 
 
 ### Basic Commands:
 - **Bot Command(s)**:
-  - `start` : Starts the bot (`ctrl+c` to stop the bot)
+  - `grace start` : Starts the bot (`ctrl+c` to stop the bot)
 - **Database Command(s)**:
-    - `db create` : Creates the database and the tables
-    - `db delete` : Deletes the tables and the database
-    - `db seed` : Seeds the database tables (Initialize the default values)
+    - `grace db create` : Creates the database and the tables
+    - `grace db drop` : Deletes the tables and the database
+    - `grace db seed` : Seeds the tables (Initialize the default values)
     
-All commands can takes the optional `-e` argument with a string to define the environment.<br>
+All commands can take the optional `-e` argument with a string to define the environment.<br>
 Available environment: (production [default], development, test)
 
-### Configuring the database
-First, you need to configure the database in order for the bot to connect to it. Edit `config/database.py` and replace
-the information by yours
+> We recommend using "development" when you're in the development process
 
-- **Adapter**: The database type you're using (ex. postgresql, mysql, sqlite, ...) 
-- **User**: The username of your database user
-- **Password**: The password of the database user
-- **host**: The database server host (in general it's `localhost`)
-- **database**: The name of your database. (Should not be changed)
-
-Second, execute the database creation command, `grace db create`.
-
-Finally, seed the database by executing `grace db seed`.
-
-
-You can now start the bot by executing `grace start`. Once the bot is up and running you can execute the commands by using the default prefix (`::`) or by pinging the bot. (Ex. `::help` or `@Grace help`)
-
-_**N.B.** The bot must be added to a server in order to use it. Please refer to [Discord's docs](https://discord.com/developers/docs) to get help setting up your bot._
-
-For now, `pip install .` must be run before `python bot /` when running the bot. Running the directory as a script in pycharm's run configuration will work too. This is liable to change.
+---
 
 ## Contribution
 As mentioned in the description, we invite everyone to participate in the development of the bot. You can contribute to the project by simply opening an issue, by improving some current features or even by adding your own features.
 Before contributing please refer to our [contribution guidelines](https://github.com/Code-Society-Lab/grace/blob/main/docs/CONTRIBUTING.md) and [Code of Conduct for contributor (temporary unavailable)](#).
+
+---
 
 ## Support
 For any other issues or questions feel free to [join](https://discord.gg/6GEF9H9m) our server and have a chat with us.
