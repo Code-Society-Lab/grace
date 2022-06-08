@@ -5,6 +5,7 @@ from discord import Embed
 from requests import get
 import random
 from bot.models.extensions.fun.eightball.answer import Answer
+from discord.colour import Colour
 
 
 class FunCog(Cog, name="Fun", description="Collection of fun commands"):
@@ -37,6 +38,32 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
             color=self.bot.default_color,
             description=quote,
         )
+
+        await ctx.send(embed=embed)
+
+    @command(name='bisonquote', help='Sends a quote from SoyBison\'s quote server.')
+    async def bison_quote(self, ctx):
+        response = get(
+            'https://quotes.needell.co/quote'
+        )
+
+        quote = response.text[1:-2].replace("\\n", "\n").replace("\\t", "    ").split('~')
+
+        name = quote[1].strip().split('(')[0]
+        urlname = name.replace(" ", "_")
+        true_author = None
+        if '(' in quote[1]:
+            true_author = quote[1].strip().split('(')[-1][:-1]
+
+        embed = Embed(
+            color=Colour.random(),
+            description=quote[0],
+        )
+        embed.set_author(name=urlname)
+        if true_author:
+            embed.set_footer(text=true_author)
+        if urlname == 'Alan_Watts':
+            embed.set_image(url=f'https://quotes.needell.co/get_image?{urlname}.png')
 
         await ctx.send(embed=embed)
 
