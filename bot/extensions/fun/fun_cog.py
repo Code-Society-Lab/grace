@@ -62,7 +62,7 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
         embed.set_author(name=name)
         if true_author:
             embed.set_footer(text=true_author)
-        embed.set_image(url=f'https://quotes.needell.co/get_image?{urlname}')
+        embed.set_image(url=f'https://quotes.needell.co/get_image?name={urlname}')
 
         await ctx.send(embed=embed)
 
