@@ -43,14 +43,12 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
 
     @command(name='bisonquote', help='Sends a quote from SoyBison\'s quote server.')
     async def bison_quote(self, ctx):
-        response = get(
-            'https://quotes.needell.co/quote'
-        )
-
+        response = get('https://quotes.needell.co/quote')
+        
         quote = response.text[1:-2].replace("\\n", "\n").replace("\\t", "    ").split('~')
-
         name = quote[1].strip().split('(')[0].strip()
         urlname = name.replace(" ", "_")
+        
         true_author = None
         if '(' in quote[1]:
             true_author = quote[1].strip().split('(')[-1][:-1]
