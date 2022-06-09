@@ -21,7 +21,6 @@ setup(
         'nltk',
         'discord-pretty-help',
         'requests',
-        'psycopg2',
         'pillow',
     ],
     scripts=['scripts/grace'],
