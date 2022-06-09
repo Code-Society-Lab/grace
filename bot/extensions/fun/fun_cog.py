@@ -59,10 +59,10 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
             color=Colour.random(),
             description=quote[0],
         )
-        embed.set_author(name=urlname)
+        embed.set_author(name=name)
         if true_author:
             embed.set_footer(text=true_author)
-        embed.set_image(url=f'https://quotes.needell.co/get_image?{urlname}.png')
+        embed.set_image(url=f'https://quotes.needell.co/get_image?{urlname}')
 
         await ctx.send(embed=embed)
 
