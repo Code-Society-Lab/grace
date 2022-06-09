@@ -49,7 +49,7 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
 
         quote = response.text[1:-2].replace("\\n", "\n").replace("\\t", "    ").split('~')
 
-        name = quote[1].strip().split('(')[0]
+        name = quote[1].strip().split('(')[0].strip()
         urlname = name.replace(" ", "_")
         true_author = None
         if '(' in quote[1]:
@@ -62,8 +62,7 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
         embed.set_author(name=urlname)
         if true_author:
             embed.set_footer(text=true_author)
-        if urlname == 'Alan_Watts':
-            embed.set_image(url=f'https://quotes.needell.co/get_image?{urlname}.png')
+        embed.set_image(url=f'https://quotes.needell.co/get_image?{urlname}.png')
 
         await ctx.send(embed=embed)
 
