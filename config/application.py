@@ -1,7 +1,11 @@
+import datetime
 import importlib
 import inspect
+import logging
 import pkgutil
-from logging import critical
+from logging import critical, info
+from logging.handlers import RotatingFileHandler
+
 from coloredlogs import install
 from sqlalchemy import create_engine
 from sqlalchemy.exc import OperationalError
@@ -65,14 +69,14 @@ class Application:
                 if not inspect.isfunction(getattr(imported, "setup", None)):
                     continue
 
-            yield module.name
+            yield module
 
-    def get_extension(self, extension_name):
+    def get_extension_module(self, extension_name):
         """Return the extension from the given extension name"""
 
-        for module in pkgutil.walk_packages(extensions.__path__, f"{extensions.__name__}."):
-            if not module.ispkg and module.name.split(".")[-1] == extension_name:
-                return module.name
+        for extension in self.extensions:
+            if extension.name.split(".")[-1] == extension_name:
+                return extension
 
     def load(self, environment):
         """Sets the environment and loads all the component of the application"""
@@ -89,10 +93,21 @@ class Application:
                 importlib.import_module(module.name)
 
     def load_logs(self):
+        file_handler = RotatingFileHandler(f"logs/{self.config.current_environment}.log",
+                                           maxBytes=10000,
+                                           backupCount=5)
+
+        logging.basicConfig(
+            level=self.config.environment.get("log_level"),
+            format="[%(asctime)s] %(funcName)s %(levelname)s %(message)s"
+                   .format(environement=self.config.current_environment),
+            handlers=[file_handler],
+        )
+
         install(
             self.config.environment.get("log_level"),
-            fmt="[%(asctime)s] %(programname)s %(levelname)s %(message)s",
-            programname=f"{self.bot['name'].capitalize()} ({self.config.current_environment})"
+            fmt="[%(asctime)s] %(programname)s %(funcName)s %(module)s %(levelname)s %(message)s",
+            programname=self.config.current_environment,
         )
 
     def load_database(self):
