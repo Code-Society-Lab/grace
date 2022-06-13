@@ -97,4 +97,4 @@ Before contributing please refer to our [contribution guidelines](https://github
 ---
 
 ## Support
-For any other issues or questions feel free to [join](https://discord.gg/6GEF9H9m) our server and have a chat with us.
+For any issues or questions feel free to [join](https://discord.gg/6GEF9H9m) our server and have a chat with us. You can also checkout our [troubleshooting](https://github.com/Code-Society-Lab/grace/wiki/Troubleshooting) section.
