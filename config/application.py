@@ -1,4 +1,5 @@
 import importlib
+import inspect
 import pkgutil
 from logging import critical
 from coloredlogs import install
@@ -6,7 +7,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy_utils import database_exists, create_database, drop_database
-from bot import models
+from bot import models, extensions
 from config.config import Config
 
 
@@ -52,6 +53,26 @@ class Application:
     @property
     def bot(self):
         return self.config.client
+
+    @property
+    def extensions(self):
+        """Generate the extensions modules"""
+
+        for module in pkgutil.walk_packages(extensions.__path__, f"{extensions.__name__}."):
+            if module.ispkg:
+                imported = importlib.import_module(module.name)
+
+                if not inspect.isfunction(getattr(imported, "setup", None)):
+                    continue
+
+            yield module.name
+
+    def get_extension(self, extension_name):
+        """Return the extension from the given extension name"""
+
+        for module in pkgutil.walk_packages(extensions.__path__, f"{extensions.__name__}."):
+            if not module.ispkg and module.name.split(".")[-1] == extension_name:
+                return module.name
 
     def load(self, environment):
         """Sets the environment and loads all the component of the application"""

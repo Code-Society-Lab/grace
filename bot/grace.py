@@ -5,7 +5,6 @@ from pretty_help import PrettyHelp
 from bot import app
 from bot.models.channel import Channel
 from bot.models.extension import Extension
-from utils.extensions import get_extensions
 
 
 class Grace(commands.Bot):
@@ -24,10 +23,10 @@ class Grace(commands.Bot):
         return int(self.config.get("default_color"), 16)
 
     def load_extensions(self):
-        modules = get_extensions()
+        modules = app.extensions
 
         for module in modules:
-            extension_name = module.split(".")[-1]
+            extension_name = module.name.split(".")[-1]
             extension = Extension.get_by(name=extension_name)
 
             if not extension:
@@ -35,10 +34,10 @@ class Grace(commands.Bot):
                 extension = Extension.create(name=extension_name)
 
             if extension.is_enabled():
-                info(f"Loading {extension.name}")
-                self.load_extension(extension.module)
+                info(f"Loading {extension_name}")
+                self.load_extension(module.name)
             else:
-                info(f"{module} is disabled, thus it will not be loaded.")
+                info(f"{extension_name} is disabled, thus it will not be loaded.")
 
     def get_channel_by_name(self, name):
         return self.get_channel(Channel.get_by(channel_name=name).channel_id)

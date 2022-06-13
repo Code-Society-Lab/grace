@@ -1,7 +1,6 @@
 from sqlalchemy import Integer, Column, String
 from bot import app
 from bot.classes.state import State
-from utils.extensions import get_extension
 from db.model import Model
 
 
@@ -23,7 +22,7 @@ class Extension(app.base, Model):
 
     @property
     def module(self):
-        return get_extension(self.name)
+        return app.get_extension_module(self.name)
 
     def is_enabled(self):
         return self.state == State.ENABLED
