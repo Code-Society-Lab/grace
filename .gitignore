@@ -8,3 +8,4 @@ build/
 *.db
 config/database.cfg
 config/settings.cfg
+*.log
