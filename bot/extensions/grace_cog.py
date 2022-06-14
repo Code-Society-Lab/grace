@@ -12,25 +12,24 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
         embed = Embed(
             color=self.bot.default_color,
             title=f"My name is Grace",
-            description=f"Hi, {ctx.author.mention}. I'm the official **Code Society** Discord Bot.\n\u200b",
+            description=f"Hi, {ctx.author.mention}. I'm the official **Code Society** Discord Bot.\n",
         )
 
         embed.add_field(
             name="Fun fact about me",
-            value=f"I'm named after [Grace Hopper](https://en.wikipedia.org/wiki/Grace_Hopper) {emojize(':rabbit:')}"
-                  "\n\u200b",
+            value=f"I'm named after [Grace Hopper](https://en.wikipedia.org/wiki/Grace_Hopper) {emojize(':rabbit:')}",
             inline=False
         )
 
         embed.add_field(
             name=f"{emojize(':test_tube:')} Code Society Lab",
-            value=f"Contribute to our [projects](https://github.com/Code-Society-Lab/grace)\n\u200b",
+            value=f"Contribute to our [projects](https://github.com/Code-Society-Lab/grace)\n",
             inline=True
         )
 
         embed.add_field(
             name=f"{emojize(':crossed_swords:')} Codewars",
-            value=f"Set your clan to **CodeSoc**\n\u200b",
+            value=f"Set your clan to **CodeSoc**\n",
             inline=True
         )
 
