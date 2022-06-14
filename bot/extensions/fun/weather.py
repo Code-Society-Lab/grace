@@ -58,7 +58,7 @@ class WeatherCog(Cog, name="Weather", description="get current weather informati
             embed = Embed(
                 color=self.bot.default_color,
                 title=city,
-                description=f"{timezone_city.strftime('%m/%d/%Y %H:%M')}",
+                description=timezone_city.strftime('%m/%d/%Y %H:%M'),
             )
 
             embed.set_image(
