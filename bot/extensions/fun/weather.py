@@ -31,7 +31,6 @@ class WeatherCog(Cog, name="Weather", description="get current weather informati
             lng=location.longitude, 
             lat=location.latitude)
         timezone_city = datetime.now(timezone(result))
-        timezone_city = timezone_city.strftime('%m/%d/%Y %H:%M')
 
         api_key = "441df3a5cadc2498e093c0367cae6817"
         base_url = "http://api.openweathermap.org/data/2.5/weather?"
@@ -45,31 +44,29 @@ class WeatherCog(Cog, name="Weather", description="get current weather informati
         # check the value of "cod" if key is equal to 200
         # it means the city is found otherwise, city is not found
         if data_weather["cod"] == 200:
-            icon_id = data_weather["weather"][0]["icon"]    # get image icon id
-            main = data_weather["main"]                     # get the main datas
-            visibility = data_weather['visibility']         # get current visibility
-            current_temperature = main["temp"]              # get current temperature  
-            fahrenheit = round((int(current_temperature)) * 1.8 - 459.67, 2)    # convert kelvin to fahrenheit
-            celsius = round((int(current_temperature) - 273.15), 2)             # convert kelvin to celsius
-            current_pressure = main["pressure"]             # get current pressure athmospheric
-            current_humidity = main["humidity"]             # get current humidity
-            forcast = data_weather["weather"]               # get current weather description
+            icon_id = data_weather["weather"][0]["icon"]
+            main = data_weather["main"]
+            visibility = data_weather['visibility']
+            current_temperature = main["temp"]
+            kelvin_to_fahrenheit = round((int(current_temperature)) * 1.8 - 459.67, 2)
+            kelvin_to_celsius = round((int(current_temperature) - 273.15), 2)
+            current_pressure = main["pressure"]
+            current_humidity = main["humidity"]
+            forcast = data_weather["weather"]
             weather_description = forcast[0]["description"]
             
             embed = Embed(
                 color=self.bot.default_color,
-                title=f"{city}",
-                description=f"{timezone_city}",
+                title=city,
+                description=f"{timezone_city.strftime('%m/%d/%Y %H:%M')}",
             )
 
             embed.set_image(
-                url='http://openweathermap.org/img/wn/' 
-                + icon_id 
-                +'@2x.png'
+                url=f'http://openweathermap.org/img/wn/{icon_id}@2x.png'
             )
             embed.add_field(
                 name="Description",
-                value=f"{capwords(weather_description)}",
+                value=capwords(weather_description),
                 inline=False
             )
             embed.add_field(
@@ -79,7 +76,7 @@ class WeatherCog(Cog, name="Weather", description="get current weather informati
             )
             embed.add_field(
                 name="Temperature",
-                value=f"{fahrenheit}°F | {celsius}°C",
+                value=f"{kelvin_to_fahrenheit}°F | {kelvin_to_celsius}°C",
                 inline=False
             )
             embed.add_field(
