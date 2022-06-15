@@ -2,8 +2,11 @@ from setuptools import *
 
 
 def after_install():
-    import nltk
-    nltk.download('vader_lexicon')
+    try:
+        import nltk
+        nltk.download('vader_lexicon')
+    except ModuleNotFoundError:
+        print("nltk module not properly installed")
 
 
 setup(
