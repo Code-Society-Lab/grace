@@ -16,7 +16,10 @@ Installing Grace is fairly simple. You can do it in three short step.
 0. The first step is pretty simple, install [Python](https://www.python.org/downloads/). You need to install Python 3.0 or
 higher.
 
-1. In the `grace` directory, open a terminal (Linus/MacOS) or cmd (Windows) and execute `pip install -e .` 
+> We highly recommend that you set up a virtual environment to work on Grace.
+> https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/
+
+2. In the `grace` directory, open a terminal (Linus/MacOS) or cmd (Windows) and execute `pip install -e .` 
 (recommended for development) or `pip install .` to install all the dependencies needed. 
 
 ### Set up your app and token
