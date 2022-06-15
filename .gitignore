@@ -9,3 +9,7 @@ build/
 config/database.cfg
 config/settings.cfg
 *.log
+*.log.*
+bin/
+env/
+lib64
