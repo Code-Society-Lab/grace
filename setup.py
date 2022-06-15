@@ -1,6 +1,11 @@
 from setuptools import *
 
 
+def after_install():
+    import nltk
+    nltk.download('vader_lexicon')
+
+
 setup(
     name='Grace',
     description='The Code Society community Bot',
@@ -25,3 +30,5 @@ setup(
     ],
     scripts=['scripts/grace'],
 )
+
+after_install()
