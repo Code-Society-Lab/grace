@@ -70,6 +70,7 @@ The last step is to create the tables and add data to them. Simply execute the f
 - `grace db create`
 - `grace db seed`
 
+> Don't forget to specify the environment you are using with `-e environment`
 ---
 
 ## Usage
