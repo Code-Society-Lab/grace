@@ -15,22 +15,9 @@ class WeatherCog(Cog, name="Weather", description="get current weather informati
     @command(name='weather', help='Show weather information in your city', usage="{city}")
     async def weather(self, ctx, *city_input):
         city = capwords(" ".join(city_input))
-
-        # initialize Nominatim API
-        geolocator = Nominatim(user_agent="geoapiExercises")
         
-        # getting Latitude and Longitude
-        location = geolocator.geocode(city)
-
-        # pass the Latitude and Longitude
-        # into a timezone_at
-        # and it return timezone
-        timezone_finder = TimezoneFinder()
-
-        result = timezone_finder.timezone_at(
-            lng=location.longitude, 
-            lat=location.latitude)
-        timezone_city = datetime.now(timezone(result))
+        # get current date and time from the city
+        timezone_city = getTimezone(city)
 
         api_key = "441df3a5cadc2498e093c0367cae6817"
         base_url = "http://api.openweathermap.org/data/2.5/weather?"
@@ -96,6 +83,24 @@ class WeatherCog(Cog, name="Weather", description="get current weather informati
             )
         await ctx.send(embed=embed)
 
+        
+def getTimezone(city):
+    # initialize Nominatim API
+    geolocator = Nominatim(user_agent="geoapiExercises")
+    
+    # getting Latitude and Longitude
+    location = geolocator.geocode(city)
+
+    # pass the Latitude and Longitude
+    # into a timezone_at
+    # and it return timezone
+    timezone_finder = TimezoneFinder()
+
+    result = timezone_finder.timezone_at(
+        lng=location.longitude, 
+        lat=location.latitude)
+    timezone_city = datetime.now(timezone(result))
+    return timezone_city
 
 def setup(bot):
     bot.add_cog(WeatherCog(bot))
