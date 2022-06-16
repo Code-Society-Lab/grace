@@ -20,10 +20,8 @@ class WeatherCog(Cog, name="Weather", description="get current weather informati
         timezone_city = getTimezone(city)
 
         api_key = "441df3a5cadc2498e093c0367cae6817"
-        base_url = "http://api.openweathermap.org/data/2.5/weather?"
-
         # complete_url to retreive weather info
-        complete_url = base_url + "appid=" + api_key + "&q=" + city
+        complete_url = f"http://api.openweathermap.org/data/2.5/weather?appid={api_key}&q={city}"
         response = get(complete_url)
         data_weather = response.json()
 
