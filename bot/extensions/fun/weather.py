@@ -31,7 +31,6 @@ class WeatherCog(Cog, name="Weather", description="get current weather informati
     def kelvin_to_celsius(self, kelvin):
         return kelvin - 273.15
 
-
     def kelvin_to_fahrenheit(self, kelvin):
         return kelvin * 1.8 - 459.67
     
