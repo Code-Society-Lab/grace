@@ -15,13 +15,14 @@ class WeatherCog(Cog, name="Weather", description="get current weather informati
     @command(name='weather', help='Show weather information in your city', usage="{city}")
     async def weather(self, ctx, *city_input):
         city = capwords(" ".join(city_input))
-        
+
         # get current date and time from the city
-        timezone_city = getTimezone(city)
+        timezone_city = get_timezone(city)
 
         api_key = "441df3a5cadc2498e093c0367cae6817"
         # complete_url to retreive weather info
         complete_url = f"http://api.openweathermap.org/data/2.5/weather?appid={api_key}&q={city}"
+        # complete_url = base_url + "appid=" + api_key + "&q=" + city
         response = get(complete_url)
         data_weather = response.json()
 
@@ -33,9 +34,9 @@ class WeatherCog(Cog, name="Weather", description="get current weather informati
             main = data_weather["main"]
             visibility = data_weather['visibility']
             current_temperature = main["temp"]
-            
-            kelvin_to_fahrenheit = get_kelvin_to_fahrenheit(current_temperature)
-            kelvin_to_celsius = get_kelvin_to_celsius(current_temperature)
+
+            fahrenheit = kelvin_to_fahrenheit(int(current_temperature))
+            celsius = kelvin_to_celsius(int(current_temperature))
             
             current_pressure = main["pressure"]
             current_humidity = main["humidity"]
@@ -63,7 +64,7 @@ class WeatherCog(Cog, name="Weather", description="get current weather informati
             )
             embed.add_field(
                 name="Temperature",
-                value=f"{kelvin_to_fahrenheit}°F | {kelvin_to_celsius}°C",
+                value=f"{round(fahrenheit, 2)}°F | {round(celsius, 2)}°C",
                 inline=False
             )
             embed.add_field(
@@ -83,8 +84,8 @@ class WeatherCog(Cog, name="Weather", description="get current weather informati
             )
         await ctx.send(embed=embed)
 
-        
-def getTimezone(city):
+
+def get_timezone(city):
     # initialize Nominatim API
     geolocator = Nominatim(user_agent="geoapiExercises")
     
@@ -92,23 +93,20 @@ def getTimezone(city):
     location = geolocator.geocode(city)
 
     # pass the Latitude and Longitude
-    # into a timezone_at
-    # and it return timezone
+    # into a timezone_at and it return timezone
     timezone_finder = TimezoneFinder()
 
     result = timezone_finder.timezone_at(
         lng=location.longitude, 
         lat=location.latitude)
-    timezone_city = datetime.now(timezone(result))
-    return timezone_city
+    return datetime.now(timezone(result))
 
-def get_kelvin_to_celsius(kelvin):
-    kelvin_to_celsius = round((int(kelvin) - 273.15), 2)
-    return kelvin_to_celsius
+def kelvin_to_celsius(kelvin):
+    return kelvin - 273.15
 
-def get_kelvin_to_fahrenheit(kelvin):
-    kelvin_to_fahrenheit = round((int(kelvin)) * 1.8 - 459.67, 2)
-    return kelvin_to_fahrenheit
+
+def kelvin_to_fahrenheit(kelvin):
+    return kelvin * 1.8 - 459.67
 
 def setup(bot):
     bot.add_cog(WeatherCog(bot))
