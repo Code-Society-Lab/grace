@@ -35,8 +35,10 @@ class WeatherCog(Cog, name="Weather", description="get current weather informati
             main = data_weather["main"]
             visibility = data_weather['visibility']
             current_temperature = main["temp"]
-            kelvin_to_fahrenheit = round((int(current_temperature)) * 1.8 - 459.67, 2)
-            kelvin_to_celsius = round((int(current_temperature) - 273.15), 2)
+            
+            kelvin_to_fahrenheit = get_kelvin_to_fahrenheit(current_temperature)
+            kelvin_to_celsius = get_kelvin_to_celsius(current_temperature)
+            
             current_pressure = main["pressure"]
             current_humidity = main["humidity"]
             forcast = data_weather["weather"]
@@ -101,6 +103,14 @@ def getTimezone(city):
         lat=location.latitude)
     timezone_city = datetime.now(timezone(result))
     return timezone_city
+
+def get_kelvin_to_celsius(kelvin):
+    kelvin_to_celsius = round((int(kelvin) - 273.15), 2)
+    return kelvin_to_celsius
+
+def get_kelvin_to_fahrenheit(kelvin):
+    kelvin_to_fahrenheit = round((int(kelvin)) * 1.8 - 459.67, 2)
+    return kelvin_to_fahrenheit
 
 def setup(bot):
     bot.add_cog(WeatherCog(bot))
