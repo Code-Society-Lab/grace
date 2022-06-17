@@ -1,6 +1,9 @@
+from bot import app
+from logging import info
 from discord import Member
 from discord.ext.commands import Cog, command, has_permissions
 from bot.helpers.log_helper import danger
+from datetime import datetime
 
 
 class ModerationCog(Cog, name="moderation", description="Collection of administrative commands."):
@@ -17,7 +20,7 @@ class ModerationCog(Cog, name="moderation", description="Collection of administr
         log.add_field("Issuer: ", ctx.author)
         log.add_field("Reason: ", reason)
 
-        await ctx.guild.kick(user=member)
+        await ctx.guild.kick(user=member, reason=reason)
         await log.send(self.get_moderation_channel())
 
     @command(name='ban', help="Allows a staff member to ban a user based on their behaviour.")
@@ -27,7 +30,7 @@ class ModerationCog(Cog, name="moderation", description="Collection of administr
         log.add_field("Issuer: ", ctx.author.mention)
         log.add_field("Reason: ", reason)
 
-        await ctx.guild.ban(user=member)
+        await ctx.guild.ban(user=member, reason=reason)
         await log.send(self.get_moderation_channel())
 
     @command(name='unban', help="Allows a staff member to unban a user.")
@@ -45,7 +48,7 @@ class ModerationCog(Cog, name="moderation", description="Collection of administr
         message_deleted_count = 0
 
         if member:
-            async for message in ctx.channel.history(limit=limit):
+            async for message in ctx.channel.history(limit=limit+1):
                 if message.author == member:
                     message_deleted_count += 1
                     await message.delete()
@@ -55,6 +58,21 @@ class ModerationCog(Cog, name="moderation", description="Collection of administr
 
         log_message = f"{message_deleted_count} message(s) purged by {ctx.author.mention} in {ctx.channel.mention}"
         await danger("PURGE", log_message).send(self.get_moderation_channel())
+
+    @Cog.listener()
+    async def on_member_join(self, member):
+        minimum_account_age = app.config("moderation", "minimum_account_age")
+        account_age_in_days = (datetime.now() - member.created_at).days
+
+        if account_age_in_days <= minimum_account_age:
+            info(f"{member.display_name} kicked due to account age restriction!")
+
+            log = danger("KICK", f"{member.mention} has been kicked.")
+            log.add_field("Reason: ", "Automatically kicked due to account age restriction")
+
+            await member.send(f"Your account needs to be {minimum_account_age} days old or more to join the server.")
+            await member.guild.kick(user=member, reason="Account age restriction")
+            await log.send(self.get_moderation_channel())
 
 
 def setup(bot):
