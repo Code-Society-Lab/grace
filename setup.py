@@ -30,6 +30,9 @@ setup(
         'discord-pretty-help',
         'requests',
         'pillow',
+        'geopy',
+        'pytz',
+        'timezonefinder',
     ],
     scripts=['scripts/grace'],
 )
