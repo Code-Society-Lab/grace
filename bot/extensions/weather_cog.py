@@ -11,6 +11,7 @@ from bot import app
 
 class WeatherCog(Cog, name="Weather", description="get current weather information from a city"):
     OPENWEATHER_BASE_URL = "http://api.openweathermap.org/data/2.5/"
+
     def __init__(self, bot):
         self.bot = bot
         self.api_key = app.config.get("openweather", "api_key")
@@ -33,7 +34,6 @@ class WeatherCog(Cog, name="Weather", description="get current weather informati
 
     def kelvin_to_celsius(self, kelvin):
         return kelvin - 273.15
-
 
     def kelvin_to_fahrenheit(self, kelvin):
         return kelvin * 1.8 - 459.67
