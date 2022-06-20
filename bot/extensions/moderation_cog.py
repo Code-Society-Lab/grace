@@ -61,7 +61,7 @@ class ModerationCog(Cog, name="moderation", description="Collection of administr
 
     @Cog.listener()
     async def on_member_join(self, member):
-        minimum_account_age = app.config("moderation", "minimum_account_age")
+        minimum_account_age = app.config.get("moderation", "minimum_account_age")
         account_age_in_days = (datetime.now() - member.created_at).days
 
         if account_age_in_days <= minimum_account_age:
