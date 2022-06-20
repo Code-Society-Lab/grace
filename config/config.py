@@ -44,7 +44,7 @@ class Config:
         self.__environment = None
         self.__config = ConfigParser(interpolation=EnvironmentInterpolation())
 
-        self.__config.read(f"config/settings.cfg")
+        self.__config.read("config/settings.cfg")
         self.__config.read("config/database.cfg")
         self.__config.read("config/environment.cfg")
 
@@ -79,6 +79,7 @@ class Config:
         return self.__environment
 
     def get(self, section_key, value_key, fallback=None):
+        # For now, only strings are returned when using this method
         return self.__config.get(section_key, value_key, fallback=fallback)
 
     def set_environment(self, environment):
