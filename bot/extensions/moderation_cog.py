@@ -54,7 +54,7 @@ class ModerationCog(Cog, name="moderation", description="Collection of administr
                     await message.delete()
         else:
             message_deleted_count = limit
-            await ctx.channel.purge(limit=limit)
+            await ctx.channel.purge(limit=limit+1)
 
         log_message = f"{message_deleted_count} message(s) purged by {ctx.author.mention} in {ctx.channel.mention}"
         await danger("PURGE", log_message).send(self.get_moderation_channel())
