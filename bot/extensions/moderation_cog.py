@@ -65,9 +65,9 @@ class ModerationCog(Cog, name="moderation", description="Collection of administr
         account_age_in_days = (datetime.now() - member.created_at).days
 
         if account_age_in_days <= int(minimum_account_age):
-            info(f"{member.display_name} kicked due to account age restriction!")
+            info(f"{member} kicked due to account age restriction!")
 
-            log = danger("KICK", f"{member.mention} has been kicked.")
+            log = danger("KICK", f"{member} has been kicked.")
             log.add_field("Reason: ", "Automatically kicked due to account age restriction")
 
             await member.send(f"Your account needs to be {minimum_account_age} days old or more to join the server.")
