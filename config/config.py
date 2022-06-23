@@ -1,11 +1,12 @@
-import configparser
+from ast import literal_eval
 from os import path
 from dotenv import load_dotenv
-from configparser import ConfigParser
+from configparser import ConfigParser, BasicInterpolation
 from sqlalchemy.engine import URL
+from re import match
 
 
-class EnvironmentInterpolation(configparser.BasicInterpolation):
+class EnvironmentInterpolation(BasicInterpolation):
     """Interpolation which expands environment variables in values.
 
     With this literal '${NAME}', the config will process the value from the given
@@ -79,8 +80,12 @@ class Config:
         return self.__environment
 
     def get(self, section_key, value_key, fallback=None):
-        # For now, only strings are returned when using this method
-        return self.__config.get(section_key, value_key, fallback=fallback)
+        # I don't know if it's the desired behavior. Do we really want our config to convert out data?
+        value = self.__config.get(section_key, value_key, fallback=fallback)
+
+        if value and match(r"^[\d.]*$|^(?:True|False)*$", value):
+            return literal_eval(value)
+        return value
 
     def set_environment(self, environment):
         if environment in ["production", "development", "test"]:
