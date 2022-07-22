@@ -59,7 +59,7 @@ class Config:
             self.database.get("user"),
             self.database.get("password"),
             self.database.get("host"),
-            self.database.get("port"),
+            self.database.getint("port"),
             self.database.get("database", f"{self.client['name']}_{self.__environment}")
         )
 
