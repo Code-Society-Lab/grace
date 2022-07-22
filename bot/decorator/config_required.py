@@ -1,6 +1,6 @@
 from bot import app
-from discord.ext import commands
 from discord.ext.commands import CommandError
+from discord.ext import commands
 
 
 class ConfigRequiredError(CommandError):
@@ -9,7 +9,7 @@ class ConfigRequiredError(CommandError):
 
 class MissingRequiredConfig(ConfigRequiredError):
     def __init__(self, section_key, value_key):
-        super().__init__(self, f"Missing config '{value_key}' in section '{section_key}'")
+        super().__init__(f"Missing config '{value_key}' in section '{section_key}'")
 
 
 def cog_config_required(section_key, value_key):
@@ -21,7 +21,7 @@ def cog_config_required(section_key, value_key):
 
             async def cog_before_invoke(self, ctx):
                 if not self.required_config:
-                    raise MissingRequiredConfig()
+                    raise MissingRequiredConfig(section_key, value_key)
         return Wrapper
     return decorator
 
@@ -29,5 +29,5 @@ def cog_config_required(section_key, value_key):
 def command_config_required(section_key, value_key):
     async def predicate(ctx):
         if not app.config.get(section_key, value_key):
-            raise MissingRequiredConfig()
+            raise MissingRequiredConfig(section_key, value_key)
     return commands.check(predicate)
