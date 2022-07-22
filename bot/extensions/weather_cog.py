@@ -10,7 +10,7 @@ from bot import app
 
 
 class WeatherCog(Cog, name="Weather", description="get current weather information from a city"):
-    OPENWEATHER_BASE_URL = "http://api.openweathermap.org/data/2.5/"
+    OPENWEATHER_BASE_URL = "https://api.openweathermap.org/data/2.5/"
 
     def __init__(self, bot):
         self.bot = bot
