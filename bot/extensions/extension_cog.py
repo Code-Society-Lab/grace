@@ -47,7 +47,7 @@ class ExtensionCog(Cog, name="Extensions", description="Extensions managing cog"
 
         if extension:
             try:
-                self.bot.load_extension(extension.module)
+                self.bot.load_extension(extension.module.name)
                 extension.state = State.ENABLED
 
                 extension.save()
@@ -64,7 +64,7 @@ class ExtensionCog(Cog, name="Extensions", description="Extensions managing cog"
 
         if extension:
             try:
-                self.bot.unload_extension(extension.module)
+                self.bot.unload_extension(extension.module.name)
                 extension.state = State.DISABLED
 
                 extension.save()
