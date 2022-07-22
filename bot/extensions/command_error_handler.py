@@ -1,6 +1,7 @@
 from logging import warning
 from discord.ext import commands
 from discord.ext.commands import Cog, MissingRequiredArgument, CommandNotFound, MissingPermissions
+from bot.decorator.config_required import MissingRequiredConfig
 
 
 class CommandErrorHandler(Cog):
@@ -17,6 +18,8 @@ class CommandErrorHandler(Cog):
             await ctx.send("You don't have the authorization to use that command.")
         elif isinstance(command_error, commands.CommandOnCooldown):
             await ctx.send('**You\'re on Cooldown**, wait {:.2f} seconds.'.format(command_error.retry_after))
+        elif isinstance(command_error, MissingRequiredConfig):
+            await ctx.send("This command is disabled due to missing configs. Look at the logs for more info.")
         elif isinstance(command_error, MissingRequiredArgument) or ctx.command:
             await self.send_command_help(ctx)
         else:
