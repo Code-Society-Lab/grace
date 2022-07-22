@@ -1,25 +1,28 @@
+from logging import warning
+
 from geopy.geocoders import Nominatim
 from timezonefinder import TimezoneFinder
-from pytz import country_timezones, timezone
+from pytz import timezone
 from datetime import datetime
 from discord.ext.commands import Cog, command
 from requests import get
 from discord import Embed
 from string import capwords
-from bot import app
+from bot.decorator.config_required import cog_config_required
 
 
+@cog_config_required("openweather", "api_key")
 class WeatherCog(Cog, name="Weather", description="get current weather information from a city"):
     OPENWEATHER_BASE_URL = "https://api.openweathermap.org/data/2.5/"
 
     def __init__(self, bot):
         self.bot = bot
-        self.api_key = app.config.get("openweather", "api_key")
+        self.api_key = self.required_config
 
     def get_timezone(self, city):
         # initialize Nominatim API
         geolocator = Nominatim(user_agent="geoapiExercises")
-        
+
         # getting Latitude and Longitude
         location = geolocator.geocode(city)
 
@@ -28,7 +31,7 @@ class WeatherCog(Cog, name="Weather", description="get current weather informati
         timezone_finder = TimezoneFinder()
 
         result = timezone_finder.timezone_at(
-            lng=location.longitude, 
+            lng=location.longitude,
             lat=location.latitude)
         return datetime.now(timezone(result))
 
@@ -55,7 +58,7 @@ class WeatherCog(Cog, name="Weather", description="get current weather informati
         data_weather = await self.get_weather(city)
 
         # Now data_weather contains lists of data
-        # from the city inputer by the user 
+        # from the city inputer by the user
         if data_weather:
             icon_id = data_weather["weather"][0]["icon"]
             main = data_weather["main"]
@@ -64,12 +67,12 @@ class WeatherCog(Cog, name="Weather", description="get current weather informati
 
             fahrenheit = self.kelvin_to_fahrenheit(int(current_temperature))
             celsius = self.kelvin_to_celsius(int(current_temperature))
-            
+
             current_pressure = main["pressure"]
             current_humidity = main["humidity"]
             forcast = data_weather["weather"]
             weather_description = forcast[0]["description"]
-            
+
             embed = Embed(
                 color=self.bot.default_color,
                 title=city,
@@ -86,7 +89,7 @@ class WeatherCog(Cog, name="Weather", description="get current weather informati
             )
             embed.add_field(
                 name="Visibility",
-                value=f"{visibility}m | {round(visibility*3.280839895)}ft",
+                value=f"{visibility}m | {round(visibility * 3.280839895)}ft",
                 inline=False
             )
             embed.add_field(
