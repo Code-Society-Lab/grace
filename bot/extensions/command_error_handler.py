@@ -1,7 +1,7 @@
 from logging import warning
 from discord.ext import commands
 from discord.ext.commands import Cog, MissingRequiredArgument, CommandNotFound, MissingPermissions
-from bot.decorator.config_required import MissingRequiredConfig
+from bot.decorators.config_required import MissingRequiredConfig
 
 
 class CommandErrorHandler(Cog):
