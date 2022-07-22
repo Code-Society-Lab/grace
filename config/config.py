@@ -1,7 +1,7 @@
 from ast import literal_eval
 from os import path
 from dotenv import load_dotenv
-from configparser import ConfigParser, BasicInterpolation
+from configparser import ConfigParser, BasicInterpolation, NoOptionError
 from sqlalchemy.engine import URL
 from re import match
 
@@ -26,7 +26,14 @@ class EnvironmentInterpolation(BasicInterpolation):
 
     def before_get(self, parser, section, option, value, defaults):
         value = super().before_get(parser, section, option, value, defaults)
-        return path.expandvars(value)
+        expandvars = path.expandvars(value)
+
+        if (value.startswith("${") and value.endswith("}")) and value == expandvars:
+            try:
+                return parser.get(section, value)
+            except NoOptionError:
+                return None
+        return expandvars
 
 
 class Config:
