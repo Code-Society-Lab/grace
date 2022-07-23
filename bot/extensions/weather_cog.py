@@ -78,7 +78,7 @@ class WeatherCog(Cog, name="Weather", description="get current weather informati
             )
 
             embed.set_image(
-                url=f'http://openweathermap.org/img/wn/{icon_id}@2x.png'
+                url=f'https://openweathermap.org/img/wn/{icon_id}@2x.png'
             )
             embed.add_field(
                 name="Description",
