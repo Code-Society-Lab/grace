@@ -6,7 +6,7 @@ from discord.ext.commands import Cog, command
 from requests import get
 from discord import Embed
 from string import capwords
-from bot.decorators.config_required import cog_config_required
+from lib.config_required import cog_config_required
 
 
 @cog_config_required("openweather", "api_key")
