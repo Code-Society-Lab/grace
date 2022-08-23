@@ -1,6 +1,6 @@
 from bot import app
 from discord.ext import commands
-from discord.ext.commands import CommandError, CogMeta
+from discord.ext.commands import CommandError, CogMeta, Cog
 
 
 class ConfigRequiredError(CommandError):
@@ -39,11 +39,21 @@ def cog_config_required(section_key, value_key):
                     raise TypeError("The class needs to be a cog")
 
                 self.required_config = app.config.get(section_key, value_key)
-                super(Wrapper, self).__init__(*args, **kargs)
+                super().__init__(*args, **kargs)
 
             async def cog_before_invoke(self, ctx):
                 if not self.required_config:
                     raise MissingRequiredConfig(section_key, value_key)
+
+            def __new__(cls, *args, **kwargs):
+                cls_attributes = cls.__base__.__dict__
+                new_class = super().__new__(cls, *args, **kwargs)
+
+                new_class.__cog_name__ = cls_attributes["__cog_name__"]
+                new_class.__cog_description__ = cls_attributes["__cog_description__"]
+
+                return new_class
+
         return Wrapper
     return decorator
 
