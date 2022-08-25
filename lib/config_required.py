@@ -17,6 +17,7 @@ class MissingRequiredConfig(ConfigRequiredError):
 
     Inherit from `ConfigRequiredError`
     """
+
     def __init__(self, section_key, value_key):
         super().__init__(f"Missing config '{value_key}' in section '{section_key}'")
 
@@ -32,6 +33,7 @@ def cog_config_required(section_key, value_key):
     :raises TypeError:
         If the class is not a Cog
     """
+
     def decorator(cls):
         class Wrapper(cls):
             def __init__(self, *args, **kargs):
@@ -46,15 +48,13 @@ def cog_config_required(section_key, value_key):
                     raise MissingRequiredConfig(section_key, value_key)
 
             def __new__(cls, *args, **kwargs):
-                cls_attributes = cls.__base__.__dict__
-                new_class = super().__new__(cls, *args, **kwargs)
+                cls.__cog_name__ = getattr(cls.__base__, "__cog_name__")
+                cls.__cog_description__ = getattr(cls.__base__, "__cog_description__")
+                cls.__cog_settings__ = getattr(cls.__base__, "__cog_settings__")
 
-                new_class.__cog_name__ = cls_attributes["__cog_name__"]
-                new_class.__cog_description__ = cls_attributes["__cog_description__"]
-
-                return new_class
-
+                return super().__new__(cls, *args, **kwargs)
         return Wrapper
+
     return decorator
 
 
@@ -67,7 +67,9 @@ def command_config_required(section_key, value_key):
     :param value_key:
         The required value key
     """
+
     async def predicate(ctx):
         if not app.config.get(section_key, value_key):
             raise MissingRequiredConfig(section_key, value_key)
+
     return commands.check(predicate)
