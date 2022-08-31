@@ -9,9 +9,7 @@ from datetime import datetime
 class ModerationCog(Cog, name="moderation", description="Collection of administrative commands."):
     def __init__(self, bot):
         self.bot = bot
-
-    def get_moderation_channel(self):
-        return self.bot.get_channel_by_name("moderation_logs")
+        self.moderation_channel = self.bot.get_channel_by_name("moderation_logs")
 
     @command(name='kick', help="Allows a staff member to kick a user based on their behaviour.")
     @has_permissions(kick_members=True)
@@ -21,7 +19,7 @@ class ModerationCog(Cog, name="moderation", description="Collection of administr
         log.add_field("Reason: ", reason)
 
         await ctx.guild.kick(user=member, reason=reason)
-        await log.send(self.get_moderation_channel())
+        await log.send(self.moderation_channel)
 
     @command(name='ban', help="Allows a staff member to ban a user based on their behaviour.")
     @has_permissions(ban_members=True)
@@ -31,7 +29,7 @@ class ModerationCog(Cog, name="moderation", description="Collection of administr
         log.add_field("Reason: ", reason)
 
         await ctx.guild.ban(user=member, reason=reason)
-        await log.send(self.get_moderation_channel())
+        await log.send(self.moderation_channel)
 
     @command(name='unban', help="Allows a staff member to unban a user.")
     @has_permissions(ban_members=True)
@@ -40,7 +38,7 @@ class ModerationCog(Cog, name="moderation", description="Collection of administr
         log = danger("UNBAN", f"{user.name} has been unbanned.")
 
         await ctx.guild.unban(user)
-        await log.send(self.get_moderation_channel())
+        await log.send(self.moderation_channel)
 
     @command(name='purge', help="Deletes n amount of messages. If a user is supplied, it will erase only its messages")
     @has_permissions(manage_messages=True)
@@ -57,7 +55,7 @@ class ModerationCog(Cog, name="moderation", description="Collection of administr
             await ctx.channel.purge(limit=limit+1)
 
         log_message = f"{message_deleted_count} message(s) purged by {ctx.author.mention} in {ctx.channel.mention}"
-        await danger("PURGE", log_message).send(self.get_moderation_channel())
+        await danger("PURGE", log_message).send(self.moderation_channel)
 
     @Cog.listener()
     async def on_member_join(self, member):
@@ -72,7 +70,7 @@ class ModerationCog(Cog, name="moderation", description="Collection of administr
 
             await member.send(f"Your account needs to be {minimum_account_age} days old or more to join the server.")
             await member.guild.kick(user=member, reason="Account age restriction")
-            await log.send(self.get_moderation_channel())
+            await log.send(self.moderation_channel)
 
 
 async def setup(bot):
