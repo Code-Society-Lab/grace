@@ -24,7 +24,7 @@ setup(
         'logger',
         'sqlalchemy',
         'sqlalchemy-utils',
-        'discord>=2.0',
+        'discord==2.0',
         'emoji',
         'nltk',
         'discord-pretty-help',
