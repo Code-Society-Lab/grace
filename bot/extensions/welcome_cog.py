@@ -11,7 +11,7 @@ class WelcomeCog(Cog):
                       "- Feel free to introduce yourself in <#{intro_id}>."
 
     def __init__(self, bot: Grace):
-        self.bot: Grace = bot
+        self.bot = bot
 
     def get_welcome_message(self, member: Member):
         return self.WELCOME_MESSAGE.format(

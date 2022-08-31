@@ -1,11 +1,7 @@
-import datetime
-import importlib
-import inspect
-import logging
-import pkgutil
-from logging import critical, info
+from importlib import import_module
+from pkgutil import walk_packages
+from logging import basicConfig, critical
 from logging.handlers import RotatingFileHandler
-
 from coloredlogs import install
 from sqlalchemy import create_engine
 from sqlalchemy.exc import OperationalError
@@ -59,23 +55,22 @@ class Application:
         return self.config.client
 
     @property
-    def extensions(self):
+    def extension_modules(self):
         """Generate the extensions modules"""
 
-        for module in pkgutil.walk_packages(extensions.__path__, f"{extensions.__name__}."):
+        for module in walk_packages(extensions.__path__, f"{extensions.__name__}."):
             if module.ispkg:
-                imported = importlib.import_module(module.name)
+                imported = import_module(module.name)
 
-                if not inspect.isfunction(getattr(imported, "setup", None)):
+                if not hasattr(imported, "setup"):
                     continue
-
             yield module
 
     def get_extension_module(self, extension_name):
         """Return the extension from the given extension name"""
 
-        for extension in self.extensions:
-            if extension.name.split(".")[-1] == extension_name:
+        for extension in self.extension_modules:
+            if extension.name == extension_name:
                 return extension
 
     def load(self, environment):
@@ -86,18 +81,19 @@ class Application:
         self.load_models()
         self.load_database()
 
-    def load_models(self):
+    @staticmethod
+    def load_models():
         """Import all models in the `bot/models` folder."""
-        for module in pkgutil.walk_packages(models.__path__, f"{models.__name__}."):
+        for module in walk_packages(models.__path__, f"{models.__name__}."):
             if not module.ispkg:
-                importlib.import_module(module.name)
+                import_module(module.name)
 
     def load_logs(self):
         file_handler = RotatingFileHandler(f"logs/{self.config.current_environment}.log",
                                            maxBytes=10000,
                                            backupCount=5)
 
-        logging.basicConfig(
+        basicConfig(
             level=self.config.environment.get("log_level"),
             format="[%(asctime)s] %(funcName)s %(levelname)s %(message)s"
                    .format(environement=self.config.current_environment),
