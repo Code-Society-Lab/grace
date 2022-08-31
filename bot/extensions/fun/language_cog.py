@@ -116,5 +116,5 @@ class LanguageCog(Cog):
             await ctx.send(f"Unable to remove **{old_word}**")
 
 
-def setup(bot):
-    bot.add_cog(LanguageCog(bot))
+async def setup(bot):
+    await bot.add_cog(LanguageCog(bot))

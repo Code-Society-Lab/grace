@@ -44,5 +44,5 @@ class WelcomeCog(Cog):
         await ctx.send(self.get_welcome_message(ctx.author))
 
 
-def setup(bot):
-    bot.add_cog(WelcomeCog(bot))
+async def setup(bot):
+    await bot.add_cog(WelcomeCog(bot))

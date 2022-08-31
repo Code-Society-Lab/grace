@@ -54,5 +54,5 @@ class ColorCog(Cog, name="Color", description="Collection of commands to bring c
         await self.display_color(ctx, hex)
 
 
-def setup(bot):
-    bot.add_cog(ColorCog(bot))
+async def setup(bot):
+    await bot.add_cog(ColorCog(bot))

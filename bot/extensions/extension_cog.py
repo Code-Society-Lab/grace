@@ -75,6 +75,6 @@ class ExtensionCog(Cog, name="Extensions", description="Extensions managing cog"
             await ctx.send(f"Extension **{extension_name}** not found")
 
 
-def setup(bot):
-    bot.add_cog(ExtensionCog(bot))
+async def setup(bot):
+    await bot.add_cog(ExtensionCog(bot))
 

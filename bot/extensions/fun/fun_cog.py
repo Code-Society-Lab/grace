@@ -22,7 +22,7 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
 
         answer_embed = Embed(
             title=f'{ctx.author.name}, Grace says: ',
-            Color=self.bot.default_color,
+            color=self.bot.default_color,
             description=answer.answer,
         )
 
@@ -30,8 +30,7 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
 
     @command(name='quote', help='Sends an inspirational quote')
     async def quote_command(self, ctx):
-        response = get(
-            'https://api.forismatic.com/api/1.0/?method=getQuote&format=json&lang=en')
+        response = get('https://api.forismatic.com/api/1.0/?method=getQuote&format=json&lang=en')
         quote = '{quoteText} \n-- {quoteAuthor}'.format(**loads(response.text))
 
         embed = Embed(
@@ -64,5 +63,5 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
         await ctx.send(embed=embed)
 
 
-def setup(bot):
-    bot.add_cog(FunCog(bot))
+async def setup(bot):
+    await bot.add_cog(FunCog(bot))

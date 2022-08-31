@@ -113,5 +113,5 @@ class WeatherCog(Cog, name="Weather", description="get current weather informati
         await ctx.send(embed=embed)
 
 
-def setup(bot):
-    bot.add_cog(WeatherCog(bot))
+async def setup(bot):
+    await bot.add_cog(WeatherCog(bot))

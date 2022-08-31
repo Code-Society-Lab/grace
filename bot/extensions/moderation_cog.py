@@ -75,5 +75,5 @@ class ModerationCog(Cog, name="moderation", description="Collection of administr
             await log.send(self.get_moderation_channel())
 
 
-def setup(bot):
-    bot.add_cog(ModerationCog(bot))
+async def setup(bot):
+    await bot.add_cog(ModerationCog(bot))

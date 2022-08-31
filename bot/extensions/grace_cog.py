@@ -55,5 +55,5 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
         await ctx.send("https://www.smbc-comics.com/?id=2516")
 
 
-def setup(bot):
-    bot.add_cog(GraceCog(bot))
+async def setup(bot):
+    await bot.add_cog(GraceCog(bot))
