@@ -9,7 +9,10 @@ from datetime import datetime
 class ModerationCog(Cog, name="moderation", description="Collection of administrative commands."):
     def __init__(self, bot):
         self.bot = bot
-        self.moderation_channel = self.bot.get_channel_by_name("moderation_logs")
+
+    @property
+    def moderation_channel(self):
+        return self.bot.get_channel_by_name("moderation_logs")
 
     @command(name='kick', help="Allows a staff member to kick a user based on their behaviour.")
     @has_permissions(kick_members=True)
@@ -54,8 +57,10 @@ class ModerationCog(Cog, name="moderation", description="Collection of administr
             message_deleted_count = limit
             await ctx.channel.purge(limit=limit+1)
 
-        log_message = f"{message_deleted_count} message(s) purged by {ctx.author.mention} in {ctx.channel.mention}"
-        await danger("PURGE", log_message).send(self.moderation_channel)
+        await danger(
+            "PURGE",
+            f"{message_deleted_count} message(s) purged by {ctx.author.mention} in {ctx.channel.mention}"
+        ).send(self.moderation_channel)
 
     @Cog.listener()
     async def on_member_join(self, member):
