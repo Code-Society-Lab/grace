@@ -37,6 +37,7 @@ class Application:
     @property
     def session(self):
         """Instantiate the session for querying the database."""
+
         if not Application.__session:
             session = sessionmaker(bind=self.__engine)
             Application.__session = session()
@@ -75,6 +76,7 @@ class Application:
 
     def load(self, environment):
         """Sets the environment and loads all the component of the application"""
+
         self.config.set_environment(environment)
 
         self.load_logs()
@@ -84,6 +86,7 @@ class Application:
     @staticmethod
     def load_models():
         """Import all models in the `bot/models` folder."""
+
         for module in walk_packages(models.__path__, f"{models.__name__}."):
             if not module.ispkg:
                 import_module(module.name)
@@ -108,6 +111,7 @@ class Application:
 
     def load_database(self):
         """Loads and connects to the database using the loaded config"""
+
         self.__engine = create_engine(
             self.config.database_uri,
             echo=self.config.environment.getboolean("sqlalchemy_echo"))
@@ -120,32 +124,38 @@ class Application:
 
     def unload_database(self):
         """Unloads the current database"""
+
         Application.__engine = None
         Application.__session = None
 
     def reload_database(self):
         """Reload the database. This function can be use in case there's a dynamic environment change."""
+
         self.unload_database()
         self.load_database()
 
     def create_database(self):
         """Creates the database for the current loaded config"""
+
         if not database_exists(self.config.database_uri):
             self.load_database()
             create_database(self.config.database_uri)
 
     def drop_database(self):
         """Drops the database for the current loaded config"""
+
         if not database_exists(self.config.database_uri):
             self.load_database()
             drop_database(self.config.database_uri)
 
     def create_tables(self):
         """Creates all the tables for the current loaded database"""
+
         self.load_database()
         self.__base.metadata.create_all(self.__engine)
 
     def drop_tables(self):
         """Drops all the tables for the current loaded database"""
+
         self.load_database()
         self.__base.metadata.drop_all(self.__engine)
