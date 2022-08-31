@@ -27,7 +27,7 @@ setup(
         'discord>=2.0',
         'emoji',
         'nltk',
-        'discord-pretty-help=1.3.4',
+        'discord-pretty-help==1.3.4',
         'requests',
         'pillow',
         'geopy',
