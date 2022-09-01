@@ -1,5 +1,5 @@
 from discord import Embed
-from discord.ext.commands import Cog, has_permissions, ExtensionAlreadyLoaded, ExtensionNotLoaded, group
+from discord.ext.commands import Cog, has_permissions, ExtensionAlreadyLoaded, ExtensionNotLoaded, hybrid_group
 from emoji import emojize
 from bot.classes.state import State
 from bot.extensions.command_error_handler import CommandErrorHandler
@@ -10,7 +10,7 @@ class ExtensionCog(Cog, name="Extensions", description="Extensions managing cog"
     def __init__(self, bot):
         self.bot = bot
 
-    @group(name="extension", aliases=["ext", "e"], help="Commands to manage extensions")
+    @hybrid_group(name="extension", aliases=["ext", "e"], help="Commands to manage extensions")
     @has_permissions(administrator=True)
     async def extension_group(self, ctx):
         if ctx.invoked_subcommand is None:
@@ -47,7 +47,7 @@ class ExtensionCog(Cog, name="Extensions", description="Extensions managing cog"
 
         if extension:
             try:
-                self.bot.load_extension(extension.module.name)
+                await self.bot.load_extension(extension.module.name)
                 extension.state = State.ENABLED
 
                 extension.save()
@@ -64,7 +64,7 @@ class ExtensionCog(Cog, name="Extensions", description="Extensions managing cog"
 
         if extension:
             try:
-                self.bot.unload_extension(extension.module.name)
+                await self.bot.unload_extension(extension.module.name)
                 extension.state = State.DISABLED
 
                 extension.save()

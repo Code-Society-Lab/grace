@@ -1,7 +1,7 @@
 from bot import app
 from logging import info
 from discord import Member
-from discord.ext.commands import Cog, command, has_permissions
+from discord.ext.commands import Cog, has_permissions, hybrid_command
 from bot.helpers.log_helper import danger
 from datetime import datetime
 
@@ -14,7 +14,7 @@ class ModerationCog(Cog, name="moderation", description="Collection of administr
     def moderation_channel(self):
         return self.bot.get_channel_by_name("moderation_logs")
 
-    @command(name='kick', help="Allows a staff member to kick a user based on their behaviour.")
+    @hybrid_command(name='kick', help="Allows a staff member to kick a user based on their behaviour.")
     @has_permissions(kick_members=True)
     async def kick(self, ctx, member: Member, reason="No reason given"):
         log = danger("KICK", f"{member.mention} has been kicked.")
@@ -24,7 +24,7 @@ class ModerationCog(Cog, name="moderation", description="Collection of administr
         await ctx.guild.kick(user=member, reason=reason)
         await log.send(self.moderation_channel)
 
-    @command(name='ban', help="Allows a staff member to ban a user based on their behaviour.")
+    @hybrid_command(name='ban', help="Allows a staff member to ban a user based on their behaviour.")
     @has_permissions(ban_members=True)
     async def ban(self, ctx, member: Member, reason="No reason"):
         log = danger("BAN", f"{member.mention} has been banned.")
@@ -34,7 +34,7 @@ class ModerationCog(Cog, name="moderation", description="Collection of administr
         await ctx.guild.ban(user=member, reason=reason)
         await log.send(self.moderation_channel)
 
-    @command(name='unban', help="Allows a staff member to unban a user.")
+    @hybrid_command(name='unban', help="Allows a staff member to unban a user.")
     @has_permissions(ban_members=True)
     async def unban(self, ctx, user_id: int):
         user = await self.bot.fetch_user(user_id)
@@ -43,7 +43,7 @@ class ModerationCog(Cog, name="moderation", description="Collection of administr
         await ctx.guild.unban(user)
         await log.send(self.moderation_channel)
 
-    @command(name='purge', help="Deletes n amount of messages. If a user is supplied, it will erase only its messages")
+    @hybrid_command(name='purge', help="Deletes n amount of messages. If a user is supplied, it will erase only its messages")
     @has_permissions(manage_messages=True)
     async def purge(self, ctx, limit: int, member: Member = None):
         message_deleted_count = 0
