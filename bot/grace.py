@@ -46,6 +46,7 @@ class Grace(commands.Bot):
 
     async def setup_hook(self):
         await self.load_extensions()
+        await self.tree.sync()
 
 
 def start():

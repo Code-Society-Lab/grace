@@ -1,5 +1,5 @@
 from discord import Embed
-from discord.ext.commands import Cog, command
+from discord.ext.commands import Cog, hybrid_command
 from emoji import emojize
 
 
@@ -7,7 +7,7 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
     def __init__(self, bot):
         self.bot = bot
 
-    @command(name='info', help='Show information about the bot')
+    @hybrid_command(name='info', help='Show information about the bot')
     async def info_command(self, ctx):
         embed = Embed(
             color=self.bot.default_color,
@@ -41,7 +41,7 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
 
         await ctx.send(embed=embed)
 
-    @command(name='ping', help='shows the bot latency')
+    @hybrid_command(name='ping', help='Shows the bot latency')
     async def ping_command(self, ctx):
         embed = Embed(
             color=self.bot.default_color,
@@ -50,7 +50,7 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
 
         await ctx.send(embed=embed)
 
-    @command(name='hopper', help='The legend of Grace Hopper')
+    @hybrid_command(name='hopper', help='The legend of Grace Hopper')
     async def hopper_command(self, ctx):
         await ctx.send("https://www.smbc-comics.com/?id=2516")
 
