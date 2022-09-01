@@ -12,6 +12,10 @@ class Extension(app.base, Model):
     module_name = Column(String(255), nullable=False, unique=True)
     _state = Column("state", Integer, default=1)
 
+    @classmethod
+    def find_by_name(cls, name):
+        return cls.get_by(module_name=f"bot.extensions.{name}")
+
     @property
     def name(self):
         return self.module_name.split(".")[-1]
@@ -26,7 +30,7 @@ class Extension(app.base, Model):
 
     @property
     def module(self):
-        return app.get_extension_module(self.name)
+        return app.get_extension_module(self.module_name)
 
     def is_enabled(self):
         return self.state == State.ENABLED

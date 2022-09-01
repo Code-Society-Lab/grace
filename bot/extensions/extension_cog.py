@@ -43,7 +43,7 @@ class ExtensionCog(Cog, name="Extensions", description="Extensions managing cog"
     @extension_group.command(name="enable", aliases=["e"], help="Enable a given extension", usage="{extension_id}")
     @has_permissions(administrator=True)
     async def enable_extension_command(self, ctx, extension_name):
-        extension = Extension.where(name=extension_name).first()
+        extension = Extension.find_by_name(extension_name)
 
         if extension:
             try:
@@ -60,7 +60,7 @@ class ExtensionCog(Cog, name="Extensions", description="Extensions managing cog"
     @extension_group.command(name="disable", aliases=["d"], help="Disable a given extension", usage="{extension_id}")
     @has_permissions(administrator=True)
     async def disable_extension_command(self, ctx, extension_name):
-        extension = Extension.where(name=extension_name).first()
+        extension = Extension.find_by_name(extension_name)
 
         if extension:
             try:
