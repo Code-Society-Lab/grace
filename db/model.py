@@ -1,4 +1,4 @@
-from typing import Any, Dict, Sized
+from typing import Any, Sized, Optional
 from sqlalchemy.orm import Query
 from sqlalchemy.exc import PendingRollbackError, IntegrityError
 from bot import app
@@ -40,7 +40,7 @@ class Model:
         return cls.query().get(primary_key_identifier)
 
     @classmethod
-    def get_by(cls, **kwargs):
+    def get_by(cls, **kwargs: Any):
         """Retrieve and returns the record with the given keyword argument. None if none is found.
 
         Only one argument should be passed. If more than one argument are supplied,
@@ -81,10 +81,11 @@ class Model:
 
         if limit == 1:
             return cls.query().first()
+        # noinspection PyUnresolvedReferences
         return cls.query().limit(limit).all()
 
     @classmethod
-    def where(cls, **kwargs: Dict[Any, Any]) -> Query:
+    def where(cls, **kwargs: Any) -> Query:
         """Retrieve and returns all records filtered by the given conditions
 
         :usage
@@ -104,7 +105,7 @@ class Model:
         return cls.query().count()
 
     @classmethod
-    def create(cls, auto_save: bool = True, **kwargs) -> Any:
+    def create(cls, auto_save: bool = True, **kwargs: Optional[Any]) -> Any:
         """Creates, saves and return a new instance of the model.
 
         :usage
