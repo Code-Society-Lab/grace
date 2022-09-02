@@ -2,18 +2,20 @@ from discord.ext.commands import Cog, has_permissions, hybrid_group
 from discord import Message, Embed
 from nltk.tokenize import TweetTokenizer
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
-from bot.models.extensions.fun.language.trigger import Trigger
+from bot.models.extensions.language.trigger import Trigger
 
 
 class LanguageCog(Cog):
     def __init__(self, bot):
+        """
+        I know not everyone working here is familiar with NLTK, so I'll explain some terminology.
+        Not to be confused with Auth Tokens, tokenization just means splitting the natural language
+        into discrete meaningful chunks, usually it's words, but words like "it's" or "ain't" will be
+        split into "it is" and "are not".
+        We're using the casual tokenizer for now, but it can be changed down the line so long as you're
+        aware of any new behaviors. https://www.nltk.org/api/nltk.tokenize.html
+        """
         self.bot = bot
-        # I know not everyone working here is familiar with NLTK so I'll explain some of the terminology.
-        # Not to be confused with Auth Tokens, tokenization just means splitting the natural language
-        # into discrete meaningful chunks, usually it's words, but words like "it's" or "ain't" will be
-        # split into "it is" and "are not".
-        # We're using the casual tokenizer for now, but it can be changed down the line so long as you're
-        # aware of any new behaviors. https://www.nltk.org/api/nltk.tokenize.html
 
         self.tokenizer = TweetTokenizer()
         self.sid = SentimentIntensityAnalyzer()

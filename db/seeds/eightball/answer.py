@@ -1,4 +1,4 @@
-from bot.models.extensions.fun.eightball.answer import Answer
+from bot.models.extensions.fun.answer import Answer
 
 
 def seed_database():

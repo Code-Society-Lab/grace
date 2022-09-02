@@ -1,8 +1,8 @@
 from emoji import emojize
-from sqlalchemy import String, Column, Integer, column
+from sqlalchemy import String, Column, Integer
 from sqlalchemy.orm import relationship
 from bot import app
-from bot.models.extensions.fun.language.trigger_word import TriggerWord
+from bot.models.extensions.language.trigger_word import TriggerWord
 from db.model import Model
 
 

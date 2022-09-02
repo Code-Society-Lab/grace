@@ -1,10 +1,11 @@
 from json import loads
 from discord.ext.commands.cooldowns import BucketType
-from discord.ext.commands import Cog, cooldown, hybrid_command
+from discord.ext.commands import Cog, cooldown, hybrid_group
 from discord import Embed
 from requests import get
 import random
-from bot.models.extensions.fun.eightball.answer import Answer
+from bot.extensions.command_error_handler import CommandErrorHandler
+from bot.models.extensions.fun.answer import Answer
 from discord.colour import Colour
 
 
@@ -12,7 +13,12 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
     def __init__(self, bot):
         self.bot = bot
 
-    @hybrid_command(name='eightball', aliases=['8ball'], help="Ask a question and be answered.", usage="{question}")
+    @hybrid_group(name="fun", help="Fun commands")
+    async def fun_group(self, ctx):
+        if ctx.invoked_subcommand is None:
+            await CommandErrorHandler.send_command_help(ctx)
+
+    @fun_group.command(name='eightball', aliases=['8ball'], help="Ask a question and be answered.", usage="{question}")
     @cooldown(4, 30, BucketType.user)
     async def eightball_command(self, ctx, question):
         if question:
@@ -28,7 +34,7 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
 
         await ctx.send(embed=answer_embed)
 
-    @hybrid_command(name='quote', help='Sends an inspirational quote')
+    @fun_group.command(name='quote', help='Sends an inspirational quote')
     async def quote_command(self, ctx):
         response = get('https://api.forismatic.com/api/1.0/?method=getQuote&format=json&lang=en')
         quote = '{quoteText} \n-- {quoteAuthor}'.format(**loads(response.text))
@@ -40,8 +46,8 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
 
         await ctx.send(embed=embed)
 
-    @hybrid_command(name='bisonquote', help='Sends a quote from SoyBison\'s quote server.')
-    async def bison_quote(self, ctx):
+    @fun_group.command(name='bisonquote', help='Sends a quote from SoyBison\'s quote server.')
+    async def bisonquote_command(self, ctx):
         response = get('https://quotes.needell.co/quote')
         
         quote = response.text[1:-2].replace("\\n", "\n").replace("\\t", "    ").split('~')

@@ -1,4 +1,4 @@
-from typing import Any, Sized, Optional
+from typing import Any, Sized, Optional, List
 from sqlalchemy.orm import Query
 from sqlalchemy.exc import PendingRollbackError, IntegrityError
 from bot import app
@@ -6,6 +6,9 @@ from bot import app
 
 class Model:
     """Base class of all models containing collection of command to query records."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     @classmethod
     def query(cls) -> Query:
@@ -61,7 +64,7 @@ class Model:
         return cls.where(**kwargs).first()
 
     @classmethod
-    def all(cls) -> Sized:
+    def all(cls) -> List:
         """Retrieve and returns all records of the model
 
         :usage
