@@ -1,4 +1,4 @@
-from discord.ext.commands import Cog, group, has_permissions
+from discord.ext.commands import Cog, has_permissions, hybrid_group
 from discord import Message, Embed
 from nltk.tokenize import TweetTokenizer
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
@@ -73,7 +73,7 @@ class LanguageCog(Cog):
         await self.penguin_react(message)
         await self.name_react(message)
 
-    @group(name="triggers", help="Commands to manage triggers")
+    @hybrid_group(name="triggers", help="Commands to manage triggers")
     @has_permissions(administrator=True)
     async def triggers_group(self, ctx):
         if ctx.invoked_subcommand is None:

@@ -1,6 +1,6 @@
 import os
 from PIL import Image
-from discord.ext.commands import Cog, group
+from discord.ext.commands import Cog, hybrid_group
 from bot.extensions.command_error_handler import CommandErrorHandler
 from discord import Embed, File
 
@@ -9,7 +9,7 @@ class ColorCog(Cog, name="Color", description="Collection of commands to bring c
     def __init__(self, bot):
         self.bot = bot
 
-    @group(name="color", help="Commands to bring color in your life")
+    @hybrid_group(name="color", help="Commands to bring color in your life")
     async def color_group(self, ctx):
         if ctx.invoked_subcommand is None:
             await CommandErrorHandler.send_command_help(ctx)
