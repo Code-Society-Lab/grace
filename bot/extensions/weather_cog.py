@@ -49,7 +49,7 @@ class WeatherCog(Cog, name="Weather", description="get current weather informati
         return None
 
     @hybrid_command(name='weather', help='Show weather information in your city', usage="{city}")
-    async def weather(self, ctx, *city_input):
+    async def weather(self, ctx, city_input):
         city = capwords(" ".join(city_input))
         # get current date and time from the city
         timezone_city = self.get_timezone(city)
