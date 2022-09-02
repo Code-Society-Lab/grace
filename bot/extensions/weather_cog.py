@@ -2,7 +2,7 @@ from geopy.geocoders import Nominatim
 from timezonefinder import TimezoneFinder
 from pytz import timezone
 from datetime import datetime
-from discord.ext.commands import Cog, command
+from discord.ext.commands import Cog, hybrid_command
 from requests import get
 from discord import Embed
 from string import capwords
@@ -48,7 +48,7 @@ class WeatherCog(Cog, name="Weather", description="get current weather informati
             return response.json()
         return None
 
-    @command(name='weather', help='Show weather information in your city', usage="{city}")
+    @hybrid_command(name='weather', help='Show weather information in your city', usage="{city}")
     async def weather(self, ctx, *city_input):
         city = capwords(" ".join(city_input))
         # get current date and time from the city
