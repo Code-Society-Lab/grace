@@ -14,8 +14,8 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
 
     @hybrid_command(name='eightball', aliases=['8ball'], help="Ask a question and be answered.", usage="{question}")
     @cooldown(4, 30, BucketType.user)
-    async def eightball(self, ctx, *args):
-        if args:
+    async def eightball_command(self, ctx, question):
+        if question:
             answer = random.choice(Answer.all())
         else:
             answer = "You need to ask me a question!"
