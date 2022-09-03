@@ -33,6 +33,7 @@ setup(
         'geopy',
         'pytz',
         'timezonefinder',
+        'mypy',
     ],
     scripts=['scripts/grace'],
 )
