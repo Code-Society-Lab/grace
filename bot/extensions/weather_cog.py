@@ -17,7 +17,8 @@ class WeatherCog(Cog, name="Weather", description="get current weather informati
         self.bot = bot
         self.api_key = self.required_config
 
-    def get_timezone(self, city):
+    @staticmethod
+    def get_timezone(city):
         # initialize Nominatim API
         geolocator = Nominatim(user_agent="geoapiExercises")
 
@@ -33,10 +34,12 @@ class WeatherCog(Cog, name="Weather", description="get current weather informati
             lat=location.latitude)
         return datetime.now(timezone(result))
 
-    def kelvin_to_celsius(self, kelvin):
+    @staticmethod
+    def kelvin_to_celsius(kelvin):
         return kelvin - 273.15
 
-    def kelvin_to_fahrenheit(self, kelvin):
+    @staticmethod
+    def kelvin_to_fahrenheit(kelvin):
         return kelvin * 1.8 - 459.67
 
     async def get_weather(self, city):
@@ -50,7 +53,7 @@ class WeatherCog(Cog, name="Weather", description="get current weather informati
 
     @hybrid_command(name='weather', help='Show weather information in your city', usage="{city}")
     async def weather(self, ctx, city_input):
-        city = capwords(" ".join(city_input))
+        city = capwords(city_input)
         # get current date and time from the city
         timezone_city = self.get_timezone(city)
         data_weather = await self.get_weather(city)

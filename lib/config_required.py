@@ -1,6 +1,7 @@
 from bot import app
+from typing import Callable
 from discord.ext import commands
-from discord.ext.commands import CommandError, CogMeta, Cog
+from discord.ext.commands import CommandError, CogMeta, Context
 
 
 class ConfigRequiredError(CommandError):
@@ -18,14 +19,13 @@ class MissingRequiredConfig(ConfigRequiredError):
     Inherit from `ConfigRequiredError`
     """
 
-    def __init__(self, section_key, value_key):
+    def __init__(self, section_key: str, value_key: str):
         super().__init__(f"Missing config '{value_key}' in section '{section_key}'")
 
 
-def cog_config_required(section_key, value_key):
+def cog_config_required(section_key: str, value_key: str) -> Callable:
     """Validates the presences of a given configuration before each
     invocation of a `discord.ext.commands.Cog` commands
-
     :param section_key:
         The required section key
     :param value_key:
@@ -34,31 +34,19 @@ def cog_config_required(section_key, value_key):
         If the class is not a Cog
     """
 
-    def decorator(cls):
-        class Wrapper(cls):
-            def __init__(self, *args, **kargs):
-                if not isinstance(cls, CogMeta):
-                    raise TypeError("The class needs to be a cog")
+    def wrapper(cls: CogMeta) -> CogMeta:
+        async def _cog_before_invoke(self, _: Context):
+            if not self.required_config:
+                raise MissingRequiredConfig(section_key, value_key)
 
-                self.required_config = app.config.get(section_key, value_key)
-                super().__init__(*args, **kargs)
+        setattr(cls, "required_config", app.config.get(section_key, value_key))
+        setattr(cls, "cog_before_invoke", _cog_before_invoke)
 
-            async def cog_before_invoke(self, ctx):
-                if not self.required_config:
-                    raise MissingRequiredConfig(section_key, value_key)
-
-            def __new__(cls, *args, **kwargs):
-                cls.__cog_name__ = getattr(cls.__base__, "__cog_name__")
-                cls.__cog_description__ = getattr(cls.__base__, "__cog_description__")
-                cls.__cog_settings__ = getattr(cls.__base__, "__cog_settings__")
-
-                return super().__new__(cls, *args, **kwargs)
-        return Wrapper
-
-    return decorator
+        return cls
+    return wrapper
 
 
-def command_config_required(section_key, value_key):
+def command_config_required(section_key: str, value_key: str) -> Callable[[Context], bool]:
     """Validates the presences of a given configuration before running
     the `discord.ext.commands.Command`
 
@@ -68,8 +56,8 @@ def command_config_required(section_key, value_key):
         The required value key
     """
 
-    async def predicate(ctx):
+    async def predicate(_: Context) -> bool:
         if not app.config.get(section_key, value_key):
             raise MissingRequiredConfig(section_key, value_key)
-
+        return True
     return commands.check(predicate)
