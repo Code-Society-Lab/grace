@@ -65,7 +65,7 @@ class Config:
         self.__config.read("config/environment.cfg")
 
     @property
-    def database_uri(self) -> str | URL:
+    def database_uri(self) -> (str | URL):
         if self.database.get("url"):
             return self.database.get("url")
 
