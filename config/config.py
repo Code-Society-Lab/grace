@@ -3,7 +3,7 @@ from re import match
 from ast import literal_eval
 from dotenv import load_dotenv
 from sqlalchemy.engine import URL
-from typing import MutableMapping, Mapping, Optional
+from typing import MutableMapping, Mapping, Optional, Union
 from configparser import ConfigParser, BasicInterpolation, NoOptionError, SectionProxy
 
 
@@ -65,7 +65,7 @@ class Config:
         self.__config.read("config/environment.cfg")
 
     @property
-    def database_uri(self) -> (str | URL):
+    def database_uri(self) -> Union[str, URL]:
         if self.database.get("url"):
             return self.database.get("url")
 
@@ -91,10 +91,10 @@ class Config:
         return self.__config[str(self.__environment)]
 
     @property
-    def current_environment(self) -> str | None:
+    def current_environment(self) -> Optional[str]:
         return self.__environment
 
-    def get(self, section_key, value_key, fallback=None) -> str | int | bool:
+    def get(self, section_key, value_key, fallback=None) -> Union[str, int, bool]:
         # I don't know if it's the desired behavior. Do we really want our config to convert out data?
         value: str = self.__config.get(section_key, value_key, fallback=fallback)
 

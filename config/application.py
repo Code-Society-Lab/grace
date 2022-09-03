@@ -4,7 +4,7 @@ from pkgutil import walk_packages, ModuleInfo
 from logging import basicConfig, critical
 from logging.handlers import RotatingFileHandler
 from types import ModuleType
-from typing import Generator, Any
+from typing import Generator, Any, Union
 from coloredlogs import install
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
@@ -22,8 +22,8 @@ class Application:
     Note: The database uses SQLAlchemy ORM (https://www.sqlalchemy.org/).
     """
 
-    __config: Config | None = None
-    __session: Session | None = None
+    __config: Union[Config, None] = None
+    __session: Union[Session, None] = None
     __base = declarative_base()  # type: DeclarativeMeta
 
     @property
@@ -32,7 +32,7 @@ class Application:
 
     def __init__(self):
         self.__token: str = self.config.get("discord", "token")
-        self.__engine: Engine | None = None
+        self.__engine: Union[Engine, None] = None
 
         self.command_sync: bool = True
 
@@ -73,7 +73,7 @@ class Application:
                     continue
             yield module
 
-    def get_extension_module(self, extension_name) -> (ModuleInfo | None):
+    def get_extension_module(self, extension_name) -> Union[ModuleInfo, None]:
         """Return the extension from the given extension name"""
 
         for extension in self.extension_modules:
