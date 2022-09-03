@@ -1,4 +1,4 @@
-from bot.models.extensions.fun.language import Trigger
+from bot.models.extensions.language.trigger import Trigger
 
 
 def seed_database():
