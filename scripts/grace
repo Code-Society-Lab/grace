@@ -12,19 +12,23 @@ Basic Commands:
         `db delete` : Deletes the tables and the database
         `db seed` : Seeds the database tables (Initialize the default values)
 
-All commands can takes the optional `-e` argument with a string, to define the environment.
-Available environment: (production [default], development, test)
+The working environment can be changed by passing `-e` argument with any valid environments.
+Available environment are production, development and test. The default one, is production.
+
+Application commands syncing can be disabled by passing `--no-sync`. By default, commands
+will automatically be synced, and it might take some time. It can be useful to disable it
+when the application is restarted often, for example when testing a feature, trying to fix a bug, etc.
 """
 
-from argparse import ArgumentParser
+from argparse import ArgumentParser, BooleanOptionalAction
 from bot.grace import start
 from scripts.database import *
 
 
-def load_application(env):
+def load_application(env, command_sync):
     """Set the environment by the given string (Available: 'production', 'development', 'test')"""
-    app.load(env)
-    info(f"Environment set to '{env}'")
+    info(f"Environment: '{env}'")
+    app.load(env, command_sync=command_sync)
 
 
 if __name__ == '__main__':
@@ -42,15 +46,20 @@ if __name__ == '__main__':
         '-e',
         type=str,
         choices=["production", "development", "test"],
-        help="-e environment (The default is production unless the BOT_ENV environment variable is defined)"
+        help="-e environment (The default is production)"
     )
+    parser.add_argument(
+        '--sync',
+        action=BooleanOptionalAction,
+        help="--sync Enables command sync (default), --no-sync Disables command sync")
 
     args = parser.parse_args()
     command = commands.get(' '.join(args.command))
     environment = args.e or "production"
+    sync = args.sync
 
     if command:
-        app.load(environment)
+        load_application(environment, sync)
         command()
     else:
         parser.error("Command not recognized")
