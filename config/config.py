@@ -1,9 +1,10 @@
-from ast import literal_eval
 from os import path
-from dotenv import load_dotenv
-from configparser import ConfigParser, BasicInterpolation, NoOptionError
-from sqlalchemy.engine import URL
 from re import match
+from ast import literal_eval
+from dotenv import load_dotenv
+from sqlalchemy.engine import URL
+from typing import MutableMapping, Mapping, Optional
+from configparser import ConfigParser, BasicInterpolation, NoOptionError, SectionProxy
 
 
 class EnvironmentInterpolation(BasicInterpolation):
@@ -24,15 +25,22 @@ class EnvironmentInterpolation(BasicInterpolation):
 
     """
 
-    def before_get(self, parser, section, option, value, defaults):
+    def before_get(
+            self,
+            parser: MutableMapping[str, Mapping[str, str]],
+            section: str,
+            option: str,
+            value: str,
+            defaults: Mapping[str, str]
+    ) -> str:
         value = super().before_get(parser, section, option, value, defaults)
-        expandvars = path.expandvars(value)
+        expandvars: str = path.expandvars(value)
 
         if (value.startswith("${") and value.endswith("}")) and value == expandvars:
             try:
-                return parser.get(section, value)
+                return str(parser.get(section, value))
             except NoOptionError:
-                return None
+                return ""
         return expandvars
 
 
@@ -49,15 +57,15 @@ class Config:
     def __init__(self):
         load_dotenv(".env")
 
-        self.__environment = None
-        self.__config = ConfigParser(interpolation=EnvironmentInterpolation())
+        self.__environment: Optional[str] = None
+        self.__config: ConfigParser = ConfigParser(interpolation=EnvironmentInterpolation())
 
         self.__config.read("config/settings.cfg")
         self.__config.read("config/database.cfg")
         self.__config.read("config/environment.cfg")
 
     @property
-    def database_uri(self):
+    def database_uri(self) -> str | URL:
         if self.database.get("url"):
             return self.database.get("url")
 
@@ -71,30 +79,30 @@ class Config:
         )
 
     @property
-    def database(self):
+    def database(self) -> SectionProxy:
         return self.__config[f"database.{self.__environment}"]
 
     @property
-    def client(self):
+    def client(self) -> SectionProxy:
         return self.__config["client"]
 
     @property
-    def environment(self):
-        return self.__config[self.__environment]
+    def environment(self) -> SectionProxy:
+        return self.__config[str(self.__environment)]
 
     @property
-    def current_environment(self):
+    def current_environment(self) -> str | None:
         return self.__environment
 
-    def get(self, section_key, value_key, fallback=None):
+    def get(self, section_key, value_key, fallback=None) -> str | int | bool:
         # I don't know if it's the desired behavior. Do we really want our config to convert out data?
-        value = self.__config.get(section_key, value_key, fallback=fallback)
+        value: str = self.__config.get(section_key, value_key, fallback=fallback)
 
         if value and match(r"^[\d.]*$|^(?:True|False)*$", value):
             return literal_eval(value)
         return value
 
-    def set_environment(self, environment):
+    def set_environment(self, environment: str):
         if environment in ["production", "development", "test"]:
             self.__environment = environment
         else:

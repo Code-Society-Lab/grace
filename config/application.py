@@ -1,11 +1,15 @@
+from configparser import SectionProxy
 from importlib import import_module
-from pkgutil import walk_packages
+from pkgutil import walk_packages, ModuleInfo
 from logging import basicConfig, critical
 from logging.handlers import RotatingFileHandler
+from types import ModuleType
+from typing import Generator, Any
 from coloredlogs import install
 from sqlalchemy import create_engine
+from sqlalchemy.engine import Engine
 from sqlalchemy.exc import OperationalError
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.orm import declarative_base, sessionmaker, Session, DeclarativeMeta
 from sqlalchemy_utils import database_exists, create_database, drop_database
 from bot import models, extensions
 from config.config import Config
@@ -18,65 +22,69 @@ class Application:
     Note: The database uses SQLAlchemy ORM (https://www.sqlalchemy.org/).
     """
 
-    __config = None
-    __session = None
-
-    def __init__(self):
-        self.__token = self.config.get("discord", "token")
-        self.__engine = None
-        self.__base = declarative_base()
-
-    @property
-    def token(self):
-        return self.__token
+    __config: Config | None = None
+    __session: Session | None = None
+    __base = declarative_base()  # type: DeclarativeMeta
 
     @property
     def base(self):
         return self.__base
 
+    def __init__(self):
+        self.__token: str = self.config.get("discord", "token")
+        self.__engine: Engine | None = None
+
+        self.command_sync: bool = True
+
     @property
-    def session(self):
+    def token(self) -> str:
+        return self.__token
+
+    @property
+    def session(self) -> Session:
         """Instantiate the session for querying the database."""
 
-        if not Application.__session:
-            session = sessionmaker(bind=self.__engine)
-            Application.__session = session()
+        if not self.__session:
+            session: sessionmaker = sessionmaker(bind=self.__engine)
+            self.__session = session()
 
-        return Application.__session
-
-    @property
-    def config(self):
-        if not Application.__config:
-            Application.__config = Config()
-
-        return Application.__config
+        return self.__session
 
     @property
-    def bot(self):
+    def config(self) -> Config:
+        if not self.__config:
+            self.__config = Config()
+
+        return self.__config
+
+    @property
+    def bot(self) -> SectionProxy:
         return self.config.client
 
     @property
-    def extension_modules(self):
+    def extension_modules(self) -> Generator[ModuleInfo, Any, None]:
         """Generate the extensions modules"""
 
         for module in walk_packages(extensions.__path__, f"{extensions.__name__}."):
             if module.ispkg:
-                imported = import_module(module.name)
+                imported: ModuleType = import_module(module.name)
 
                 if not hasattr(imported, "setup"):
                     continue
             yield module
 
-    def get_extension_module(self, extension_name):
+    def get_extension_module(self, extension_name) -> (ModuleInfo | None):
         """Return the extension from the given extension name"""
 
         for extension in self.extension_modules:
             if extension.name == extension_name:
                 return extension
+        return None
 
-    def load(self, environment):
+    def load(self, environment: str, command_sync: bool = True):
         """Sets the environment and loads all the component of the application"""
 
+        self.command_sync = command_sync
         self.config.set_environment(environment)
 
         self.load_logs()
@@ -92,14 +100,15 @@ class Application:
                 import_module(module.name)
 
     def load_logs(self):
-        file_handler = RotatingFileHandler(f"logs/{self.config.current_environment}.log",
-                                           maxBytes=10000,
-                                           backupCount=5)
+        file_handler: RotatingFileHandler = RotatingFileHandler(
+            f"logs/{self.config.current_environment}.log",
+            maxBytes=10000,
+            backupCount=5
+        )
 
         basicConfig(
             level=self.config.environment.get("log_level"),
-            format="[%(asctime)s] %(funcName)s %(levelname)s %(message)s"
-                   .format(environement=self.config.current_environment),
+            format="[%(asctime)s] %(funcName)s %(levelname)s %(message)s",
             handlers=[file_handler],
         )
 
@@ -114,7 +123,8 @@ class Application:
 
         self.__engine = create_engine(
             self.config.database_uri,
-            echo=self.config.environment.getboolean("sqlalchemy_echo"))
+            echo=self.config.environment.getboolean("sqlalchemy_echo")
+        )
 
         if database_exists(self.config.database_uri):
             try:
@@ -125,8 +135,8 @@ class Application:
     def unload_database(self):
         """Unloads the current database"""
 
-        Application.__engine = None
-        Application.__session = None
+        self.__engine = None
+        self.__session = None
 
     def reload_database(self):
         """Reload the database. This function can be use in case there's a dynamic environment change."""
@@ -152,10 +162,10 @@ class Application:
         """Creates all the tables for the current loaded database"""
 
         self.load_database()
-        self.__base.metadata.create_all(self.__engine)
+        self.base.metadata.create_all(self.__engine)
 
     def drop_tables(self):
         """Drops all the tables for the current loaded database"""
 
         self.load_database()
-        self.__base.metadata.drop_all(self.__engine)
+        self.base.metadata.drop_all(self.__engine)
