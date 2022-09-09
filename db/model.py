@@ -1,4 +1,4 @@
-from typing import Any, Sized, Optional, List
+from typing import Any, Sized, Optional, List, Tuple, Union
 from sqlalchemy.orm import Query
 from sqlalchemy.exc import PendingRollbackError, IntegrityError
 from bot import app
@@ -96,6 +96,16 @@ class Model:
         """
 
         return cls.query().filter_by(**kwargs)
+
+    @classmethod
+    def filter(cls, *criterion: Tuple[Any]) -> Query:
+        """Shorter way to call the sqlalchemy query filter method
+
+        :usage
+            Model.filter(Model.id > 5)
+        """
+
+        return app.session.query(cls).filter(*criterion)
 
     @classmethod
     def count(cls) -> int:
