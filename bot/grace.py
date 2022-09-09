@@ -1,5 +1,5 @@
 from logging import info, warning, critical
-from discord import Intents, LoginFailure
+from discord import Intents, LoginFailure, ActivityType, Activity
 from discord.ext import commands
 from pretty_help import PrettyHelp
 from bot import app
@@ -16,7 +16,8 @@ class Grace(commands.Bot):
             command_prefix=commands.when_mentioned_or(self.config.get("prefix")),
             description=self.config.get("description"),
             help_command=PrettyHelp(color=self.default_color),
-            intents=Intents.all()
+            intents=Intents.all(),
+            activity=Activity(type=ActivityType.playing, name="::help")
         )
 
     def get_channel_by_name(self, name):
@@ -48,7 +49,7 @@ class Grace(commands.Bot):
         await self.load_extensions()
 
         if app.command_sync:
-            info("Syncing application commands. This may take some time.")
+            warning("Syncing application commands. This may take some time.")
             await self.tree.sync()
 
 
