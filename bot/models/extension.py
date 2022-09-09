@@ -12,6 +12,10 @@ class Extension(app.base, Model):
     module_name = Column(String(255), nullable=False, unique=True)
     _state = Column("state", Integer, default=1)
 
+    @classmethod
+    def by_state(cls, state):
+        return cls.where(_state=state.value)
+
     @property
     def name(self):
         return self.module_name.split(".")[-1].replace("_", " ").title()
