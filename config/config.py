@@ -95,7 +95,6 @@ class Config:
         return self.__environment
 
     def get(self, section_key, value_key, fallback=None) -> Union[str, int, bool]:
-        # I don't know if it's the desired behavior. Do we really want our config to convert out data?
         value: str = self.__config.get(section_key, value_key, fallback=fallback)
 
         if value and match(r"^[\d.]*$|^(?:True|False)*$", value):

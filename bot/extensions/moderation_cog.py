@@ -43,7 +43,7 @@ class ModerationCog(Cog, name="moderation", description="Collection of administr
         await ctx.guild.unban(user)
         await log.send(self.moderation_channel)
 
-    @hybrid_command(name='purge', help="Deletes n amount of messages. If a user is supplied, it will erase only its messages")
+    @hybrid_command(name='purge', help="Deletes n amount of messages.")
     @has_permissions(manage_messages=True)
     async def purge(self, ctx, limit: int, member: Member = None):
         message_deleted_count = 0

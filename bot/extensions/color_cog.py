@@ -47,11 +47,11 @@ class ColorCog(Cog, name="Color", description="Collection of commands to bring c
         help="Displays the color of the hexcode entered by the user.",
         usage="color show hex {hexadecimal string}"
     )
-    async def hex_command(self, ctx, hex: str):
-        if not hex.startswith('#'):
-            hex = f'#{hex}'
+    async def hex_command(self, ctx, hex_code: str):
+        if not hex_code.startswith('#'):
+            hex_code = f'#{hex_code}'
 
-        await self.display_color(ctx, hex)
+        await self.display_color(ctx, hex_code)
 
 
 async def setup(bot):
