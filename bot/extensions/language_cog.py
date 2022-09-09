@@ -5,7 +5,7 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from bot.models.extensions.language.trigger import Trigger
 
 
-class LanguageCog(Cog):
+class LanguageCog(Cog, name="Language", description="Analyze and reacts to messages"):
     def __init__(self, bot):
         """
         I know not everyone working here is familiar with NLTK, so I'll explain some terminology.

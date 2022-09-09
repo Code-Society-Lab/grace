@@ -6,7 +6,7 @@ from bot.helpers.log_helper import danger
 from datetime import datetime
 
 
-class ModerationCog(Cog, name="moderation", description="Collection of administrative commands."):
+class ModerationCog(Cog, name="Moderation", description="Collection of administrative commands."):
     def __init__(self, bot):
         self.bot = bot
 
