@@ -48,6 +48,7 @@ class Grace(commands.Bot):
         await self.load_extensions()
 
         if app.command_sync:
+            info("Syncing application commands. This may take some time.")
             await self.tree.sync()
 
 

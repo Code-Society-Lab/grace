@@ -56,7 +56,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     command = commands.get(' '.join(args.command))
     environment = args.e or "production"
-    sync = args.sync
+    sync = args.sync or True
 
     if command:
         load_application(environment, sync)
