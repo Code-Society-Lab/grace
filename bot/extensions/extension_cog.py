@@ -1,9 +1,17 @@
 from discord import Embed
+from discord.app_commands import Choice, autocomplete
 from discord.ext.commands import Cog, has_permissions, ExtensionAlreadyLoaded, ExtensionNotLoaded, hybrid_group
 from emoji import emojize
 from bot.classes.state import State
 from bot.extensions.command_error_handler import CommandErrorHandler
 from bot.models.extension import Extension
+
+
+async def extension_autocomplete(_, current):
+    def create_choice(extension):
+        state_emoji = emojize(':green_circle:') if extension.is_enabled() else emojize(':red_circle:')
+        return Choice(name=f"{state_emoji} {extension.name}", value=extension.module_name)
+    return list(map(create_choice, Extension.filter(Extension.module_name.ilike(f"%{current}%"))))
 
 
 class ExtensionCog(Cog, name="Extensions", description="Extensions managing cog"):
@@ -42,8 +50,9 @@ class ExtensionCog(Cog, name="Extensions", description="Extensions managing cog"
 
     @extension_group.command(name="enable", aliases=["e"], help="Enable a given extension", usage="{extension_id}")
     @has_permissions(administrator=True)
+    @autocomplete(extension_name=extension_autocomplete)
     async def enable_extension_command(self, ctx, extension_name):
-        extension = Extension.find_by_name(extension_name)
+        extension = Extension.get_by(module_name=extension_name)
 
         if extension:
             try:
@@ -59,8 +68,9 @@ class ExtensionCog(Cog, name="Extensions", description="Extensions managing cog"
 
     @extension_group.command(name="disable", aliases=["d"], help="Disable a given extension", usage="{extension_id}")
     @has_permissions(administrator=True)
+    @autocomplete(extension_name=extension_autocomplete)
     async def disable_extension_command(self, ctx, extension_name):
-        extension = Extension.find_by_name(extension_name)
+        extension = Extension.get_by(module_name=extension_name)
 
         if extension:
             try:
