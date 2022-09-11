@@ -4,13 +4,13 @@ import urllib.request
 import json
 
 
-def searchWikipedia(search):
+def search_results(search):
         urlencode = urllib.parse.quote(search)
         url = "https://en.wikipedia.org/w/api.php?action=opensearch" \
               "&format=json&limit=3&namespace=0&search=" + urlencode
         with urllib.request.urlopen(url) as url:
-            s = url.read()
-            return json.loads(s)
+            jsonPlaintext = url.read()
+            return json.loads(jsonPlaintext)
 
 
 class buttons(discord.ui.View):
@@ -21,8 +21,8 @@ class buttons(discord.ui.View):
         self.value = None
 
     @discord.ui.button(label='1', style=discord.ButtonStyle.primary)
-    async def one(self, interaction: discord.Interaction,
-                  button: discord.ui.Button):
+    async def choiceOne(self, interaction: discord.Interaction,
+                        button: discord.ui.Button):
         if (len(self.result[3]) >= 1):
             await interaction.response.send_message(interaction.user.mention +
                                                     " requested:\n" +
@@ -34,8 +34,8 @@ class buttons(discord.ui.View):
                                                     ephemeral=True)
 
     @discord.ui.button(label='2', style=discord.ButtonStyle.primary)
-    async def two(self, interaction: discord.Interaction,
-                  button: discord.ui.Button):
+    async def choiceTwo(self, interaction: discord.Interaction,
+                        button: discord.ui.Button):
         if (len(self.result[3]) >= 2):
             await interaction.response.send_message(interaction.user.mention +
                                                     " requested:\n" +
@@ -47,8 +47,8 @@ class buttons(discord.ui.View):
                                                     ephemeral=True)
 
     @discord.ui.button(label='3', style=discord.ButtonStyle.primary)
-    async def three(self, interaction: discord.Interaction,
-                    button: discord.ui.Button):
+    async def choiceThree(self, interaction: discord.Interaction,
+                          button: discord.ui.Button):
         if (len(self.result[3]) == 3):
             await interaction.response.send_message(interaction.user.mention +
                                                     " requested:\n" +
@@ -65,10 +65,10 @@ class Wikipedia(Cog, name="Wikipedia", description="Search on Wikipedia."):
         self.bot = bot
 
     @hybrid_command(
-        description="Searches and displays the first 3 results\
-        from Wikipedia.")
+        description="Searches and displays the first 3 results "
+                    "from Wikipedia.")
     async def wiki(self, ctx, search: str):
-        result = searchWikipedia(search)
+        result = search_results(search)
         view = buttons(search, result)
         if (len(result[1]) == 0):
             await ctx.interaction.response.send_message("No result found.",
