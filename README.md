@@ -13,7 +13,7 @@ Installing Grace is fairly simple. You can do it in three short step.
 
 
 ### Install Python and dependencies
-0. The first step is pretty simple, install [Python](https://www.python.org/downloads/). You need to install Python 3.0 or
+0. The first step is pretty simple, install [Python](https://www.python.org/downloads/). You need to install Python 3.9 or
 higher.
 
 > We highly recommend that you set up a virtual environment to work on Grace.
@@ -101,4 +101,4 @@ Before contributing please refer to our [contribution guidelines](https://github
 ---
 
 ## Support
-For any issues or questions feel free to [join](https://discord.gg/6GEF9H9m) our server and have a chat with us. You can also checkout our [troubleshooting](https://github.com/Code-Society-Lab/grace/wiki/Troubleshooting) section.
+For any issues or questions feel free to [join](https://discord.gg/code-society-823178343943897088) our server and have a chat with us. You can also checkout our [troubleshooting](https://github.com/Code-Society-Lab/grace/wiki/Troubleshooting) section.

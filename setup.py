@@ -11,11 +11,17 @@ def after_install():
 
 setup(
     name='Grace',
-    description='The Code Society community Bot',
     version='2.2.0',
     author='Code Society Lab',
-    author_email='',
-    python_require='>=3.0',
+    description='The Code Society community Bot',
+    url="https://github.com/Code-Society-Lab/grace",
+    project_urls={
+        "Documentation": "https://github.com/Code-Society-Lab/grace/wiki",
+        "Issue tracker": "https://github.com/Code-Society-Lab/grace/issues",
+        "Discord server": "https://discord.gg/code-society-823178343943897088",
+    },
+    license="GNU General Public License v3.0",
+    python_requires='>=3.9.0',
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
@@ -36,6 +42,7 @@ setup(
         'mypy',
     ],
     scripts=['scripts/grace'],
+    data_files=[("configs", ["config/database.cfg", "config/environment.cfg", "config/settings.cfg"])]
 )
 
 after_install()
