@@ -30,7 +30,7 @@ Installing Grace is fairly simple. You can do it in three short step.
 2. [Configuring the database](#configuring-the-database)
 
 #### Install Python and dependencies
-0. The first step is pretty simple, install [Python](https://www.python.org/downloads/). You need to install Python 3.0 or
+0. The first step is pretty simple, install [Python](https://www.python.org/downloads/). You need to install Python 3.9 or
 higher.
 
 1. In the `grace` directory project, open a terminal (Linus/MacOS) or cmd (Windows) and execute `pip install -e .` 
