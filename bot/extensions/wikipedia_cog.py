@@ -75,10 +75,10 @@ class Wikipedia(Cog, name="Wikipedia", description="Search on Wikipedia."):
                                                         ephemeral=True)
         else:
             resultView = ""
-            search_count = 0
+            search_count = 1
             for result in result[1]:
-                search_count += 1
                 resultView += str(search_count) + ": " + result + "\n"
+                search_count += 1
             await ctx.send(resultView, view=view, ephemeral=True)
 
 
