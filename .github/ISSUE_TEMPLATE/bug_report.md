@@ -1,38 +1,35 @@
 ---
 name: Bug report
-about: Create a report to help us improve
+about: Report a bug with Grace
 title: ''
 labels: bug
-assignees: ''
+assignees: @PenguinBoi12
 
 ---
 
 **Describe the bug**
-A clear and concise description of what the bug is.
+<!-- Add clear and detailed description of the bug. -->
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+**Have you been able to reproduce the bug?**
+<!--
+If you have been able to reproduce the bug, explain how you did it. 
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+Ex. 
+ 1. Go to '...'
+ 2. Click on '....'
+ 3. Scroll down to '....'
+...
+
+If you haven't been able too, explain what you were doing before the bug happend.
+-->
 
 **Screenshots**
-If applicable, add screenshots to help explain your problem.
+<!-- Add screenshots to help us see the issue. -->
 
 **Desktop (please complete the following information):**
  - OS: [e.g. iOS]
  - Browser [e.g. chrome, safari]
  - Version [e.g. 22]
 
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
-
-**Additional context**
-Add any other context about the problem here.
+**Additional context** <!-- Remove if not applicable -->
+<!-- Add any other context about the problem here. -->
