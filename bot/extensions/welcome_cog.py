@@ -1,4 +1,4 @@
-from discord.ext.commands import Cog, command
+from discord.ext.commands import Cog, hybrid_command
 from logging import info
 from discord import Member
 from bot.grace import Grace
@@ -37,11 +37,11 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
     async def on_member_join(self, member):
         info(f"{member.display_name} joined the server!")
 
-    @command(name="welcome", description="Welcomes the person who issues the command")
+    @hybrid_command(name="welcome", description="Welcomes the person who issues the command")
     async def welcome_command(self, ctx):
         info(f"{ctx.author.display_name} asked to get welcomed!")
 
-        await ctx.send(self.get_welcome_message(ctx.author))
+        await ctx.send(self.get_welcome_message(ctx.author), ephemeral=True)
 
 
 async def setup(bot):
