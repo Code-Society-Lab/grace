@@ -1,7 +1,6 @@
 from discord.ext.commands import Cog, hybrid_command
 from logging import info
 from discord import Member
-from bot.grace import Grace
 from bot.models.channel import Channel
 
 
@@ -10,7 +9,7 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
                       "moment to read the <#{info_id}> and the <#{rules_id}>.\n    - Choose some <#{roles_id}>.\n" \
                       "- Feel free to introduce yourself in <#{intro_id}>."
 
-    def __init__(self, bot: Grace):
+    def __init__(self, bot):
         self.bot = bot
 
     def get_welcome_message(self, member: Member):

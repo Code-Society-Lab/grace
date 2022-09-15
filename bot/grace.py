@@ -1,19 +1,19 @@
 from logging import info, warning, critical
 from discord import Intents, LoginFailure, ActivityType, Activity
-from discord.ext import commands
+from discord.ext.commands import Bot, when_mentioned_or, hybrid_command
 from pretty_help import PrettyHelp
 from bot import app
 from bot.models.channel import Channel
 from bot.models.extension import Extension
 
 
-class Grace(commands.Bot):
+class Grace(Bot):
     def __init__(self):
         self.config = app.bot
         self.default_color = int(self.config.get("default_color"), 16)
 
         super().__init__(
-            command_prefix=commands.when_mentioned_or(self.config.get("prefix")),
+            command_prefix=when_mentioned_or(self.config.get("prefix")),
             description=self.config.get("description"),
             help_command=PrettyHelp(color=self.default_color),
             intents=Intents.all(),
