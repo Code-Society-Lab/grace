@@ -25,7 +25,7 @@ class Buttons(discord.ui.View):
               request=self.result[3][index-1]
             ))
             self.stop()
-        else:
+         else:
             await interaction.response.send_message("Invalid choice.", ephemeral=True)         
 
     @discord.ui.button(label='1', style=discord.ButtonStyle.primary)
