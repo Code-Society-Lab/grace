@@ -47,7 +47,7 @@ class Wikipedia(Cog, name="Wikipedia", description="Search on Wikipedia."):
         self.bot = bot
 
     @hybrid_command(description="Searches and displays the first 3 results from Wikipedia.")
-    async def wiki(self, ctx, search: str):
+    async def wiki(self, ctx, *, search: str):
         result = search_results(search)
         view = Buttons(search, result)
 
