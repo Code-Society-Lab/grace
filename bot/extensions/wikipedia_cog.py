@@ -3,6 +3,7 @@ import discord
 from urllib.request import urlopen
 from urllib.parse import quote_plus
 from json import loads
+from discord import Embed
 
 
 def search_results(search):
@@ -26,7 +27,7 @@ class Buttons(discord.ui.View):
             ))
             self.stop()
          else:
-            await interaction.response.send_message("Invalid choice.", ephemeral=True)         
+            await interaction.response.send_message("Invalid choice.", ephemeral=True)
 
     @discord.ui.button(label='1', style=discord.ButtonStyle.primary)
     async def first_wiki_result(self, interaction, button):
@@ -49,7 +50,7 @@ class Wikipedia(Cog, name="Wikipedia", description="Search on Wikipedia."):
     async def wiki(self, ctx, search: str):
         result = search_results(search)
         view = Buttons(search, result)
-        
+
         if len(result[1]) == 0:
             await ctx.interaction.response.send_message("No result found.", ephemeral=True)
         else:
@@ -58,8 +59,13 @@ class Wikipedia(Cog, name="Wikipedia", description="Search on Wikipedia."):
             for result in result[1]:
                 result_view  += f"{str(search_count)}: {result}\n"
                 search_count += 1
-                
-            await ctx.send(result_view, view=view, ephemeral=True)
+
+            embed = Embed(
+                color=0x2376ff,
+                title=f"Top 3 Wikipedia Search",
+                description=result_view,
+            )
+            await ctx.send(embed=embed, view=view, ephemeral=True)
 
 
 async def setup(bot):
