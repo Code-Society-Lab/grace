@@ -5,6 +5,8 @@ from sqlalchemy import pool
 
 from alembic import context
 
+from bot import app
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
@@ -20,10 +22,14 @@ if config.config_file_name is not None:
 # target_metadata = mymodel.Base.metadata
 target_metadata = None
 
+
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
+def get_environment_name() -> str:
+    name = config.config_ini_section
+    return "production" if name == "alembic" else name
 
 
 def run_migrations_offline() -> None:
@@ -57,10 +63,13 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
+    app.load(get_environment_name())
+
     connectable = engine_from_config(
         config.get_section(config.config_ini_section),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
+        url=app.config.database_uri
     )
 
     with connectable.connect() as connection:
