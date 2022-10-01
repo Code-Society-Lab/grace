@@ -1,5 +1,6 @@
 from discord.ext.commands import Cog, hybrid_command
-import discord
+from discord.ui import View
+from discord import ButtonStyle, ui
 from urllib.request import urlopen
 from urllib.parse import quote_plus
 from json import loads
@@ -7,46 +8,46 @@ from discord import Embed
 
 
 def search_results(search):
-        url_encode = quote_plus(search)
-        url = f"https://en.wikipedia.org/w/api.php?action=opensearch&format=json&limit=3&namespace=0&search={url_encode}"
-        with urlopen(url) as url:
-            return loads(url.read())
+    url_encode = quote_plus(search)
+    url = f"https://en.wikipedia.org/w/api.php?action=opensearch&format=json&limit=3&namespace=0&search={url_encode}"
+    with urlopen(url) as url:
+        return loads(url.read())
 
 
-class Buttons(discord.ui.View):
+class Buttons(View):
     def __init__(self, search, result):
         super().__init__()
         self.search = search
         self.result = result
 
-    async def wiki_result(self, interaction, button, index):
-         if len(self.result[3]) >= index:
+    async def wiki_result(self, interaction, _, index):
+        if len(self.result[3]) >= index:
             await interaction.response.send_message("{mention} requested:\n {request}".format(
-              mention=interaction.user.mention,
-              request=self.result[3][index-1]
+                mention=interaction.user.mention,
+                request=self.result[3][index-1]
             ))
             self.stop()
-         else:
+        else:
             await interaction.response.send_message("Invalid choice.", ephemeral=True)
 
-    @discord.ui.button(label='1', style=discord.ButtonStyle.primary)
+    @ui.button(label='1', style=ButtonStyle.primary)
     async def first_wiki_result(self, interaction, button):
-      await self.wiki_result(interaction, button, 1)
+        await self.wiki_result(interaction, button, 1)
 
-    @discord.ui.button(label='2', style=discord.ButtonStyle.primary)
+    @ui.button(label='2', style=ButtonStyle.primary)
     async def second_wiki_result(self, interaction, button):
-      await self.wiki_result(interaction, button, 2)
+        await self.wiki_result(interaction, button, 2)
 
-    @discord.ui.button(label='3', style=discord.ButtonStyle.primary)
+    @ui.button(label='3', style=ButtonStyle.primary)
     async def third_wiki_result(self, interaction, button):
-      await self.wiki_result(interaction, button, 3)
+        await self.wiki_result(interaction, button, 3)
 
 
 class Wikipedia(Cog, name="Wikipedia", description="Search on Wikipedia."):
     def __init__(self, bot):
         self.bot = bot
 
-    @hybrid_command(description="Searches and displays the first 3 results from Wikipedia.")
+    @hybrid_command(name="wiki", description="Searches and displays the first 3 results from Wikipedia.")
     async def wiki(self, ctx, *, search: str):
         result = search_results(search)
         view = Buttons(search, result)
