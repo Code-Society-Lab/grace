@@ -22,7 +22,7 @@ when the application is restarted often, for example when testing a feature, try
 
 from argparse import ArgumentParser, BooleanOptionalAction
 from bot.grace import start
-from scripts.database import *
+from bin.database import *
 
 
 def load_application(env, command_sync):
