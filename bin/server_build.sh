@@ -1,10 +1,10 @@
 #!/bin/bash
 
 generate_config() {
-  config_path=./config/database.cfg
+  config_path=config/database.cfg
 
   if [ ! -f $config_path ]; then
-    cat ./scripts/templates/heroku.database.template.cfg > $config_path
+    cat scripts/templates/heroku.database.template.cfg > $config_path
   fi
 }
 
