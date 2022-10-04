@@ -4,7 +4,7 @@ generate_config() {
   config_path=config/database.cfg
 
   if [ ! -f $config_path ]; then
-    cat scripts/templates/heroku.database.template.cfg > $config_path
+    cat bin/templates/heroku.database.template.cfg > $config_path
   fi
 }
 
