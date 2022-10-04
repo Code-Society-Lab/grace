@@ -23,4 +23,3 @@ generate_config
 
 pip install .
 init
-grace start
