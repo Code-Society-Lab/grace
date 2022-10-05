@@ -4,7 +4,7 @@ from pkgutil import walk_packages, ModuleInfo
 from logging import basicConfig, critical
 from logging.handlers import RotatingFileHandler
 from types import ModuleType
-from typing import Generator, Any, Union, IO
+from typing import Generator, Any, Union, IO, Dict
 from coloredlogs import install
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
@@ -42,7 +42,6 @@ class Application:
         self.__engine: Union[Engine, None] = None
 
         self.command_sync: bool = True
-
 
     @property
     def token(self) -> str:
@@ -82,6 +81,13 @@ class Application:
             yield module
 
     @property
+    def database_infos(self) -> Dict[str, str]:
+        return {
+            "dialect": self.session.bind.dialect.name,
+            "database": self.session.bind.url.database
+        }
+
+    @property
     def database_exists(self):
         return database_exists(self.config.database_uri)
 
@@ -95,6 +101,7 @@ class Application:
 
     def load(self, environment: str, command_sync: bool = True):
         """Sets the environment and loads all the component of the application"""
+
         self.command_sync = command_sync
         self.config.set_environment(environment)
         self.load_logs()

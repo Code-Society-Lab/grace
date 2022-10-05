@@ -63,7 +63,6 @@ class Config:
         self.__config.read("config/database.cfg")
         self.__config.read("config/environment.cfg")
 
-
     @property
     def database_uri(self) -> Union[str, URL]:
         if self.database.get("url"):
@@ -75,7 +74,7 @@ class Config:
             self.database.get("password"),
             self.database.get("host"),
             self.database.getint("port"),
-            self.database.get("database", f"{self.client['name']}_{self.__environment}")
+            self.database.get("database", self.database_name)
         )
 
     @property
@@ -93,6 +92,10 @@ class Config:
     @property
     def current_environment(self) -> Optional[str]:
         return self.__environment
+
+    @property
+    def database_name(self) -> str:
+        return f"{self.client['name']}_{self.current_environment}"
 
     def get(self, section_key, value_key, fallback=None) -> Union[str, int, bool]:
         value: str = self.__config.get(section_key, value_key, fallback=fallback)

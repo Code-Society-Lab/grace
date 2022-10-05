@@ -20,14 +20,34 @@ will automatically be synced, and it might take some time. It can be useful to d
 when the application is restarted often, for example when testing a feature, trying to fix a bug, etc.
 """
 
+import discord
+from os import getpid
 from argparse import ArgumentParser, BooleanOptionalAction
 from bin.database import *
 
 
+APP_INFO = """
+| Discord.py version: {discord_version}
+| PID: {pid}
+| Environment: {env}
+| Using database: {database} with {dialect}
+| Syncing command: {command_sync}
+Enter CTRL+C to stop
+""".rstrip()
+
+
 def _load_application(env, command_sync):
     """Set the environment by the given string (Available: 'production', 'development', 'test')"""
-    info(f"Environment: '{env}'")
     app.load(env, command_sync=command_sync)
+
+    info(APP_INFO.format(
+        discord_version=discord.__version__,
+        env=env,
+        pid=getpid(),
+        database=app.database_infos["database"],
+        dialect=app.database_infos["dialect"],
+        command_sync=command_sync,
+    ))
 
 
 def start():
