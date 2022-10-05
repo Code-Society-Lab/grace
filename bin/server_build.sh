@@ -20,6 +20,4 @@ init() {
 }
 
 generate_config
-
-pip install .
 init

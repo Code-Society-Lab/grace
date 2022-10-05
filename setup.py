@@ -40,7 +40,8 @@ setup(
         'pytz',
         'timezonefinder',
         'mypy',
-        'alembic'
+        'alembic',
+        'configparser'
     ],
     scripts=['bin/grace'],
     data_files=[("configs", ["config/database.cfg", "config/environment.cfg", "config/settings.cfg"])]
