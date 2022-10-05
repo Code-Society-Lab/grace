@@ -1,10 +1,10 @@
 #!/bin/bash
 
 generate_config() {
-  config_path=config/database.cfg
+  config_path=/app/config/database.cfg
 
   if [ ! -f $config_path ]; then
-    cat bin/templates/heroku.database.template.cfg > $config_path
+    cat /app/bin/templates/heroku.database.template.cfg > $config_path
   fi
 }
 
@@ -20,5 +20,7 @@ init() {
 }
 
 generate_config
+
+pip install .
 init
 grace start
