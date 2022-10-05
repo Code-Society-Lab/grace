@@ -26,27 +26,34 @@ def seed_tables():
 
 
 def create_all():
-    info(f"Creating all...")
+    if not app.database_exists:
+        info(f"Creating all...")
 
-    try:
-        app.create_database()
-        app.create_tables()
+        try:
+            app.create_database()
+            app.create_tables()
 
-        info("Database created successfully!")
-    except SQLAlchemyError as e:
-        critical(f"Critical Error: {e}")
+            info("Database created successfully!")
+        except SQLAlchemyError as e:
+            critical(f"Critical Error: {e}")
+    else:
+        warning("Database already exists")
 
 
 def drop_all():
-    warning("Dropping all...")
+    if app.database_exists:
+        warning("Dropping all...")
 
-    try:
-        app.drop_tables()
-        app.drop_database()
+        try:
+            app.drop_tables()
+            app.drop_database()
 
-        info("Database dropped successfully!")
-    except SQLAlchemyError as e:
-        critical(f"Critical Error: {e}")
+            info("Database dropped successfully!")
+        except SQLAlchemyError as e:
+            critical(f"Critical Error: {e}")
+    else:
+        warning("Database doesn't exists")
+
 
 def reset():
     warning("Resetting the database")

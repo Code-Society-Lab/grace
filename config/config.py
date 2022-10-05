@@ -53,7 +53,6 @@ class Config:
     There can be only one config loaded at once. Which means thar if you instantiate a second or multiple Config
     object, they will all share the same environment. This is to say, that the config objects are identical.
     """
-
     def __init__(self):
         load_dotenv(".env")
 
@@ -63,6 +62,7 @@ class Config:
         self.__config.read("config/settings.cfg")
         self.__config.read("config/database.cfg")
         self.__config.read("config/environment.cfg")
+
 
     @property
     def database_uri(self) -> Union[str, URL]:

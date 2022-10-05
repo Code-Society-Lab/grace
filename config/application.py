@@ -4,7 +4,7 @@ from pkgutil import walk_packages, ModuleInfo
 from logging import basicConfig, critical
 from logging.handlers import RotatingFileHandler
 from types import ModuleType
-from typing import Generator, Any, Union
+from typing import Generator, Any, Union, IO
 from coloredlogs import install
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
@@ -13,6 +13,7 @@ from sqlalchemy.orm import declarative_base, sessionmaker, Session, DeclarativeM
 from sqlalchemy_utils import database_exists, create_database, drop_database
 from bot import models, extensions
 from config.config import Config
+from pathlib import Path
 
 
 class Application:
@@ -26,15 +27,22 @@ class Application:
     __session: Union[Session, None] = None
     __base = declarative_base()  # type: DeclarativeMeta
 
+    template_path: Path = Path("bin/templates/default.database.template.cfg")
+    database_config_path: Path = Path("config/database.cfg")
+
     @property
     def base(self):
         return self.__base
 
     def __init__(self):
+        if not self.database_config_path.exists():
+            self._generate_database_config()
+
         self.__token: str = self.config.get("discord", "token")
         self.__engine: Union[Engine, None] = None
 
         self.command_sync: bool = True
+
 
     @property
     def token(self) -> str:
@@ -73,6 +81,10 @@ class Application:
                     continue
             yield module
 
+    @property
+    def database_exists(self):
+        return database_exists(self.config.database_uri)
+
     def get_extension_module(self, extension_name) -> Union[ModuleInfo, None]:
         """Return the extension from the given extension name"""
 
@@ -83,10 +95,8 @@ class Application:
 
     def load(self, environment: str, command_sync: bool = True):
         """Sets the environment and loads all the component of the application"""
-
         self.command_sync = command_sync
         self.config.set_environment(environment)
-
         self.load_logs()
         self.load_models()
         self.load_database()
@@ -126,7 +136,7 @@ class Application:
             echo=self.config.environment.getboolean("sqlalchemy_echo")
         )
 
-        if database_exists(self.config.database_uri):
+        if self.database_exists:
             try:
                 self.__engine.connect()
             except OperationalError as e:
@@ -147,16 +157,14 @@ class Application:
     def create_database(self):
         """Creates the database for the current loaded config"""
 
-        if not database_exists(self.config.database_uri):
-            self.load_database()
-            create_database(self.config.database_uri)
+        self.load_database()
+        create_database(self.config.database_uri)
 
     def drop_database(self):
         """Drops the database for the current loaded config"""
 
-        if not database_exists(self.config.database_uri):
-            self.load_database()
-            drop_database(self.config.database_uri)
+        self.load_database()
+        drop_database(self.config.database_uri)
 
     def create_tables(self):
         """Creates all the tables for the current loaded database"""
@@ -169,3 +177,12 @@ class Application:
 
         self.load_database()
         self.base.metadata.drop_all(self.__engine)
+
+    def _generate_database_config(self):
+        template: IO = open(self.template_path, mode='rt', encoding='utf-8')
+        config: IO = open(self.database_config_path, mode='wt', encoding='utf-8')
+
+        config.write(template.read())
+
+        template.close()
+        config.close()

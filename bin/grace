@@ -21,14 +21,29 @@ when the application is restarted often, for example when testing a feature, try
 """
 
 from argparse import ArgumentParser, BooleanOptionalAction
-from bot.grace import start
 from bin.database import *
 
 
-def load_application(env, command_sync):
+def _load_application(env, command_sync):
     """Set the environment by the given string (Available: 'production', 'development', 'test')"""
     info(f"Environment: '{env}'")
     app.load(env, command_sync=command_sync)
+
+
+def start():
+    import bot.grace
+
+    if not app.database_exists:
+        create_all()
+        seed_tables()
+
+    bot.grace.start()
+
+
+def init():
+    if not app.database_exists:
+        create_all()
+        seed_tables()
 
 
 if __name__ == '__main__':
@@ -62,7 +77,7 @@ if __name__ == '__main__':
         sync = True
 
     if command:
-        load_application(environment, sync)
+        _load_application(environment, sync)
         command()
     else:
         parser.error("Command not recognized")
