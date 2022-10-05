@@ -1,98 +1,56 @@
 
 # Grace
-Grace is the official Code Society discord bot. The goal is to allow every member of the Code Society to participate in the development of the server's bot. 
+Grace is the official Code Society discord bot. The goal is to give our members the opportunity to participate in the
+development of the server's bot and contribute to a team project while also improving it.
 
 ---
 
 ## Installation
 Installing Grace is fairly simple. You can do it in three short step.
 
-0. [Install Python and dependencies](#install-python-and-dependencies)
-1. [Set up your app and token](#set-up-your-app-and-token)
-2. [Configuring the database](#configuring-the-database)
+0. [Install Python and dependencies](#0-install-python-and-dependencies)
+1. [Set up your app and token](#1-set-up-your-app-and-token)
+2. [Start the bot](#2-start-the-bot)
 
-
-### Install Python and dependencies
-0. The first step is pretty simple, install [Python](https://www.python.org/downloads/). You need to install Python 3.9 or
-higher.
+### 0. Python and Dependencies
+Install [Python](https://www.python.org/downloads/). Python 3.9 or higher is required.
 
 > We highly recommend that you set up a virtual environment to work on Grace.
 > https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/
 
-2. In the `grace` directory, open a terminal (Linus/MacOS) or cmd (Windows) and execute `pip install -e .` 
-(recommended for development) or `pip install .` to install all the dependencies needed. 
+In the `grace` directory, open a terminal (Linus/MacOS) or cmd (Windows) and execute `pip install -e .` 
+(recommended for development) or `pip install .`. 
 
-### Set up your app and token
-If you didn't already do it, [create](https://discord.com/developers/docs/getting-started#creating-an-app) your 
-bot with Discord. Then, create a file called `.env` in the project directory. Open your new `.env` file and add 
-`DISCORD_TOKEN=<Your token>` inside. (Replace <Your token> by your discord token).
+### 1. Set up your App and Token
+If you did not already do it, [create](https://discord.com/developers/docs/getting-started#creating-an-app) your Discord 
+bot. Then, create a file called `.env` in the project directory, open it and add 
+`DISCORD_TOKEN=<Your token>`. (Replace <Your token> by your discord token).
 
-> Do not share that file nor the information inside it to anyone. 
+> Do not share that file nor the information inside with anyone.
 
-### Configuring the database
-In order for the bot to work, you need to connect it to a database. Supported databases are SQLite, MySQL/MariaDB, 
-PostgresSQL, Oracle and Microsoft SQL Server. ([Supported dialects](https://docs.sqlalchemy.org/en/14/dialects/index.html)) 
+### 2. Start the Bot
+The last part is to execute the bot. Execute `grace start -e development` to start Grace in development mode. The rest
+of the installation should complete itself and start the bot.
 
-To set up the connection to your database, create a new file in the `config` folder and call it `database.cfg`. You can 
-have three database configurations, one for each environment (production, test and development). Each section is 
-delimited by `[database.<environment>]`. 
+> If the grace command is unrecognized, be sure that you installed the bot properly. 
 
-The next step is to set up the adapter _dialect + drivers (optional)_. The rest will depend on your database.
-Bellow, you'll find examples of common configuration.
-
-> You can also use `config/database.template.cfg` to help you set up your `database.cfg`.
-
-#### SQLite
-```ini
-[database.development]
-adapter = sqlite
-database = grace.db
-```
-
-#### MySQL/MariaDB
-```ini
-[database.development]
-adapter = mysql
-user = grace
-password = GraceHopper1234
-host = localhost
-port = 3306
-```
-
-#### PostgreSQL
-```ini
-[database.development]
-adapter = postgresql+psycopg2
-user = grace
-password = GraceHopper1234
-host = localhost
-port = 5432
-```
-
-The last step is to create the tables and add data to them. Simply execute the following commands :
-- `grace db create`
-- `grace db seed`
-
-> Don't forget to specify the environment you are using with `-e environment`
----
-
-## Usage
-The bot comes with a script to **manage** it. 
-
-### Basic Commands:
+## Script Usage
 - **Bot Command(s)**:
   - `grace start` : Starts the bot (`ctrl+c` to stop the bot)
 - **Database Command(s)**:
     - `grace db create` : Creates the database and the tables
-    - `grace db drop` : Deletes the tables and the database
-    - `grace db seed` : Seeds the tables (Initialize the default values)
-    
+    - `grace db drop`   : Deletes the tables and the database
+    - `grace db seed`   : Seeds the tables (Initialize the default values)
+    - `grace db reset`  : Drop, recreate and seeds the database.
+  
 All commands can take the optional `-e` argument with a string to define the environment.<br>
 Available environment: (production [default], development, test)
 
-> We recommend using "development" when you're in the development process
-
+> We recommend using "development" (ex. grace start -e development)
 ---
+
+## Advance configurations
+For advance configurations, visit the [wiki](https://github.com/Code-Society-Lab/grace/wiki)
 
 ## Contribution
 As mentioned in the description, we invite everyone to participate in the development of the bot. You can contribute to the project by simply opening an issue, by improving some current features or even by adding your own features.
@@ -100,5 +58,6 @@ Before contributing please refer to our [contribution guidelines](https://github
 
 ---
 
-## Support
-For any issues or questions feel free to [join](https://discord.gg/code-society-823178343943897088) our server and have a chat with us. You can also checkout our [troubleshooting](https://github.com/Code-Society-Lab/grace/wiki/Troubleshooting) section.
+## Troubleshooting
+If you're getting unexpected result, visit the wiki's [troubleshooting](https://github.com/Code-Society-Lab/grace/wiki/Troubleshooting)
+page. For any other problems or questions ask us on our [discord  server](https://discord.gg/code-society-823178343943897088).

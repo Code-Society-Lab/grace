@@ -44,28 +44,31 @@ bot with Discord. Then, create a file called `.env` in the project directory. Op
 
 > Do not share that file nor the information inside it to anyone. 
 
-#### Configuring the database
-In order for the bot to work, you need to connect it to a database. SQLite, MySQL/MariaDB, PostgresSQL, Oracle and 
-Microsoft SQL Server are all supported. ([Supported dialects](https://docs.sqlalchemy.org/en/14/dialects/index.html)) 
+### Database
+When Grace is started, a database configuration file will automatically be generated. SQLite is the default database
+used in development. If you wish to change it, you can follow the instruction bellow. 
+
+### Changing database
+In order for the bot to work, you need to connect it to a database. Supported databases are SQLite, MySQL/MariaDB, 
+PostgresSQL, Oracle and Microsoft SQL Server. ([Supported dialects](https://docs.sqlalchemy.org/en/14/dialects/index.html)) 
 
 To set up the connection to your database, create a new file in the `config` folder and call it `database.cfg`. You can 
-have three database configurations, one for each environment. Each section is delimited by `[database.<environment>]`. 
+have three database configurations, one for each environment (production, test and development). Each section is 
+delimited by `[database.<environment>]`. 
 
-The next step is to set up the _adapter dialect + drivers (optional)_. The rest will depend on your database.
-Bellow, you'll find example for common configuration (note that you need to replace the values for your database values).
+The next step is to set up the adapter _dialect + drivers (optional)_. The rest will depend on your database.
+Bellow, you'll find examples of common configuration.
 
-> You can also use `config/database.template.cfg` to help you set up your database.
+> You can also use `config/database.template.cfg` to help you set up your `database.cfg`.
 
-#### SQLite Database
+#### SQLite
 ```ini
-[database.development]
 adapter = sqlite
 database = grace.db
 ```
 
-#### Mysql server
+#### MySQL/MariaDB
 ```ini
-[database.development]
 adapter = mysql
 user = grace
 password = GraceHopper1234
@@ -73,9 +76,8 @@ host = localhost
 port = 3306
 ```
 
-#### Postgresql server
+#### PostgreSQL
 ```ini
-[database.development]
 adapter = postgresql+psycopg2
 user = grace
 password = GraceHopper1234
@@ -83,10 +85,14 @@ host = localhost
 port = 5432
 ```
 
-#### Creating the tables and seeding the database
-The last step is to create the tables and add data to them. Simply execute the following commands :
+All those can be bypassed by directly passing an url.
+
+To create the database, tables and add the default data, execute the following commands:
 - `grace db create`
 - `grace db seed`
+
+> Don't forget to specify the environment you are using with `-e environment`
+---
 
 ### Before adding your changes
 - Verify that there is no [issue](https://github.com/Code-Society-Lab/grace/issues) already created for the changes you want to bring. If there is and no one is assigned to the issue, assign it to yourself. 
