@@ -21,3 +21,4 @@ init() {
 
 generate_config
 init
+grace start
