@@ -43,8 +43,7 @@ setup(
         'alembic',
         'configparser'
     ],
-    scripts=['bin/grace'],
-    data_files=[("configs", ["config/environment.cfg", "config/settings.cfg"])]
+    scripts=['bin/grace']
 )
 
 after_install()
