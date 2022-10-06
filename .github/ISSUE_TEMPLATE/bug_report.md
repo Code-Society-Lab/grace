@@ -3,8 +3,7 @@ name: Bug report
 about: Report a bug with Grace
 title: ''
 labels: bug
-assignees: @PenguinBoi12
-
+assignees: PenguinBoi12
 ---
 
 **Describe the bug**
