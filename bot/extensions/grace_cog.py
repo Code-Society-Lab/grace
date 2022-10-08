@@ -1,6 +1,9 @@
-from discord import Embed
+from discord import Embed, TextStyle, Interaction
 from discord.ext.commands import Cog, hybrid_command
+from discord.ui import Modal, TextInput
 from emoji import emojize
+from bot.services.github_service import GithubService
+from lib.config_required import command_config_required
 
 
 class GraceCog(Cog, name="Grace", description="Default grace commands"):
@@ -53,6 +56,25 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
     @hybrid_command(name='hopper', help='The legend of Grace Hopper')
     async def hopper_command(self, ctx):
         await ctx.send("https://www.smbc-comics.com/?id=2516")
+
+    @command_config_required("github", "api_key")
+    @hybrid_command(name="contributors", description="Show a list of Grace's contributors")
+    async def contributors(self, ctx):
+        grace_repo = GithubService().grace
+
+        embed = Embed(
+            color=self.bot.default_color,
+            title="Grace contributors"
+        )
+
+        for contributor in grace_repo.get_contributors():
+            embed.add_field(
+                name=contributor.login,
+                value=f"{contributor.contributions} contributions",
+                inline=True
+            )
+
+        await ctx.send(embed=embed)
 
 
 async def setup(bot):

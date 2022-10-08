@@ -41,7 +41,8 @@ setup(
         'timezonefinder',
         'mypy',
         'alembic',
-        'configparser'
+        'configparser',
+        'pygithub'
     ],
     scripts=['bin/grace']
 )
