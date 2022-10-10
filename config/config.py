@@ -97,7 +97,7 @@ class Config:
     def database_name(self) -> str:
         return f"{self.client['name']}_{self.current_environment}"
 
-    def get(self, section_key, value_key, fallback=None) -> Union[str, int, bool]:
+    def get(self, section_key, value_key, fallback=None) -> Optional[Union[str, int, bool]]:
         value: str = self.__config.get(section_key, value_key, fallback=fallback)
 
         if value and match(r"^[\d.]*$|^(?:True|False)*$", value):

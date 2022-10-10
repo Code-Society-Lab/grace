@@ -1,6 +1,5 @@
-from discord import Embed, TextStyle, Interaction
+from discord import Embed
 from discord.ext.commands import Cog, hybrid_command
-from discord.ui import Modal, TextInput
 from emoji import emojize
 from bot.services.github_service import GithubService
 from lib.config_required import command_config_required

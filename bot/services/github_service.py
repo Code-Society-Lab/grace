@@ -1,9 +1,11 @@
-from github import Github, Repository
+from typing import Union, Optional
+from github import Github
+from github.Repository import Repository
 from bot import app
 
 
 class GithubService(Github):
-    __token: str | None = app.config.get("github", "api_key")
+    __token: Optional[Union[str, int, bool]] = app.config.get("github", "api_key")
 
     def __init__(self):
         if self.__token:
