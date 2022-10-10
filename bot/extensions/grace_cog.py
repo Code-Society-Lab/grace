@@ -10,39 +10,62 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
     def __init__(self, bot):
         self.bot = bot
 
+    async def get_contributors_embed(self):
+        grace_repo = GithubService().get_grace()
+
+        embed = Embed(
+            color=self.bot.default_color,
+            title="Grace's contributors"
+        )
+
+        for contributor in grace_repo.get_contributors():
+            embed.add_field(
+                name=contributor.login,
+                value=f"{contributor.contributions} contributions",
+                inline=True
+            )
+
+        return embed
+
     @hybrid_command(name='info', help='Show information about the bot')
     async def info_command(self, ctx):
-        embed = Embed(
+        embeds = []
+
+        info_embed = Embed(
             color=self.bot.default_color,
             title=f"My name is Grace",
             description=f"Hi, {ctx.author.mention}. I'm the official **Code Society** Discord Bot.\n",
         )
 
-        embed.add_field(
+        info_embed.add_field(
             name="Fun fact about me",
             value=f"I'm named after [Grace Hopper](https://en.wikipedia.org/wiki/Grace_Hopper) {emojize(':rabbit:')}",
             inline=False
         )
 
-        embed.add_field(
+        info_embed.add_field(
             name=f"{emojize(':test_tube:')} Code Society Lab",
             value=f"Contribute to our [projects](https://github.com/Code-Society-Lab/grace)\n",
             inline=True
         )
 
-        embed.add_field(
+        info_embed.add_field(
             name=f"{emojize(':crossed_swords:')} Codewars",
             value=f"Set your clan to **CodeSoc**\n",
             inline=True
         )
 
-        embed.add_field(
+        info_embed.add_field(
             name="Need help?",
             value=f"Send '{ctx.prefix}help'",
             inline=False
         )
+        embeds.append(info_embed)
 
-        await ctx.send(embed=embed)
+        if GithubService.can_connect():
+            embeds.append(await self.get_contributors_embed())
+
+        await ctx.send(embeds=embeds)
 
     @hybrid_command(name='ping', help='Shows the bot latency')
     async def ping_command(self, ctx):
@@ -60,20 +83,7 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
     @command_config_required("github", "api_key")
     @hybrid_command(name="contributors", description="Show a list of Grace's contributors")
     async def contributors(self, ctx):
-        grace_repo = GithubService().get_grace()
-
-        embed = Embed(
-            color=self.bot.default_color,
-            title="Grace contributors"
-        )
-
-        for contributor in grace_repo.get_contributors():
-            embed.add_field(
-                name=contributor.login,
-                value=f"{contributor.contributions} contributions",
-                inline=True
-            )
-
+        embed = await self.get_contributors_embed()
         await ctx.send(embed=embed)
 
 
