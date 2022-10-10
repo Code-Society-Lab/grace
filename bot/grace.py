@@ -50,7 +50,9 @@ class Grace(Bot):
 
         if app.command_sync:
             warning("Syncing application commands. This may take some time.")
-            await self.tree.sync()
+            guild = self.get_guild(app.config.get("client", "guild"))
+
+            await self.tree.sync(guild=guild)
 
 
 def start():

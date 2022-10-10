@@ -60,7 +60,7 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
     @command_config_required("github", "api_key")
     @hybrid_command(name="contributors", description="Show a list of Grace's contributors")
     async def contributors(self, ctx):
-        grace_repo = GithubService().grace
+        grace_repo = GithubService().get_grace()
 
         embed = Embed(
             color=self.bot.default_color,

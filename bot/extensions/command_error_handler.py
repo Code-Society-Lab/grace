@@ -20,7 +20,7 @@ class CommandErrorHandler(Cog):
             await ctx.send('**You\'re on Cooldown**, wait {:.2f} seconds.'.format(command_error.retry_after))
         elif isinstance(command_error, MissingRequiredConfig):
             await ctx.send("This command is disabled due to missing configs. Look at the logs for more info.")
-        elif isinstance(command_error, MissingRequiredArgument) or ctx.command:
+        elif isinstance(command_error, MissingRequiredArgument):
             await self.send_command_help(ctx)
         else:
             await ctx.send("An error occurred. Contact the administrators")

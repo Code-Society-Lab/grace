@@ -1,7 +1,7 @@
 from bot import app
 from logging import info
 from discord import Member
-from discord.ext.commands import Cog, has_permissions, hybrid_command
+from discord.ext.commands import Cog, has_permissions, hybrid_command, Context
 from bot.helpers.log_helper import danger
 from datetime import datetime
 
@@ -45,22 +45,12 @@ class ModerationCog(Cog, name="Moderation", description="Collection of administr
 
     @hybrid_command(name='purge', help="Deletes n amount of messages.")
     @has_permissions(manage_messages=True)
-    async def purge(self, ctx, limit: int, member: Member = None):
-        message_deleted_count = 0
-
-        if member:
-            async for message in ctx.channel.history(limit=limit+1):
-                if message.author == member:
-                    message_deleted_count += 1
-                    await message.delete()
-        else:
-            message_deleted_count = limit
-            await ctx.channel.purge(limit=limit+1)
-
+    async def purge(self, ctx: Context, limit):
+        await ctx.channel.purge(limit=limit+1)
         await danger(
             "PURGE",
-            f"{message_deleted_count} message(s) purged by {ctx.author.mention} in {ctx.channel.mention}"
-        ).send(self.moderation_channel)
+            f"{limit} message(s) purged by {ctx.author.mention} in {ctx.channel.mention}"
+        ).send(ctx.channel)
 
     @Cog.listener()
     async def on_member_join(self, member):

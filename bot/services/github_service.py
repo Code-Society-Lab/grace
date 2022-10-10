@@ -6,6 +6,5 @@ class GithubService(Github):
     def __init__(self):
         super().__init__(app.config.get("github", "api_token"))
 
-    @property
-    def grace(self) -> Repository:
+    def get_grace(self) -> Repository:
         return self.get_repo("code-society-lab/grace", lazy=True)
