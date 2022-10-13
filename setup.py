@@ -31,7 +31,7 @@ setup(
         'sqlalchemy',
         'sqlalchemy-utils',
         'discord>=2.0',
-        'emoji',
+        'emoji>=2.1.0',
         'nltk',
         'discord-pretty-help==1.3.4',
         'requests',
