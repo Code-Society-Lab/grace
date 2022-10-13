@@ -1,6 +1,7 @@
 __pycache__
 .env
 .idea
+.fleet
 Grace.egg-info
 venv
 channel_store
