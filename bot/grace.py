@@ -1,6 +1,6 @@
 from logging import info, warning, critical
 from discord import Intents, LoginFailure, ActivityType, Activity
-from discord.ext.commands import Bot, when_mentioned_or, hybrid_command
+from discord.ext.commands import Bot, when_mentioned_or
 from pretty_help import PrettyHelp
 from bot import app
 from bot.models.channel import Channel
