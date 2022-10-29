@@ -58,7 +58,7 @@ class Wikipedia(Cog, name="Wikipedia", description="Search on Wikipedia."):
             result_view = ""
             search_count = 1
             for result in result[1]:
-                result_view  += f"{str(search_count)}: {result}\n"
+                result_view += f"{str(search_count)}: {result}\n"
                 search_count += 1
 
             embed = Embed(

@@ -1,8 +1,30 @@
 from discord import Embed
 from discord.ext.commands import Cog, hybrid_command
+from discord.ui import Button
 from emoji import emojize
 from bot.services.github_service import GithubService
 from lib.config_required import command_config_required
+from lib.paged_embeds import PagedEmbedView
+
+
+class _DefaultButtonView(PagedEmbedView):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.add_item(
+            Button(
+                emoji=emojize(":globe_with_meridians:"),
+                label="Website",
+                url="https://codesociety.xyz"
+            )
+        )
+        self.add_item(
+            Button(
+                emoji=emojize(":file_folder:"),
+                label="repository",
+                url="https://github.com/Code-Society-Lab/grace"
+            )
+        )
 
 
 class GraceCog(Cog, name="Grace", description="Default grace commands"):
@@ -14,7 +36,7 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
 
         embed = Embed(
             color=self.bot.default_color,
-            title="Grace's contributors"
+            title="Grace's contributors",
         )
 
         for contributor in grace_repo.get_contributors():
@@ -28,7 +50,7 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
 
     @hybrid_command(name='info', help='Show information about the bot')
     async def info_command(self, ctx):
-        embeds = []
+        contributors_embed = await self.get_contributors_embed()
 
         info_embed = Embed(
             color=self.bot.default_color,
@@ -59,12 +81,8 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
             value=f"Send '{ctx.prefix}help'",
             inline=False
         )
-        embeds.append(info_embed)
 
-        if GithubService.can_connect():
-            embeds.append(await self.get_contributors_embed())
-
-        await ctx.send(embeds=embeds)
+        await ctx.send(embed=info_embed, view=_DefaultButtonView([info_embed, contributors_embed]))
 
     @hybrid_command(name='ping', help='Shows the bot latency')
     async def ping_command(self, ctx):
@@ -83,7 +101,7 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
     @hybrid_command(name="contributors", description="Show a list of Grace's contributors")
     async def contributors(self, ctx):
         embed = await self.get_contributors_embed()
-        await ctx.send(embed=embed)
+        await ctx.send(embed=embed, view=_DefaultButtonView())
 
 
 async def setup(bot):
