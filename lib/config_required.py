@@ -1,10 +1,10 @@
 from bot import app
 from typing import Callable
 from discord.ext import commands
-from discord.ext.commands import CommandError, CogMeta, Context
+from discord.ext.commands import CogMeta, Context, DisabledCommand
 
 
-class ConfigRequiredError(CommandError):
+class ConfigRequiredError(DisabledCommand):
     """The base exception type for errors to required config check
 
     Inherit from `discord.ext.commands.CommandError` and can be handled like
@@ -13,7 +13,7 @@ class ConfigRequiredError(CommandError):
     pass
 
 
-class MissingRequiredConfig(ConfigRequiredError):
+class MissingRequiredConfigError(ConfigRequiredError):
     """Exception raised when a required configuration is missing.
 
     Inherit from `ConfigRequiredError`
@@ -37,7 +37,7 @@ def cog_config_required(section_key: str, value_key: str) -> Callable:
     def wrapper(cls: CogMeta) -> CogMeta:
         async def _cog_before_invoke(self, _: Context):
             if not self.required_config:
-                raise MissingRequiredConfig(section_key, value_key)
+                raise MissingRequiredConfigError(section_key, value_key)
 
         setattr(cls, "required_config", app.config.get(section_key, value_key))
         setattr(cls, "cog_before_invoke", _cog_before_invoke)
@@ -58,6 +58,6 @@ def command_config_required(section_key: str, value_key: str) -> Callable[[Conte
 
     async def predicate(_: Context) -> bool:
         if not app.config.get(section_key, value_key):
-            raise MissingRequiredConfig(section_key, value_key)
+            raise MissingRequiredConfigError(section_key, value_key)
         return True
     return commands.check(predicate)
