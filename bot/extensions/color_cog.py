@@ -1,6 +1,6 @@
 import os
 from PIL import Image
-from discord.ext.commands import Cog, hybrid_group
+from discord.ext.commands import Cog, hybrid_group, HybridCommandError, CommandInvokeError
 from discord import Embed, File, Color
 from bot.helpers.error_helper import send_command_error
 
@@ -50,7 +50,7 @@ class ColorCog(Cog, name="Color", description="Collection of commands to bring c
 
     @rgb_command.error
     async def rgb_command_error(self, ctx, error):
-        if isinstance(error.original, ValueError):
+        if isinstance(error, HybridCommandError) or isinstance(error, CommandInvokeError):
             await send_command_error(ctx, "Expected rgb color", ctx.command, "244 195 8")
 
     @show_group.command(
@@ -65,7 +65,8 @@ class ColorCog(Cog, name="Color", description="Collection of commands to bring c
 
     @hex_command.error
     async def hex_command_error(self, ctx, error):
-        if isinstance(error.original, ValueError):
+        print(type(error))
+        if isinstance(error, HybridCommandError) or isinstance(error, CommandInvokeError):
             await send_command_error(ctx, "Expected hexadecimal color", ctx.command, "#F4C308")
 
 
