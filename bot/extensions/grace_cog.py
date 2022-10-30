@@ -21,7 +21,7 @@ class _DefaultButtonView(PagedEmbedView):
         self.add_item(
             Button(
                 emoji=emojize(":file_folder:"),
-                label="repository",
+                label="Repository",
                 url="https://github.com/Code-Society-Lab/grace"
             )
         )
