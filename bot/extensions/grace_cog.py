@@ -49,7 +49,7 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
         return embed
 
     @hybrid_command(name='info', help='Show information about the bot')
-    async def info_command(self, ctx):
+    async def info_command(self, ctx, ephemeral=True):
         contributors_embed = await self.get_contributors_embed()
 
         info_embed = Embed(
@@ -82,7 +82,7 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
             inline=False
         )
 
-        await ctx.send(embed=info_embed, view=_DefaultButtonView([info_embed, contributors_embed]))
+        await ctx.send(embed=info_embed, view=_DefaultButtonView([info_embed, contributors_embed]), ephemeral=ephemeral)
 
     @hybrid_command(name='ping', help='Shows the bot latency')
     async def ping_command(self, ctx):
