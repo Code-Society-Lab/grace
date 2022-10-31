@@ -5,7 +5,7 @@ from bot.models.channel import Channel
 
 
 class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
-    WELCOME_MESSAGE = "Hi {member_name}! Welcome to the **Code Society**.\n\nBefore posting please:\n    - Take a" \
+    WELCOME_MESSAGE = "Hi {member_name}! Welcome to the **Code Society**.\n\nBefore posting please:\n    - Take a " \
                       "moment to read the <#{info_id}> and the <#{rules_id}>.\n    - Choose some <#{roles_id}>.\n" \
                       "- Feel free to introduce yourself in <#{intro_id}>."
 
