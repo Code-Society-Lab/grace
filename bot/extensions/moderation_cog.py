@@ -55,7 +55,7 @@ class ModerationCog(Cog, name="Moderation", description="Collection of administr
     @Cog.listener()
     async def on_member_join(self, member):
         minimum_account_age = app.config.get("moderation", "minimum_account_age")
-        account_age_in_days = (datetime.now() - member.created_at).days
+        account_age_in_days = (datetime.now().replace(tzinfo=None) - member.created_at.replace(tzinfo=None)).days
 
         if account_age_in_days <= minimum_account_age:
             info(f"{member} kicked due to account age restriction!")
