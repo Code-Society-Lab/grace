@@ -87,7 +87,7 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
             matched_pun_words = [
                 pun_word for pun_word in pun_words if pun_word.word in matches]
 
-            puns = [Pun.get(pun_word.id) for pun_word in pun_words]
+            puns = [Pun.get(pun_word.pun_id) for pun_word in pun_words]
 
             for pun_word in matched_pun_words:
                 await message.add_reaction(pun_word.emoji())
