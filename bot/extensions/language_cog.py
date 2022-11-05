@@ -4,6 +4,9 @@ from nltk.tokenize import TweetTokenizer
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from bot.models.extensions.language.trigger import Trigger
 
+from bot.models.extensions.language.pun import Pun
+from bot.models.extensions.language.pun_word import PunWord
+
 
 class LanguageCog(Cog, name="Language", description="Analyze and reacts to messages"):
     def __init__(self, bot):
@@ -39,7 +42,8 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
 
         message_tokens = self.tokenizer.tokenize(message.content)
         tokenlist = list(map(lambda s: s.lower(), message_tokens))
-        linustarget = [i for i, x in enumerate(tokenlist) if x in linus_trigger.words]
+        linustarget = [i for i, x in enumerate(
+            tokenlist) if x in linus_trigger.words]
         # Get the indices of all linuses in the message
 
         if linustarget:
@@ -70,10 +74,38 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
             if not fail:
                 await message.add_reaction(linus_trigger.positive_emoji)
 
+    async def pun_react(self, message: Message):
+        message_tokens = self.tokenizer.tokenize(message.content)
+        tokenlist = set(map(lambda s: s.lower(), message_tokens))
+
+        pun_words = PunWord.all()
+        word_set = set([pun_word.word for pun_word in pun_words])
+
+        matches = tokenlist.intersection(word_set)
+
+        if len(matches) > 0:
+            matched_pun_words = [
+                pun_word for pun_word in pun_words if pun_word.word in matches]
+
+            puns = [Pun.get(pun_word.id) for pun_word in pun_words]
+
+            for pun_word in matched_pun_words:
+                await message.add_reaction(pun_word.emoji())
+
+            for pun in puns:
+                embed = Embed(
+                    color=self.bot.default_color,
+                    title=f"Gotcha",
+                    description=pun.text
+                )
+
+                await message.channel.send(embed=embed)
+
     @Cog.listener()
     async def on_message(self, message):
         await self.penguin_react(message)
         await self.name_react(message)
+        await self.pun_react(message)
 
     @hybrid_group(name="triggers", help="Commands to manage triggers")
     @has_permissions(administrator=True)
