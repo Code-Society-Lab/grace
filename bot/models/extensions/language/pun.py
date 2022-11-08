@@ -1,6 +1,7 @@
 from sqlalchemy import Text, Column, Integer
 from sqlalchemy.orm import relationship
 from bot import app
+from bot.models.extensions.language.pun_word import PunWord
 from db.model import Model
 
 
@@ -15,3 +16,9 @@ class Pun(app.base, Model):
     def words(self):
         for pun_word in self.pun_words:
             yield pun_word.word
+
+    def add_pun_word(self, pun_word, emoji_code):
+        PunWord(pun_id=self.id, word=pun_word).save()
+
+    def remove_pun_word(self, pun_word):
+        PunWord.where(pun_id=self.id, word=pun_word).first().delete()
