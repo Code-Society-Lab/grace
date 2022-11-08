@@ -8,7 +8,7 @@ from lib.paged_embeds import PagedEmbedView
 
 
 class GraceCog(Cog, name="Grace", description="Default grace commands"):
-    __DEFAULT_INFO_BUTTONS = [
+    __DEFAULT_INFO_BUTTONS = (
         Button(
             emoji=emojize(":globe_with_meridians:"),
             label="Website",
@@ -19,7 +19,7 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
             label="Repository",
             url="https://github.com/Code-Society-Lab/grace"
         )
-    ]
+    )
 
     def __init__(self, bot):
         self.bot = bot
