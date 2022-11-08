@@ -3,7 +3,6 @@ from discord import Message, Embed
 from nltk.tokenize import TweetTokenizer
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from bot.models.extensions.language.trigger import Trigger
-
 from bot.models.extensions.language.pun import Pun
 from bot.models.extensions.language.pun_word import PunWord
 
