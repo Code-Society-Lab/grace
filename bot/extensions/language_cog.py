@@ -75,19 +75,18 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
 
     async def pun_react(self, message: Message):
         message_tokens = self.tokenizer.tokenize(message.content)
-        tokenlist = set(map(lambda s: s.lower(), message_tokens))
+        tokenlist = set(map(str.lower, message_tokens))
 
         pun_words = PunWord.all()
-        word_set = set([pun_word.word for pun_word in pun_words])
+        word_set = set(map(lambda pun_word: pun_word.word, pun_words))
 
         matches = tokenlist.intersection(word_set)
 
         if len(matches) > 0:
-            matched_pun_words = [
-                pun_word for pun_word in pun_words if pun_word.word in matches]
-
-            puns = set([Pun.get(pun_word.pun_id)
-                       for pun_word in matched_pun_words])
+            matched_pun_words = filter(
+                lambda pun_word: pun_word.word in matches, pun_words)
+            puns = set(map(lambda pun_word: Pun.get(
+                pun_word.pun_id), matched_pun_words))
 
             for pun_word in matched_pun_words:
                 await message.add_reaction(pun_word.emoji())
