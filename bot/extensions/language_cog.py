@@ -41,7 +41,7 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
         linus_trigger = Trigger.get_by(name="Linus")
 
         message_tokens = self.tokenizer.tokenize(message.content)
-        tokenlist = list(map(lambda s: s.lower(), message_tokens))
+        tokenlist = list(map(str.lower, message_tokens))
         linustarget = [i for i, x in enumerate(
             tokenlist) if x in linus_trigger.words]
         # Get the indices of all linuses in the message
