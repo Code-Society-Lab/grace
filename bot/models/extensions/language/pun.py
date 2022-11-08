@@ -18,7 +18,7 @@ class Pun(app.base, Model):
             yield pun_word.word
 
     def add_pun_word(self, pun_word, emoji_code):
-        PunWord(pun_id=self.id, word=pun_word).save()
+        PunWord(pun_id=self.id, word=pun_word, emoji_code=emoji_code).save()
 
     def remove_pun_word(self, pun_word):
         PunWord.where(pun_id=self.id, word=pun_word).first().delete()
