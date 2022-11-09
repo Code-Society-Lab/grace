@@ -76,4 +76,3 @@ class PagedEmbedView(View):
 
     async def send(self, ctx: Context, ephemeral: bool = True):
         self.__message = await ctx.send(embed=self.__embeds.current(), view=self, ephemeral=ephemeral)
-        print(self.__message)

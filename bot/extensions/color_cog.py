@@ -65,7 +65,6 @@ class ColorCog(Cog, name="Color", description="Collection of commands to bring c
 
     @hex_command.error
     async def hex_command_error(self, ctx, error):
-        print(type(error))
         if isinstance(error, HybridCommandError) or isinstance(error, CommandInvokeError):
             await send_command_error(ctx, "Expected hexadecimal color", ctx.command, "#F4C308")
 
