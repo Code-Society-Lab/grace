@@ -82,10 +82,8 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
         matches = tokenlist.intersection(word_set)
 
         if len(matches) > 0:
-            matched_pun_words = filter(
-                lambda pun_word: pun_word.word in matches, pun_words)
-            puns = set(map(lambda pun_word: Pun.get(
-                pun_word.pun_id), matched_pun_words))
+            matched_pun_words = set(filter(lambda pun_word: pun_word.word in matches, pun_words))
+            puns = set(map(lambda pun_word: Pun.get(pun_word.pun_id), matched_pun_words))
 
             for pun_word in matched_pun_words:
                 await message.add_reaction(pun_word.emoji())

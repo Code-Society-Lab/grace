@@ -1,6 +1,5 @@
 from emoji import emojize
 from sqlalchemy import Integer, String, Column, ForeignKey
-from sqlalchemy.orm import relationship
 from bot import app
 from db.model import Model
 
