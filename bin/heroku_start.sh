@@ -18,6 +18,7 @@ init() {
     grace db seed
   else
     alembic upgrade head
+    grace db seed
   fi
 }
 
