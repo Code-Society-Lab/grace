@@ -3,6 +3,8 @@ from discord import Message, Embed
 from nltk.tokenize import TweetTokenizer
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from bot.models.extensions.language.trigger import Trigger
+from bot.models.extensions.language.pun import Pun
+from bot.models.extensions.language.pun_word import PunWord
 
 
 class LanguageCog(Cog, name="Language", description="Analyze and reacts to messages"):
@@ -101,6 +103,7 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
     async def on_message(self, message):
         await self.penguin_react(message)
         await self.name_react(message)
+        await self.pun_react(message)
 
     @hybrid_group(name="triggers", help="Commands to manage triggers")
     @has_permissions(administrator=True)
