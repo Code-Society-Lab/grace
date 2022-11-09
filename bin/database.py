@@ -13,12 +13,13 @@ def seed_tables():
     info("Seeding tables...")
 
     try:
-        try:
-            for seed_module in get_seeds():
+        for seed_module in get_seeds():
+            try:
                 info(f"Seeding {seed_module.__name__}")
                 seed_module.seed_database()
-        except IntegrityError as e:
-            error(f"Error: {e}, Skipping")
+            except IntegrityError as e:
+                warning(f"Error: {e}, Skipping")
+                pass
 
         info("Seeding completed successfully")
     except ProgrammingError as e:
