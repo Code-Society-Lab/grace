@@ -5,4 +5,4 @@ aptPkgs = ["python3", "python3-pip", "python-is-python3", "libpq-dev", "python3-
 cmds = ["pip3 install psycopg2-binary nltk", "pip3 install ."]
 
 [start]
-cmd = "alembic upgrade head && grace seed && grace start"
+cmd = "alembic upgrade head && grace db seed && grace start"
