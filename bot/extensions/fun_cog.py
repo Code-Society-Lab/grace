@@ -8,10 +8,11 @@ from bot.extensions.command_error_handler import CommandErrorHandler
 from bot.models.extensions.fun.answer import Answer
 from discord.colour import Colour
 
+
 class FunCog(Cog, name="Fun", description="Collection of fun commands"):
     def __init__(self, bot):
         self.bot = bot
-        self.random_goosed_gif_links = [
+        self.goosed_gif_links = [
             'https://media.tenor.com/XG_ZOTYukysAAAAC/goose.gif',
             'https://media.tenor.com/pSnSQRfiIP8AAAAd/birds-kid.gif',
             'https://media.tenor.com/GDkgAup55_0AAAAC/duck-bite.gif'
@@ -40,12 +41,11 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
 
     @fun_group.command(name='goosed', help='Go goose yourself')
     async def goose_command(self, ctx):
-        goosed_text = '**GET GOOSED**'
         goosed_embed = Embed(
             color=self.bot.default_color,
-            title=goosed_text,
+            title='**GET GOOSED**',
         )
-        goosed_embed.set_image(url=random.choice(self.random_goosed_gif_links))
+        goosed_embed.set_image(url=random.choice(self.goosed_gif_links))
         await ctx.send(embed=goosed_embed)
 
     @fun_group.command(name='quote', help='Sends an inspirational quote')
