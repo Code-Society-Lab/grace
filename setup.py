@@ -42,7 +42,8 @@ setup(
         'mypy',
         'alembic',
         'configparser',
-        'pygithub'
+        'pygithub',
+        'googletrans==4.0.0-rc1'
     ],
     scripts=['bin/grace']
 )
