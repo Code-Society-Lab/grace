@@ -4,14 +4,14 @@ import googletrans
 from discord import Embed
 
 
-class TranslatorCog(Cog, name="Translator", description="Translate sentances in any languages."):
+class TranslatorCog(Cog, name="Translator", description="Translate sentances from any languages to English."):
     def __init__(self, bot):
         self.bot = bot
 
-    @hybrid_command(name='translator', help='Translate a sentence/word in any languages. Enter /language_code to see your language code', \
-                                        usage="language={language_code} sentence={sentence}")
+    @hybrid_command(name='translator', help='Translate a sentence/word from any languages to English', \
+                                        usage="sentence={sentence}")
     async def translator(self, ctx, *, sentence):
-        """Translate to any languages any user inputed sentence or word"""
+        """Translate to English any user inputed sentence or word"""
         
         text_translator = Translator()
         translated_text = text_translator.translate(sentence, dest='en')
