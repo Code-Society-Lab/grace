@@ -1,7 +1,15 @@
 __pycache__
 .env
 .idea
+.fleet
 Grace.egg-info
 venv
 channel_store
-config/database.py
+build/
+*.db
+config/database.cfg
+config/settings.cfg
+*.log
+*.log.*
+env/
+lib64

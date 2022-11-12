@@ -1,57 +1,63 @@
 
 # Grace
-Grace is the official Code Society discord bot. The goal is to allow every member of the Code Society to participate in the development of the server's bot. 
+Grace is the official Code Society discord bot. The goal is to give our members the opportunity to participate in the
+development of the server's bot and contribute to a team project while also improving it.
+
+---
 
 ## Installation
-Installing Grace is fairly simple.
+Installing Grace is fairly simple. You can do it in three short step.
 
-0. Install [Python](https://www.python.org/downloads/). Note that the bot is developed under Python 3.0+ so be sure to have a recent version of Python.
-1. In the `grace` directory project do, open a terminal (Linus/MacOS) or cmd (Windows) and execute `pip install -e .` (recommend for development) or `pip install .` to install all the dependencies needed in order to make the bot work. 
-2. In the same directory, create an environment file called `.env`. This file will contain your bot token. (The token is necessary to communicate with Discord. [Discord docs](https://discord.com/developers/docs))
+0. [Install Python and dependencies](#0-install-python-and-dependencies)
+1. [Set up your app and token](#1-set-up-your-app-and-token)
+2. [Start the bot](#2-start-the-bot)
 
-```.env
-DISCORD_TOKEN=<Your token>
-BOT_ENV=<production, development, test> # optional
-```
+### 0. Python and Dependencies
+Install [Python](https://www.python.org/downloads/). Python 3.9 or higher is required.
 
-## Usage
-The bot comes with a script to **manage** it.
+> We highly recommend that you set up a virtual environment to work on Grace.
+> https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/
 
-### Basic Commands:
+In the `grace` directory, open a terminal (Linus/MacOS) or cmd (Windows) and execute `pip install -e .` 
+(recommended for development) or `pip install .`. 
+
+### 1. Set up your App and Token
+If you did not already do it, [create](https://discord.com/developers/docs/getting-started#creating-an-app) your Discord 
+bot. Then, create a file called `.env` in the project directory, open it and add 
+`DISCORD_TOKEN=<Your token>`. (Replace <Your token> by your discord token).
+
+> Do not share that file nor the information inside with anyone.
+
+### 2. Start the Bot
+The last part is to execute the bot. Execute `grace start -e development` to start Grace in development mode. The rest
+of the installation should complete itself and start the bot.
+
+> If the grace command is unrecognized, be sure that you installed the bot properly. 
+
+## Script Usage
 - **Bot Command(s)**:
-  - `start` : Starts the bot (`ctrl+c` to stop the bot)
+  - `grace start` : Starts the bot (`ctrl+c` to stop the bot)
 - **Database Command(s)**:
-    - `db create` : Creates the database and the tables
-    - `db delete` : Deletes the tables and the database
-    - `db seed` : Seeds the database tables (Initialize the default values)
-    
-All commands can takes the optional `-e` argument with a string to define the environment.<br>
+    - `grace db create` : Creates the database and the tables
+    - `grace db drop`   : Deletes the tables and the database
+    - `grace db seed`   : Seeds the tables (Initialize the default values)
+    - `grace db reset`  : Drop, recreate and seeds the database.
+  
+All commands can take the optional `-e` argument with a string to define the environment.<br>
 Available environment: (production [default], development, test)
 
-### Configuring the database
-First, you need to configure the database in order for the bot to connect to it. Edit `config/database.py` and replace
-the information by yours
+> We recommend using "development" (ex. grace start -e development)
+---
 
-- **Adapter**: The database type you're using (ex. postgresql, mysql, sqlite, ...) 
-- **User**: The username of your database user
-- **Password**: The password of the database user
-- **host**: The database server host (in general it's `localhost`)
-- **database**: The name of your database. (Should not be changed)
-
-Second, execute the database creation command, `grace db create`.
-
-Finally, seed the database by executing `grace db seed`.
-
-
-You can now start the bot by executing `grace start`. Once the bot is up and running you can execute the commands by using the default prefix (`::`) or by pinging the bot. (Ex. `::help` or `@Grace help`)
-
-_**N.B.** The bot must be added to a server in order to use it. Please refer to [Discord's docs](https://discord.com/developers/docs) to get help setting up your bot._
-
-For now, `pip install .` must be run before `python bot /` when running the bot. Running the directory as a script in pycharm's run configuration will work too. This is liable to change.
+## Advance configurations
+For advance configurations, visit the [wiki](https://github.com/Code-Society-Lab/grace/wiki)
 
 ## Contribution
 As mentioned in the description, we invite everyone to participate in the development of the bot. You can contribute to the project by simply opening an issue, by improving some current features or even by adding your own features.
 Before contributing please refer to our [contribution guidelines](https://github.com/Code-Society-Lab/grace/blob/main/docs/CONTRIBUTING.md) and [Code of Conduct for contributor (temporary unavailable)](#).
 
-## Support
-For any other issues or questions feel free to [join](https://discord.gg/6GEF9H9m) our server and have a chat with us.
+---
+
+## Troubleshooting
+If you're getting unexpected result, visit the wiki's [troubleshooting](https://github.com/Code-Society-Lab/grace/wiki/Troubleshooting)
+page. For any other problems or questions ask us on our [discord  server](https://discord.gg/code-society-823178343943897088).

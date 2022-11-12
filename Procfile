@@ -1,1 +1,1 @@
-worker: scripts/heroku_start.sh
+worker: bin/heroku_start.sh

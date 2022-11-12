@@ -1,7 +1,6 @@
 from sqlalchemy import Integer, Column, String
 from bot import app
 from bot.classes.state import State
-from utils.extensions import get_extension
 from db.model import Model
 
 
@@ -10,8 +9,16 @@ class Extension(app.base, Model):
     __tablename__ = "extensions"
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(255), nullable=False, unique=True)
+    module_name = Column(String(255), nullable=False, unique=True)
     _state = Column("state", Integer, default=1)
+
+    @classmethod
+    def by_state(cls, state):
+        return cls.where(_state=state.value)
+
+    @property
+    def name(self):
+        return self.module_name.split(".")[-1].replace("_", " ").title()
 
     @property
     def state(self):
@@ -23,7 +30,7 @@ class Extension(app.base, Model):
 
     @property
     def module(self):
-        return get_extension(self.name)
+        return app.get_extension_module(self.module_name)
 
     def is_enabled(self):
         return self.state == State.ENABLED

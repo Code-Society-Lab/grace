@@ -1,9 +1,47 @@
-from coloredlogs import install
-from config import database
-from os import getenv
+from os import path
+from re import match
+from ast import literal_eval
 from dotenv import load_dotenv
-from config.environment import Environment
-from pathlib import Path
+from sqlalchemy.engine import URL
+from typing import MutableMapping, Mapping, Optional, Union
+from configparser import ConfigParser, BasicInterpolation, NoOptionError, SectionProxy
+
+
+class EnvironmentInterpolation(BasicInterpolation):
+    """Interpolation which expands environment variables in values.
+
+    With this literal '${NAME}', the config will process the value from the given
+    environment variable and use it as it's value in the config.
+
+    This includes exported environment variable (ex. 'export MY_VAR=...') and
+    variable in '.env' files.
+
+    Usage example.
+        token = ${MY_SECRET_VAR}
+
+    In the example above, token will take the value of the environment variable
+    called 'MY_SECRET_VAR'. In case 'MY_SECRET_VAR' doesn't exist, the value will
+    not be evaluated.
+
+    """
+
+    def before_get(
+            self,
+            parser: MutableMapping[str, Mapping[str, str]],
+            section: str,
+            option: str,
+            value: str,
+            defaults: Mapping[str, str]
+    ) -> str:
+        value = super().before_get(parser, section, option, value, defaults)
+        expandvars: str = path.expandvars(value)
+
+        if (value.startswith("${") and value.endswith("}")) and value == expandvars:
+            try:
+                return str(parser.get(section, value))
+            except NoOptionError:
+                return ""
+        return expandvars
 
 
 class Config:
@@ -15,78 +53,59 @@ class Config:
     There can be only one config loaded at once. Which means thar if you instantiate a second or multiple Config
     object, they will all share the same environment. This is to say, that the config objects are identical.
     """
-
-    __environment = None
-
     def __init__(self):
-        base_path = Path()
-        current_dir = base_path.cwd() / ".env"
+        load_dotenv(".env")
 
-        load_dotenv(current_dir)
-        bot_env = self.get("BOT_ENV")
+        self.__environment: Optional[str] = None
+        self.__config: ConfigParser = ConfigParser(interpolation=EnvironmentInterpolation())
 
-        if not Config.is_environment_loaded():
-            if bot_env:
-                environment = Environment(bot_env)
-            else:
-                environment = Environment("production")
-
-            Config.set_environment(environment)
+        self.__config.read("config/settings.cfg")
+        self.__config.read("config/database.cfg")
+        self.__config.read("config/environment.cfg")
 
     @property
-    def database_uri(self):
-        """Creates and returns the database URI"""
-        database_uri = self.get("DATABASE_URL")
+    def database_uri(self) -> Union[str, URL]:
+        if self.database.get("url"):
+            return self.database.get("url")
 
-        if database_uri:
-            # We need this .replace method because Heroku stores the database uri using
-            # 'postgres' as the adapter name, but sqlalchemy does not support this anymore,
-            # and requires the adapter to be declared as 'postgresql'
-            return database_uri.replace("postgres://", "postgresql://", 1)
-        else:
-            return "{adapter}://{user}:{password}@{host}:{port}/{database}".format(
-                adapter=self.database_environment.ADAPTER,
-                user=self.database_environment.USER,
-                password=self.database_environment.PASSWORD,
-                host=self.database_environment.HOST,
-                port=self.database_environment.PORT,
-                database=self.database_environment.DATABASE
-            )
-
-    @property
-    def database_environment(self):
-        databases = {
-            'Development': database.Development,
-            'Test': database.Test
-        }
-
-        return databases.get(self.environment.__class__.__name__, database.Production)
-
-    @property
-    def environment(self):
-        return Config.__environment
-
-    @classmethod
-    def set_environment(cls, environment):
-        if isinstance(environment, Environment):
-            cls.__environment = environment.get_config()
-            cls.load_logs()
-        else:
-            raise EnvironmentError("You need to pass a valid environment. [Production, Development, Test]")
-
-    @classmethod
-    def is_environment_loaded(cls):
-        return cls.__environment is not None
-
-    @classmethod
-    def load_logs(cls):
-        install(
-            fmt="[%(asctime)s] %(programname)s %(levelname)s %(message)s",
-            programname=f"({Config.__environment.__class__.__name__})"
+        return URL.create(
+            self.database["adapter"],
+            self.database.get("user"),
+            self.database.get("password"),
+            self.database.get("host"),
+            self.database.getint("port"),
+            self.database.get("database", self.database_name)
         )
 
-    @classmethod
-    def get(cls, variable_name):
-        """Returns the given environment variable"""
+    @property
+    def database(self) -> SectionProxy:
+        return self.__config[f"database.{self.__environment}"]
 
-        return getenv(variable_name)
+    @property
+    def client(self) -> SectionProxy:
+        return self.__config["client"]
+
+    @property
+    def environment(self) -> SectionProxy:
+        return self.__config[str(self.__environment)]
+
+    @property
+    def current_environment(self) -> Optional[str]:
+        return self.__environment
+
+    @property
+    def database_name(self) -> str:
+        return f"{self.client['name']}_{self.current_environment}"
+
+    def get(self, section_key, value_key, fallback=None) -> Optional[Union[str, int, bool]]:
+        value: str = self.__config.get(section_key, value_key, fallback=fallback)
+
+        if value and match(r"^[\d.]*$|^(?:True|False)*$", value):
+            return literal_eval(value)
+        return value
+
+    def set_environment(self, environment: str):
+        if environment in ["production", "development", "test"]:
+            self.__environment = environment
+        else:
+            raise EnvironmentError("You need to pass a valid environment. [Production, Development, Test]")

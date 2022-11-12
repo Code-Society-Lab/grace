@@ -1,66 +1,68 @@
 from logging import info, warning, critical
-from discord import Intents, LoginFailure
-from discord.ext import commands
+from discord import Intents, LoginFailure, ActivityType, Activity
+from discord.ext.commands import Bot, when_mentioned_or
 from pretty_help import PrettyHelp
 from bot import app
-from bot.helpers.color_helper import get_color_digit
-from bot.models.bot import Bot
+from bot.models.channel import Channel
 from bot.models.extension import Extension
-from utils.extensions import get_extensions
-from utils.models import load_models
 
 
-class Grace(commands.Bot):
+class Grace(Bot):
     def __init__(self):
-        self.bot_config = Bot.where(name="Grace").first()
+        self.config = app.bot
+        self.default_color = int(self.config.get("default_color"), 16)
 
         super().__init__(
-            command_prefix=commands.when_mentioned_or(self.bot_config.prefix),
-            description=self.bot_config.description,
+            command_prefix=when_mentioned_or(self.config.get("prefix")),
+            description=self.config.get("description"),
             help_command=PrettyHelp(color=self.default_color),
-            intents=Intents.all()
+            intents=Intents.all(),
+            activity=Activity(type=ActivityType.playing, name="::help")
         )
 
-    @property
-    def config(self):
-        return self.bot_config
+    def get_channel_by_name(self, name):
+        return self.get_channel(Channel.get_by(channel_name=name).channel_id)
 
-    @property
-    def default_color(self):
-        return get_color_digit(self.bot_config.default_color_code)
-
-    def load_extensions(self, modules):
-        for module in modules:
-            extension_name = module.split(".")[-1]
-            extension = Extension.where(name=extension_name).first()
+    async def load_extensions(self):
+        for module in app.extension_modules:
+            extension = Extension.get_by(module_name=module.name)
 
             if not extension:
-                warning(f"{extension_name} is not registered. Registering the extension.")
-                extension = Extension(name=extension_name)
-                extension.save()
+                warning(f"{module.name} is not registered. Registering the extension.")
+                extension = Extension.create(module_name=module.name)
 
             if extension.is_enabled():
-                info(f"Loading {extension.name}")
-                self.load_extension(extension.module)
+                info(f"Loading {module.name}")
+                await self.load_extension(module.name)
             else:
-                info(f"{module} is disabled, thus it will not be loaded.")
+                info(f"{module.name} is disabled, it will not be loaded.")
 
     async def on_ready(self):
         info(f"{self.user.name}#{self.user.id} is online and ready to use!")
 
+    async def invoke(self, ctx):
+        if ctx.command:
+            info(f"'{ctx.command}' has been invoked by {ctx.author} ({ctx.author.nick})")
+        await super().invoke(ctx)
+
+    async def setup_hook(self):
+        await self.load_extensions()
+
+        if app.command_sync:
+            warning("Syncing application commands. This may take some time.")
+            guild = self.get_guild(app.config.get("client", "guild"))
+
+            await self.tree.sync(guild=guild)
+
 
 def start():
     """Starts the bot"""
-
-    load_models()
-    extensions = get_extensions()
-
     try:
         if app.token:
             grace_bot = Grace()
-            grace_bot.load_extensions(extensions)
             grace_bot.run(app.token)
         else:
-            critical("Unable to find the token. Make sure your current directory contains an '.env' and that 'DISCORD_TOKEN' is defined")
+            critical("Unable to find the token. Make sure your current directory contains an '.env' and that "
+                     "'DISCORD_TOKEN' is defined")
     except LoginFailure as e:
-        critical(f"{e}")
+        critical(f"Authentication failed : {e}")
