@@ -1,3 +1,5 @@
+import re
+import emoji
 from discord.ext.commands import Cog, has_permissions, hybrid_group
 from discord import Message, Embed
 from nltk.tokenize import TweetTokenizer
@@ -41,7 +43,8 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
 
         message_tokens = self.tokenizer.tokenize(message.content)
         tokenlist = list(map(lambda s: s.lower(), message_tokens))
-        linustarget = [i for i, x in enumerate(tokenlist) if x in linus_trigger.words]
+        linustarget = [i for i, x in enumerate(
+            tokenlist) if x in linus_trigger.words]
         # Get the indices of all linuses in the message
 
         if linustarget:
@@ -82,8 +85,10 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
         matches = tokenlist.intersection(word_set)
 
         if len(matches) > 0:
-            matched_pun_words = set(filter(lambda pun_word: pun_word.word in matches, pun_words))
-            puns = set(map(lambda pun_word: Pun.get(pun_word.pun_id), matched_pun_words))
+            matched_pun_words = set(
+                filter(lambda pun_word: pun_word.word in matches, pun_words))
+            puns = set(map(lambda pun_word: Pun.get(
+                pun_word.pun_id), matched_pun_words))
 
             for pun_word in matched_pun_words:
                 await message.add_reaction(pun_word.emoji())
@@ -144,6 +149,65 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
                 await ctx.send(f"Trigger **{old_word}** removed successfully")
         else:
             await ctx.send(f"Unable to remove **{old_word}**")
+
+    @hybrid_group(name="puns", help="Commands to manage puns")
+    @has_permissions(administrator=True)
+    async def puns_group(self, ctx):
+        if ctx.invoked_subcommand is None:
+            pun_texts_with_ids = map(lambda pun: '{}.\t{}'.format(
+                pun.id, pun.text), Pun.all())
+
+            embed = Embed(
+                color=self.bot.default_color,
+                title=f"Triggers",
+                description="\n".join(pun_texts_with_ids)
+            )
+
+            await ctx.send(embed=embed)
+
+    @puns_group.command(name="add", help="Add a pun", usage="{pun_text}")
+    async def add_pun(self, ctx, pun_text):
+        # underlined words are pun words
+        pun_word_matches = re.findall("__\S*__", pun_text)
+        pun_words = list(map(lambda s: s.replace('__', ''), pun_word_matches))
+
+        emojis = list(filter(emoji.is_emoji, pun_text))
+
+        if len(pun_words) == 0:
+            await ctx.send('No pun words provided!')
+        elif len(emojis) == 0:
+            await ctx.send('No emojis provided!')
+        elif len(pun_words) != len(emojis):
+            await ctx.send('Pun words not the same number as emojis!')
+        else:
+            pun_text_clean = pun_text.replace('_', '')
+            pun_text_clean = ''.join(
+                list(filter(lambda x: not emoji.is_emoji(x), pun_text_clean)))
+
+            pun = Pun.create(text=pun_text_clean)
+
+            for i, pun_word in enumerate(pun_words):
+                PunWord.create(
+                    pun_id=pun.id,
+                    word=pun_word.lower(),
+                    emoji_code=emoji.demojize(emojis[i])
+                )
+
+            await ctx.send("Pun added.")
+
+    @puns_group.command(name="remove", help="Remove a pun", usage="{pun_id}")
+    async def remove_pun(self, ctx, pun_id: int):
+        pun = Pun.get_by(id=pun_id)
+
+        if pun:
+            for pun_word in pun.pun_words:
+                pun_word.delete()
+
+            pun.delete()
+
+            await ctx.send("Pun removed.")
+        else:
+            await ctx.send("Could not remove pun.")
 
 
 async def setup(bot):
