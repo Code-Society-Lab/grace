@@ -34,7 +34,7 @@ import asyncio
 # 		await interaction.response.send_message(f'Text: {self.option}', ephemeral=True)
 
 class PollView(View):
-	def __init__(self, emojis: list[str], possible_emojis_size: int, ref_embed: Embed):
+	def __init__(self, emojis: list[str], possible_emojis_size: int, ref_embed: Embed) -> None:
 		super().__init__()
 		self.buttons = []
 		for emoji_index in range(possible_emojis_size):
@@ -43,7 +43,7 @@ class PollView(View):
 			self.add_item(button)
 			self.buttons.append(button)
 
-	def disable_buttons(self):
+	def disable_buttons(self) -> None:
 		for button in self.buttons:
 			button.disabled = True
 
@@ -94,7 +94,7 @@ class PollEmbed(Embed):
 
 
 
-	def build(self):
+	def build(self) -> None:
 		# Set the embed title
 		self.title = self._poll_title
 		
@@ -114,17 +114,17 @@ class PollEmbed(Embed):
 		self.description = main_text
 
 class VoteButton(Button):
-	def __init__(self, emoji):
+	def __init__(self, emoji) -> None:
 		super().__init__(style=discord.ButtonStyle.gray, emoji=emoji)
 
 	def set_embed_reference(self, embed: PollEmbed) -> None:
 		self._embed = embed
 
 
-	async def callback(self, interaction: discord.Interaction):
+	async def callback(self, interaction: discord.Interaction) -> None:
 		if self._embed is None:
 			raise ValueError('Update embed function or/and Counter reference are not set.')
-
+		# TODO: Catch the unknown interaction error and send a message that user is clicking too fast.
 		if self._embed.user_voted(interaction.user):
 			user_emoji = self._embed.get_user_emoji(interaction.user)
 			if self.emoji.name != user_emoji:
@@ -149,13 +149,13 @@ class VoteButton(Button):
 		VoteButton.callback() -> counter[emoji] += 1; embed_update();
 '''
 class Timer:
-	def __init__(self, msg: discord.Message, seconds: int, embed: PollEmbed, view: PollView):
+	def __init__(self, msg: discord.Message, seconds: int, embed: PollEmbed, view: PollView) -> None:
 		self._seconds = seconds
 		self._embed = embed
 		self._view = view
 		self._msg = msg
 
-	async def start(self):
+	async def start(self) -> None:
 		while self._seconds >= 0:
 			await self.timer_info_update()
 			await asyncio.sleep(1)
@@ -165,7 +165,7 @@ class Timer:
 		await self._msg.edit(embed=self._embed, view=self._view)
 
 
-	async def timer_info_update(self):
+	async def timer_info_update(self) -> None:
 		if self._seconds // 60 >= 10:
 			if self._seconds % 60 >= 10:
 				self._embed.set_timer_label(f'**{self._seconds // 60}:{self._seconds % 60}**')
@@ -184,7 +184,7 @@ class Timer:
 # Limitation: It's only possible to run 1 poll at a time. Well you can run 2 or more but it's not gonna be asynchronous
 # Suggestion: Probably use (if exists) discord's built-in threads, to separate the processes.
 class PollCog(Cog):
-	def __init__(self, bot):
+	def __init__(self, bot: discord.ext.commands.Bot) -> None:
 		self.bot = bot
 
 	def make_sequence(self, seq):
@@ -195,13 +195,13 @@ class PollCog(Cog):
 	    else:
 	        return (seq,)    
 
-	def message_check(self, channel=None, author=None, content=None, ignore_bot=True, lower=True):
+	def message_check(self, channel=None, author=None, content=None, ignore_bot=True, lower=True) -> Callable[[discord.Message], bool]:
 	    channel = self.make_sequence(channel)
 	    author = self.make_sequence(author)
 	    content = self.make_sequence(content)
 	    if lower:
 	        content = tuple(c.lower() for c in content)
-	    def check(message):
+	    def check(message: discord.Message):
 	        if ignore_bot and message.author.bot:
 	            return False
 	        if channel and message.channel not in channel:
@@ -215,12 +215,12 @@ class PollCog(Cog):
 	    return check
 
 	@hybrid_group(name="poll", help="Poll commands")
-	async def poll_group(self, ctx):
+	async def poll_group(self, ctx) -> None:
 		if ctx.invoked_subcommand is None:
 		    await send_command_help(ctx)
 
 	@poll_group.command(name='create', help='Create a poll')
-	async def vote(self, ctx: Context, *, title: str, options_count: int = 2, poll_time: int = 120):
+	async def vote(self, ctx: Context, *, title: str, options_count: int = 2, poll_time: int = 120) -> None:
 		if options_count < 2:
 			await ctx.interaction.response.send_message('Only 2 or more options is allowed.', ephemeral=True)
 			return
