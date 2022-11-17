@@ -1,5 +1,5 @@
 from logging import info, warning, critical
-from discord import Intents, LoginFailure, ActivityType, Activity
+from discord import Intents, LoginFailure, ActivityType, Activity, Member, User
 from discord.ext.commands import Bot, when_mentioned_or
 from pretty_help import PrettyHelp
 from bot import app
@@ -42,7 +42,10 @@ class Grace(Bot):
 
     async def invoke(self, ctx):
         if ctx.command:
-            info(f"'{ctx.command}' has been invoked by {ctx.author} ({ctx.author.nick})")
+            if isinstance(ctx.author, Member):
+                info(f"'{ctx.command}' has been invoked by {ctx.author} ({ctx.author.nick})")
+            elif isinstance(ctx.author, User): # If we are handling dms
+                info(f"'{ctx.command}' has been invoked by {ctx.author} ({ctx.author.name})") 
         await super().invoke(ctx)
 
     async def setup_hook(self):
