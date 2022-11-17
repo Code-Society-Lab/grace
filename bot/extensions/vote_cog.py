@@ -1,4 +1,3 @@
-from typing import Callable
 from discord.ext.commands import Cog, Context, hybrid_command, hybrid_group
 from bot.extensions.command_error_handler import send_command_help
 from collections.abc import Sequence
