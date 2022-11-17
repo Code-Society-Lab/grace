@@ -167,33 +167,9 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
 
     @puns_group.command(name="add", help="Add a pun", usage="{pun_text}")
     async def add_pun(self, ctx, pun_text):
-        # underlined words are pun words
-        pun_word_matches = re.findall("__\S*__", pun_text)
-        pun_words = list(map(lambda s: s.replace('__', ''), pun_word_matches))
+        Pun.create(text=pun_text)
 
-        emojis = list(filter(emoji.is_emoji, pun_text))
-
-        if len(pun_words) == 0:
-            await ctx.send('No pun words provided!')
-        elif len(emojis) == 0:
-            await ctx.send('No emojis provided!')
-        elif len(pun_words) != len(emojis):
-            await ctx.send('Pun words not the same number as emojis!')
-        else:
-            pun_text_clean = pun_text.replace('_', '')
-            pun_text_clean = ''.join(
-                list(filter(lambda x: not emoji.is_emoji(x), pun_text_clean)))
-
-            pun = Pun.create(text=pun_text_clean)
-
-            for i, pun_word in enumerate(pun_words):
-                PunWord.create(
-                    pun_id=pun.id,
-                    word=pun_word.lower(),
-                    emoji_code=emoji.demojize(emojis[i])
-                )
-
-            await ctx.send("Pun added.")
+        await ctx.send("Pun added.")
 
     @puns_group.command(name="remove", help="Remove a pun", usage="{pun_id}")
     async def remove_pun(self, ctx, pun_id: int):
@@ -208,6 +184,34 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
             await ctx.send("Pun removed.")
         else:
             await ctx.send("Could not remove pun.")
+
+    @puns_group.command(name="add-word", help="Add a pun word to a pun")
+    async def add_pun_word(self, ctx, pun_id: int, pun_word, emo):
+        pun = Pun.get_by(id=pun_id)
+
+        if pun:
+            if pun_word in pun.pun_words:
+                await ctx.send(f"Pun word {pun_word} already exists.")
+            else:
+                pun.add_pun_word(pun_word, emoji.demojize(emo))
+        else:
+            await ctx.send(f"Pun with id {pun.id} does not exist.")
+
+        await ctx.send("Pun word added.")
+
+    @puns_group.command(name="remove-word", help="Remove a pun from a pun word")
+    async def remove_pun_word(self, ctx, pun_id: int, pun_word):
+        pun = Pun.get_by(id=pun_id)
+
+        if pun:
+            if pun_word not in pun.pun_words:
+                await ctx.send(f"Pun word {pun_word} does not exist.")
+            else:
+                pun.remove_pun_word(pun_word)
+        else:
+            await ctx.send(f"Pun with id {pun.id} does not exist.")
+
+        await ctx.send("Pun word removed.")
 
 
 async def setup(bot):
