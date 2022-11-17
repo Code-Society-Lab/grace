@@ -34,11 +34,11 @@ import asyncio
 # 		await interaction.response.send_message(f'Text: {self.option}', ephemeral=True)
 
 class PollView(View):
-	def __init__(self, emojies: list[str], possible_emojies_size: int, ref_embed: Embed):
+	def __init__(self, emojis: list[str], possible_emojis_size: int, ref_embed: Embed):
 		super().__init__()
 		self.buttons = []
-		for emoji_index in range(possible_emojies_size):
-			button = VoteButton(emojies[emoji_index])
+		for emoji_index in range(possible_emojis_size):
+			button = VoteButton(emojis[emoji_index])
 			button.set_embed_reference(ref_embed)
 			self.add_item(button)
 			self.buttons.append(button)
@@ -49,12 +49,12 @@ class PollView(View):
 
 
 class PollEmbed(Embed):
-	def __init__(self, *, options: list[str], emojies: list[str], counter: dict, title: str) -> None:
+	def __init__(self, *, options: list[str], emojis: list[str], counter: dict, title: str) -> None:
 		super().__init__()
 		# User: vote_emoji
 		self._voted_users = {}
 		self._poll_options = options
-		self._poll_emojies = emojies
+		self._poll_emojis = emojis
 		self._poll_counter = counter
 		self._poll_title = title
 		self._timer_label = None
@@ -104,9 +104,9 @@ class PollEmbed(Embed):
 			main_text += (self._timer_label + '\n\n')
 
 		for emoji_index, option in enumerate(self._poll_options):
-			# Check if the number of emojies needed is not out of boundaries
-			if emoji_index < len(self._poll_emojies):
-				emoji = self._poll_emojies[emoji_index]
+			# Check if the number of emojis needed is not out of boundaries
+			if emoji_index < len(self._poll_emojis):
+				emoji = self._poll_emojis[emoji_index]
 			else:
 				break
 			main_text += (emoji + ' **' + option + '**: ' + str(self._poll_counter[emoji]) + '\n\n')
@@ -272,30 +272,30 @@ class PollCog(Cog):
 		# Send a success message
 		await ctx.author.send(f'Great! The poll: {title} with {len(options)} options created! On channel: {ctx.channel.name}')
 		if options_count == 2:
-			emojies = [
+			emojis = [
 				'👍', '👎'
 			]
 		else:
-			emojies = [
+			emojis = [
 				'🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬛', '⬜', '🟫', 
 				'🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫', '⚪', '🟤',
 			]
 		# Votes counter according to vote emoji chosen
 		counter = {}
 		# allowed size of counter array, needed if there is more than 18 options.
-		allowed_emojies_size = len(options) if len(options) < len(emojies) else len(emojies)
-		for emoji_index in range(allowed_emojies_size):
-			counter[emojies[emoji_index]] = 0
+		allowed_emojis_size = len(options) if len(options) < len(emojis) else len(emojis)
+		for emoji_index in range(allowed_emojis_size):
+			counter[emojis[emoji_index]] = 0
 
 		# Create poll embed
 		poll_embed = PollEmbed(
 			options=options, 
-			emojies=emojies, 
+			emojis=emojis, 
 			counter=counter, 
 			title=title
 		)
 		# Create poll view
-		view = PollView(emojies, allowed_emojies_size, poll_embed)
+		view = PollView(emojis, allowed_emojis_size, poll_embed)
 		# build/initialize embed
 		poll_embed.build()
 
