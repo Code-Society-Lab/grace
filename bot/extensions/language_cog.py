@@ -1,4 +1,3 @@
-import re
 import emoji
 from discord.ext.commands import Cog, has_permissions, hybrid_group
 from discord import Message, Embed
@@ -85,10 +84,8 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
         matches = tokenlist.intersection(word_set)
 
         if len(matches) > 0:
-            matched_pun_words = set(
-                filter(lambda pun_word: pun_word.word in matches, pun_words))
-            puns = set(map(lambda pun_word: Pun.get(
-                pun_word.pun_id), matched_pun_words))
+            matched_pun_words = set(filter(lambda pun_word: pun_word.word in matches, pun_words))
+            puns = set(map(lambda pun_word: Pun.get(pun_word.pun_id), matched_pun_words))
 
             for pun_word in matched_pun_words:
                 await message.add_reaction(pun_word.emoji())
@@ -183,7 +180,7 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
 
             await ctx.send("Pun removed.")
         else:
-            await ctx.send("Could not remove pun.")
+            await ctx.send("Pun with id {pun.id} does not exist.")
 
     @puns_group.command(name="add-word", help="Add a pun word to a pun")
     async def add_pun_word(self, ctx, pun_id: int, pun_word, emo):
