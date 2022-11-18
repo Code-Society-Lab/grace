@@ -173,11 +173,6 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
         pun = Pun.get_by(id=pun_id)
 
         if pun:
-            for pun_word in pun.pun_words:
-                pun_word.delete()
-
-            pun.delete()
-
             await ctx.send("Pun removed.")
         else:
             await ctx.send("Pun with id {pun.id} does not exist.")
