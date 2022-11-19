@@ -17,8 +17,6 @@ class CommandErrorHandler(Cog):
     async def on_command_error(self, ctx, command_error):
         warning(f"Error: {command_error}. Issued by {ctx.author}")
 
-        warning(type(command_error.original.original))
-
         if isinstance(command_error, CommandNotFound):
             await send_command_help(ctx)
         elif isinstance(command_error, MissingPermissions):
@@ -29,7 +27,7 @@ class CommandErrorHandler(Cog):
             await send_error(ctx, "This command is disabled.")
         elif isinstance(command_error, MissingRequiredArgument):
             await send_command_help(ctx)
-        elif RequestConnectionError:
+        elif isinstance(command_error.original.original, RequestConnectionError):
             await ctx.send("Unable to make the connection, please try again later!", ephemeral=True)
 
 
