@@ -182,7 +182,7 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
         pun = Pun.get_by(id=pun_id)
 
         if pun:
-            if pun_word in pun.pun_words:
+            if pun_word in map(lambda pun_word: pun_word.word, pun.pun_words):
                 await ctx.send(f"Pun word {pun_word} already exists.")
             else:
                 pun.add_pun_word(pun_word, emoji.demojize(emo))
@@ -195,7 +195,7 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
         pun = Pun.get_by(id=pun_id)
 
         if pun:
-            if pun_word not in pun.pun_words:
+            if pun_word not in map(lambda pun_word: pun_word.word, pun.pun_words):
                 await ctx.send(f"Pun word {pun_word} does not exist.")
             else:
                 pun.remove_pun_word(pun_word)
