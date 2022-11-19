@@ -186,10 +186,9 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
                 await ctx.send(f"Pun word {pun_word} already exists.")
             else:
                 pun.add_pun_word(pun_word, emoji.demojize(emo))
+                await ctx.send("Pun word added.")
         else:
             await ctx.send(f"Pun with id {pun.id} does not exist.")
-
-        await ctx.send("Pun word added.")
 
     @puns_group.command(name="remove-word", help="Remove a pun from a pun word")
     async def remove_pun_word(self, ctx, pun_id: int, pun_word):
@@ -200,10 +199,9 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
                 await ctx.send(f"Pun word {pun_word} does not exist.")
             else:
                 pun.remove_pun_word(pun_word)
+                await ctx.send("Pun word removed.")
         else:
             await ctx.send(f"Pun with id {pun.id} does not exist.")
-
-        await ctx.send("Pun word removed.")
 
 
 async def setup(bot):
