@@ -6,6 +6,7 @@ from discord.ext.commands import Cog, \
     CommandOnCooldown, \
     DisabledCommand
 from bot.helpers.error_helper import send_error
+from requests.exceptions import ConnectionError as RequestConnectionError
 
 
 class CommandErrorHandler(Cog):
@@ -15,6 +16,8 @@ class CommandErrorHandler(Cog):
     @Cog.listener()
     async def on_command_error(self, ctx, command_error):
         warning(f"Error: {command_error}. Issued by {ctx.author}")
+
+        warning(type(command_error.original.original))
 
         if isinstance(command_error, CommandNotFound):
             await send_command_help(ctx)
@@ -26,6 +29,8 @@ class CommandErrorHandler(Cog):
             await send_error(ctx, "This command is disabled.")
         elif isinstance(command_error, MissingRequiredArgument):
             await send_command_help(ctx)
+        elif RequestConnectionError:
+            await ctx.send("Unable to make the connection, please try again later!", ephemeral=True)
 
 
 def send_command_help(ctx):
