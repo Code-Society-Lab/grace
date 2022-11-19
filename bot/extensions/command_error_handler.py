@@ -16,6 +16,7 @@ class CommandErrorHandler(Cog):
     @Cog.listener()
     async def on_command_error(self, ctx, command_error):
         warning(f"Error: {command_error}. Issued by {ctx.author}")
+        print(isinstance(command_error.original.original, RequestConnectionError))
 
         if isinstance(command_error, CommandNotFound):
             await send_command_help(ctx)
@@ -28,7 +29,7 @@ class CommandErrorHandler(Cog):
         elif isinstance(command_error, MissingRequiredArgument):
             await send_command_help(ctx)
         elif isinstance(command_error.original.original, RequestConnectionError):
-            await ctx.send("Unable to make the connection, please try again later!", ephemeral=True)
+            await ctx.send("Unable to make the connection, please try again later!")
 
 
 def send_command_help(ctx):

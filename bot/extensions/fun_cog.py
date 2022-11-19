@@ -44,7 +44,7 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
             color=self.bot.default_color,
             title='**GET GOOSED**',
         )
-        goosed_embed.set_image(url=random.choice(self.goosed_gif_links))
+        goosed_embed.set_image(url=random_choice(self.goosed_gif_links))
         await ctx.send(embed=goosed_embed)
 
     @fun_group.command(name='quote', help='Sends an inspirational quote')
@@ -87,6 +87,7 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
             await ctx.send(embed=embed)
         else:
             await ctx.send("Unable to fetch a quote! Try again later.")
+
 
 async def setup(bot):
     await bot.add_cog(FunCog(bot))
