@@ -1,5 +1,4 @@
 from json import loads
-from logging import warning
 from discord.ext.commands.cooldowns import BucketType
 from discord.ext.commands import Cog, cooldown, hybrid_group
 from discord import Embed, Colour
@@ -7,7 +6,6 @@ from requests import get
 from random import choice as random_choice
 from bot.extensions.command_error_handler import CommandErrorHandler
 from bot.models.extensions.fun.answer import Answer
-from requests.exceptions import ConnectionError as RequestConnectionError
 
 
 class FunCog(Cog, name="Fun", description="Collection of fun commands"):
