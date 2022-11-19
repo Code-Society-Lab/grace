@@ -69,23 +69,26 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
     async def bisonquote_command(self, ctx):
         response = get('https://quotes.needell.co/quote', timeout=1)
 
-        quote = response.text[1:-2].replace("\\n", "\n").replace("\\t", "    ").split('~')
-        name = quote[1].strip().split('(')[0].strip()
-        urlname = name.replace(" ", "_")
+        if response.ok:
+            quote = response.text[1:-2].replace("\\n", "\n").replace("\\t", "    ").split('~')
+            name = quote[1].strip().split('(')[0].strip()
+            urlname = name.replace(" ", "_")
 
-        true_author = None
-        if '(' in quote[1]:
-            true_author = quote[1].strip().split('(')[-1][:-1]
+            true_author = None
+            if '(' in quote[1]:
+                true_author = quote[1].strip().split('(')[-1][:-1]
 
-        embed = Embed(
-            color=Colour.random(),
-            description=quote[0],
-        )
-        embed.set_author(name=name, icon_url=f'https://quotes.needell.co/get_image?name={urlname}')
-        if true_author:
-            embed.set_footer(text=true_author)
+            embed = Embed(
+                color=Colour.random(),
+                description=quote[0],
+            )
+            embed.set_author(name=name, icon_url=f'https://quotes.needell.co/get_image?name={urlname}')
+            if true_author:
+                embed.set_footer(text=true_author)
 
-        await ctx.send(embed=embed)
+            await ctx.send(embed=embed)
+        else:
+            await ctx.send("Unable to fetch a quote! Try again later.")
 
 
 async def setup(bot):
