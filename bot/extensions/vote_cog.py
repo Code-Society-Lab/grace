@@ -5,7 +5,6 @@ from collections.abc import Sequence
 from discord import Embed
 from discord.ui import Button, View
 import discord
-import random
 import asyncio
 
 
@@ -13,8 +12,6 @@ import asyncio
 # Problem: Cannot make the bot output one modal after another (I can send 1 modal but after it says interaction expired or something).
 # When I try using webhooks it gives me 'Unknown Webhook' error
 # TODO(LIMITATION): Try to find a workaround with models. Or just accept user input: https://stackoverflow.com/questions/64949395/how-can-i-make-my-discord-bot-respond-with-a-follow-up-message
-
-
 #class TitleBuilder(ui.Modal):
 # 	def __init__(self):
 # 		super().__init__(title='Title')
@@ -32,19 +29,26 @@ import asyncio
 
 # 	async def on_submit(self, interaction: discord.Interaction):
 # 		await interaction.response.send_message(f'Text: {self.option}', ephemeral=True)
-
 class PollView(View):
 	def __init__(self, emojis: list[str], possible_emojis_size: int, ref_embed: Embed) -> None:
 		super().__init__()
-		self.buttons = []
-		for emoji_index in range(possible_emojis_size):
-			button = VoteButton(emojis[emoji_index])
-			button.set_embed_reference(ref_embed)
+		self._buttons = []
+		self._possible_emojis_size = possible_emojis_size
+		self._emojis = emojis
+		self._embed = ref_embed
+		self.create_buttons()
+
+	def create_buttons(self) -> None:
+		""" Create/intitalize the buttons of the View"""
+		for emoji_index in range(self._possible_emojis_size):
+			button = VoteButton(self._emojis[emoji_index])
+			button.set_embed_reference(self._embed)
 			self.add_item(button)
-			self.buttons.append(button)
+			self._buttons.append(button)
 
 	def disable_buttons(self) -> None:
-		for button in self.buttons:
+		""" Disable all buttons """
+		for button in self._buttons:
 			button.disabled = True
 
 
@@ -60,26 +64,34 @@ class PollEmbed(Embed):
 		self._timer_label = None
 
 	def increment_counter(self, emoji: str) -> None:
+		""" Increment emoji counter (when someone voted)"""
 		self._poll_counter[emoji] += 1
 
 	def decrement_counter(self, emoji: str) -> None:
+		""" Decrement emoji counter (when someone changed their vote)"""
 		self._poll_counter[emoji] -= 1
 
 	def set_user(self, user: discord.Member, emoji: str) -> None:
+		""" Set user's vote choice """
 		self._voted_users[user] = emoji
 
 	def get_user_emoji(self, user: discord.Member) -> str:
+		""" Get user's voted option """
 		return self._voted_users[user]
 
 	def user_voted(self, user: discord.Member) -> bool:
+		""" Checks if user has already voted """
 		if user in self._voted_users:
 			return True
 		return False
 
 	def set_timer_label(self, label: str) -> None:
+		""" Sets timer label 
+			Relations to: Timer class """
 		self._timer_label = label
 
 	async def get_and_print_winner(self, ctx: Context) -> None:
+		""" Calculates the highest voted option and sends the victory message """
 		highest = 0
 		win_emoji = ''
 		for emoji, count in self._poll_counter.items():
@@ -92,9 +104,9 @@ class PollEmbed(Embed):
 		else:
 			await ctx.channel.send('No one voted.')
 
-
-
 	def build(self) -> None:
+		""" Builds/initializes embed's properties: title, description """
+
 		# Set the embed title
 		self.title = self._poll_title
 		
@@ -113,15 +125,18 @@ class PollEmbed(Embed):
 
 		self.description = main_text
 
+
 class VoteButton(Button):
 	def __init__(self, emoji) -> None:
 		super().__init__(style=discord.ButtonStyle.gray, emoji=emoji)
 
 	def set_embed_reference(self, embed: PollEmbed) -> None:
+		""" Sets button's embed reference """
 		self._embed = embed
 
-
 	async def callback(self, interaction: discord.Interaction) -> None:
+		""" When button was clicked.
+			Manipulates the embed counter depending on user interaction """
 		if self._embed is None:
 			raise ValueError('Update embed function or/and Counter reference are not set.')
 		# TODO: Catch the unknown interaction error and send a message that user is clicking too fast.
@@ -140,6 +155,7 @@ class VoteButton(Button):
 			await interaction.message.edit(embed=self._embed)
 		await interaction.response.defer()
 
+
 '''
 	PollEmbed:
 		counter = {}
@@ -156,6 +172,7 @@ class Timer:
 		self._msg = msg
 
 	async def start(self) -> None:
+		""" Starts and executes the timer """
 		while self._seconds >= 0:
 			await self.timer_info_update()
 			await asyncio.sleep(1)
@@ -164,19 +181,28 @@ class Timer:
 		self._view.disable_buttons()
 		await self._msg.edit(embed=self._embed, view=self._view)
 
+	def dozen_seconds(self) -> bool:
+		""" Checks if there is more than 10 seconds"""
+		if self._seconds % 60 >= 10:
+			return True
+		return False
+
+	def dozen_minutes(self) -> bool:
+		""" Checks if there is more than 10 minutes"""
+		if self._seconds // 60 >= 10:
+			return True
+		return False
+
+	def set_timer_label(self) -> None:
+		""" Sets the timer label.
+			P.S. Variables are for better readability"""
+		dozen_minutes = self.dozen_minutes()
+		dozen_seconds = self.dozen_seconds()
+		self._embed.set_timer_label(f'**{0 if not dozen_minutes else ""}{self._seconds // 60}:{0 if not dozen_seconds else ""}{self._seconds % 60}**')
 
 	async def timer_info_update(self) -> None:
-		if self._seconds // 60 >= 10:
-			if self._seconds % 60 >= 10:
-				self._embed.set_timer_label(f'**{self._seconds // 60}:{self._seconds % 60}**')
-			else:
-				self._embed.set_timer_label(f'**{self._seconds // 60}:0{self._seconds % 60}**')
-		else:
-			if self._seconds % 60 >= 10:
-				self._embed.set_timer_label(f'**0{self._seconds // 60}:{self._seconds % 60}**')
-			else:
-				self._embed.set_timer_label(f'**0{self._seconds // 60}:0{self._seconds % 60}**')
-
+		""" Updates the embed's timer label """
+		self.set_timer_label()
 		self._embed.build()
 		await self._msg.edit(embed=self._embed)
 
@@ -188,61 +214,51 @@ class PollCog(Cog):
 		self.bot = bot
 
 	def make_sequence(self, seq):
-	    if seq is None:
-	        return ()
-	    if isinstance(seq, Sequence) and not isinstance(seq, str):
-	        return seq
-	    else:
-	        return (seq,)    
+		""" Returns the variable depending on it's type """
+		if seq is None:
+			return ()
+		if isinstance(seq, Sequence) and not isinstance(seq, str):
+			return seq
+		else:
+			return (seq,)
 
 	def message_check(self, channel=None, author=None, content=None, ignore_bot=True, lower=True) -> Callable[[discord.Message], bool]:
-	    channel = self.make_sequence(channel)
-	    author = self.make_sequence(author)
-	    content = self.make_sequence(content)
-	    if lower:
-	        content = tuple(c.lower() for c in content)
-	    def check(message: discord.Message):
-	        if ignore_bot and message.author.bot:
-	            return False
-	        if channel and message.channel not in channel:
-	            return False
-	        if author and message.author not in author:
-	            return False
-	        actual_content = message.content.lower() if lower else message.content
-	        if content and actual_content not in content:
-	            return False
-	        return True
-	    return check
+		""" Functions ensures that the message was sent in the dm channel,
+			and by the author himself.
+		"""
+		channel = self.make_sequence(channel)
+		author = self.make_sequence(author)
+		content = self.make_sequence(content)
+		if lower:
+			content = tuple(c.lower() for c in content)
+		def check(message: discord.Message):
+			if ignore_bot and message.author.bot:
+				return False
+			if channel and message.channel not in channel:
+				return False
+			if author and message.author not in author:
+				return False
+			actual_content = message.content.lower() if lower else message.content
+			if content and actual_content not in content:
+				return False
+			return True
+		return check
 
 	@hybrid_group(name="poll", help="Poll commands")
 	async def poll_group(self, ctx) -> None:
+		""" If no invoked subcommand was executed
+			For example: /poll """
 		if ctx.invoked_subcommand is None:
-		    await send_command_help(ctx)
+			await send_command_help(ctx)
 
 	@poll_group.command(name='create', help='Create a poll')
 	async def vote(self, ctx: Context, *, title: str, options_count: int = 2, poll_time: int = 120) -> None:
+		""" Constructs the vote embed """
 		if options_count < 2:
 			await ctx.interaction.response.send_message('Only 2 or more options is allowed.', ephemeral=True)
 			return
+
 		cancel_keywords = ['!abort']
-
-		# if not title:
-		# 	# Create title embed
-		# 	title_embed = Embed(
-		# 		color=self.bot.default_color,
-		# 		title='POLL CREATION INFO',
-		# 		description='**Input poll title**'
-		# 	)
-		# 	# Send a DM to the command executor
-		# 	await ctx.author.send(embed=title_embed)
-
-		# 	# TODO: Think if input title can be invalid
-		# 	title = await self.bot.wait_for('message', check=self.message_check(ctx.author.dm_channel))
-
-		# 	# Check if user cancelled the poll
-		# 	if title.content.lower().strip() in cancel_keywords:
-		# 		await ctx.interaction.response.send_message('Aborted', ephemeral=True)
-		# 		return
 
 		options_embed = Embed(
 			color=self.bot.default_color,
@@ -309,7 +325,6 @@ class PollCog(Cog):
 		await poll_embed.get_and_print_winner(ctx)
 
 
-
-
 async def setup(bot):
+	""" Adds the PollCog to the bot """ 
 	await bot.add_cog(PollCog(bot))
