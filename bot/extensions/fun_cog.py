@@ -1,4 +1,5 @@
 from json import loads
+from logging import warning
 from discord.ext.commands.cooldowns import BucketType
 from discord.ext.commands import Cog, cooldown, hybrid_group
 from discord import Embed, Colour
@@ -6,6 +7,7 @@ from requests import get
 from random import choice as random_choice
 from bot.extensions.command_error_handler import CommandErrorHandler
 from bot.models.extensions.fun.answer import Answer
+from requests.exceptions import ConnectionError as RequestConnectionError
 
 
 class FunCog(Cog, name="Fun", description="Collection of fun commands"):
@@ -49,7 +51,7 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
 
     @fun_group.command(name='quote', help='Sends an inspirational quote')
     async def quote_command(self, ctx):
-        response = get('https://api.forismatic.com/api/1.0/?method=getQuote&format=json&lang=en', timeout=30)
+        response = get('https://api.forismatic.com/api/1.0/?method=getQuote&format=json&lang=en')
 
         if response.ok:
             quote = '{quoteText} \n-- {quoteAuthor}'.format(**loads(response.text))
@@ -65,28 +67,25 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
 
     @fun_group.command(name='bisonquote', help='Sends a quote from SoyBison\'s quote server.')
     async def bisonquote_command(self, ctx):
-        response = get('https://quotes.needell.co/quote', timeout=30)
+        response = get('https://quotes.needell.co/quote', timeout=1)
 
-        if response.ok:
-            quote = response.text[1:-2].replace("\\n", "\n").replace("\\t", "    ").split('~')
-            name = quote[1].strip().split('(')[0].strip()
-            urlname = name.replace(" ", "_")
+        quote = response.text[1:-2].replace("\\n", "\n").replace("\\t", "    ").split('~')
+        name = quote[1].strip().split('(')[0].strip()
+        urlname = name.replace(" ", "_")
 
-            true_author = None
-            if '(' in quote[1]:
-                true_author = quote[1].strip().split('(')[-1][:-1]
+        true_author = None
+        if '(' in quote[1]:
+            true_author = quote[1].strip().split('(')[-1][:-1]
 
-            embed = Embed(
-                color=Colour.random(),
-                description=quote[0],
-            )
-            embed.set_author(name=name, icon_url=f'https://quotes.needell.co/get_image?name={urlname}')
-            if true_author:
-                embed.set_footer(text=true_author)
+        embed = Embed(
+            color=Colour.random(),
+            description=quote[0],
+        )
+        embed.set_author(name=name, icon_url=f'https://quotes.needell.co/get_image?name={urlname}')
+        if true_author:
+            embed.set_footer(text=true_author)
 
-            await ctx.send(embed=embed)
-        else:
-            await ctx.send("Unable to fetch a quote! Try again later.")
+        await ctx.send(embed=embed)
 
 
 async def setup(bot):
