@@ -1,34 +1,13 @@
 from typing import Callable
-from discord.ext.commands import Cog, Context, hybrid_command, hybrid_group
 from bot.extensions.command_error_handler import send_command_help
 from collections.abc import Sequence
-from discord import Embed
+from discord.ext.commands import Bot, Cog, Context, hybrid_command, hybrid_group
+from discord import Embed, Member, ButtonStyle, Interaction, Message
 from discord.ui import Button, View
-import discord
-import asyncio
+from asyncio import sleep as async_sleep
+from asyncio import TimeoutError
 
 
-# Problem: The modal doesn't allow more than 5 input fields (In the poll I assume there could be more)
-# Problem: Cannot make the bot output one modal after another (I can send 1 modal but after it says interaction expired or something).
-# When I try using webhooks it gives me 'Unknown Webhook' error
-# TODO(LIMITATION): Try to find a workaround with models. Or just accept user input: https://stackoverflow.com/questions/64949395/how-can-i-make-my-discord-bot-respond-with-a-follow-up-message
-#class TitleBuilder(ui.Modal):
-# 	def __init__(self):
-# 		super().__init__(title='Title')
-# 		self.input = ui.TextInput(label='Text')
-# 		self.add_item(self.input)
-
-# 	async def on_submit(self, interaction: discord.Interaction):
-# 		await interaction.response.send_message(f'Text: {self.input}', ephemeral=True)
-
-# class OptionBuilder(ui.Modal):
-# 	def __init__(self, option: int):
-# 		super().__init__(title=f'Option {option}')
-# 		self.option = ui.TextInput(label=f"Option {option}")
-# 		self.add_item(self.option)
-
-# 	async def on_submit(self, interaction: discord.Interaction):
-# 		await interaction.response.send_message(f'Text: {self.option}', ephemeral=True)
 class PollView(View):
 	def __init__(self, emojis: list[str], possible_emojis_size: int, ref_embed: Embed) -> None:
 		super().__init__()
@@ -47,7 +26,6 @@ class PollView(View):
 			self._buttons.append(button)
 
 	def disable_buttons(self) -> None:
-		""" Disable all buttons """
 		for button in self._buttons:
 			button.disabled = True
 
@@ -55,7 +33,6 @@ class PollView(View):
 class PollEmbed(Embed):
 	def __init__(self, *, options: list[str], emojis: list[str], counter: dict, title: str) -> None:
 		super().__init__()
-		# User: vote_emoji
 		self._voted_users = {}
 		self._poll_options = options
 		self._poll_emojis = emojis
@@ -71,52 +48,41 @@ class PollEmbed(Embed):
 		""" Decrement emoji counter (when someone changed their vote)"""
 		self._poll_counter[emoji] -= 1
 
-	def set_user(self, user: discord.Member, emoji: str) -> None:
+	def set_user(self, user: Member, emoji: str) -> None:
 		""" Set user's vote choice """
 		self._voted_users[user] = emoji
 
-	def get_user_emoji(self, user: discord.Member) -> str:
+	def get_user_emoji(self, user: Member) -> str:
 		""" Get user's voted option """
 		return self._voted_users[user]
 
-	def user_voted(self, user: discord.Member) -> bool:
-		""" Checks if user has already voted """
+	def user_voted(self, user: Member) -> bool:
 		if user in self._voted_users:
 			return True
 		return False
 
 	def set_timer_label(self, label: str) -> None:
-		""" Sets timer label 
-			Relations to: Timer class """
 		self._timer_label = label
 
-	async def get_and_print_winner(self, ctx: Context) -> None:
-		""" Calculates the highest voted option and sends the victory message """
-		highest = 0
-		win_emoji = ''
-		for emoji, count in self._poll_counter.items():
-			if count > highest:
-				highest = count
-				win_emoji = emoji
+	def finish(self) -> None:
+		self._timer_label = '**Poll finished!**'
+		self.build()
 
-		if highest > 0 and win_emoji:
-			await ctx.channel.send(f'{win_emoji} ***option has won!***')
-		else:
-			await ctx.channel.send('No one voted.')
+	@property
+	def counter(self):
+		return self._poll_counter
 
 	def build(self) -> None:
 		""" Builds/initializes embed's properties: title, description """
 
-		# Set the embed title
 		self.title = self._poll_title
 		
 		# Generate the description
 		main_text = ''
 		if self._timer_label:
-			main_text += (self._timer_label + '\n\n')
+			main_text += self._timer_label + '\n\n'
 
 		for emoji_index, option in enumerate(self._poll_options):
-			# Check if the number of emojis needed is not out of boundaries
 			if emoji_index < len(self._poll_emojis):
 				emoji = self._poll_emojis[emoji_index]
 			else:
@@ -128,18 +94,17 @@ class PollEmbed(Embed):
 
 class VoteButton(Button):
 	def __init__(self, emoji) -> None:
-		super().__init__(style=discord.ButtonStyle.gray, emoji=emoji)
+		super().__init__(style=ButtonStyle.gray, emoji=emoji)
 
 	def set_embed_reference(self, embed: PollEmbed) -> None:
-		""" Sets button's embed reference """
 		self._embed = embed
 
-	async def callback(self, interaction: discord.Interaction) -> None:
+	async def callback(self, interaction: Interaction) -> None:
 		""" When button was clicked.
 			Manipulates the embed counter depending on user interaction """
 		if self._embed is None:
-			raise ValueError('Update embed function or/and Counter reference are not set.')
-		# TODO: Catch the unknown interaction error and send a message that user is clicking too fast.
+			raise ValueError('Embed is not set')
+
 		if self._embed.user_voted(interaction.user):
 			user_emoji = self._embed.get_user_emoji(interaction.user)
 			if self.emoji.name != user_emoji:
@@ -156,16 +121,8 @@ class VoteButton(Button):
 		await interaction.response.defer()
 
 
-'''
-	PollEmbed:
-		counter = {}
-	ButtonsView:
-		VoteButton -> (emoji)
-		VoteButton.set_embed_ref(PollEmbed)
-		VoteButton.callback() -> counter[emoji] += 1; embed_update();
-'''
 class Timer:
-	def __init__(self, msg: discord.Message, seconds: int, embed: PollEmbed, view: PollView) -> None:
+	def __init__(self, msg: Message, seconds: int, embed: PollEmbed, view: PollView) -> None:
 		self._seconds = seconds
 		self._embed = embed
 		self._view = view
@@ -175,11 +132,10 @@ class Timer:
 		""" Starts and executes the timer """
 		while self._seconds >= 0:
 			await self.timer_info_update()
-			await asyncio.sleep(1)
+			await async_sleep(1)
 			self._seconds -= 1
 
-		self._view.disable_buttons()
-		await self._msg.edit(embed=self._embed, view=self._view)
+		self._view.disable_buttons()	
 
 	def dozen_seconds(self) -> bool:
 		""" Checks if there is more than 10 seconds"""
@@ -194,8 +150,6 @@ class Timer:
 		return False
 
 	def set_timer_label(self) -> None:
-		""" Sets the timer label.
-			P.S. Variables are for better readability"""
 		dozen_minutes = self.dozen_minutes()
 		dozen_seconds = self.dozen_seconds()
 		self._embed.set_timer_label(f'**{0 if not dozen_minutes else ""}{self._seconds // 60}:{0 if not dozen_seconds else ""}{self._seconds % 60}**')
@@ -207,10 +161,8 @@ class Timer:
 		await self._msg.edit(embed=self._embed)
 
 
-# Limitation: It's only possible to run 1 poll at a time. Well you can run 2 or more but it's not gonna be asynchronous
-# Suggestion: Probably use (if exists) discord's built-in threads, to separate the processes.
 class PollCog(Cog):
-	def __init__(self, bot: discord.ext.commands.Bot) -> None:
+	def __init__(self, bot: Bot) -> None:
 		self.bot = bot
 
 	def make_sequence(self, seq):
@@ -222,7 +174,7 @@ class PollCog(Cog):
 		else:
 			return (seq,)
 
-	def message_check(self, channel=None, author=None, content=None, ignore_bot=True, lower=True) -> Callable[[discord.Message], bool]:
+	def message_check(self, channel=None, author=None, content=None, ignore_bot=True, lower=True) -> Callable[[Message], bool]:
 		""" Functions ensures that the message was sent in the dm channel,
 			and by the author himself.
 		"""
@@ -231,7 +183,7 @@ class PollCog(Cog):
 		content = self.make_sequence(content)
 		if lower:
 			content = tuple(c.lower() for c in content)
-		def check(message: discord.Message):
+		def check(message: Message):
 			if ignore_bot and message.author.bot:
 				return False
 			if channel and message.channel not in channel:
@@ -244,10 +196,23 @@ class PollCog(Cog):
 			return True
 		return check
 
+	async def get_and_print_winner(self, ctx: Context) -> None:
+		""" Calculates the highest voted option and sends the victory message """
+		highest = 0
+		win_emoji = ''
+		for emoji, count in self.poll_embed.counter.items():
+			if count > highest:
+				highest = count
+				win_emoji = emoji
+
+		if highest > 0 and win_emoji:
+			await ctx.channel.send(f'{win_emoji} ***option has won!***')
+		else:
+			await ctx.channel.send('No one voted.')
+
 	@hybrid_group(name="poll", help="Poll commands")
 	async def poll_group(self, ctx) -> None:
-		""" If no invoked subcommand was executed
-			For example: /poll """
+		""" If no invoked subcommand was executed """
 		if ctx.invoked_subcommand is None:
 			await send_command_help(ctx)
 
@@ -269,7 +234,6 @@ class PollCog(Cog):
 		await ctx.author.send(embed=options_embed)
 		options = []
 
-		# Read the input from dm and save it in options list
 		for index in range(options_count):
 			option_embed = Embed(
 				color=self.bot.default_color,
@@ -277,15 +241,17 @@ class PollCog(Cog):
 				description=f'**Input option {index + 1}.**'
 			)
 			await ctx.author.send(embed=option_embed)
-			# Wait for input
-			option = await self.bot.wait_for('message', check=self.message_check(ctx.author.dm_channel))
-			# Check if user cancelled the poll
+			try:
+				option = await self.bot.wait_for('message', check=self.message_check(ctx.author.dm_channel), timeout=360)
+			except TimeoutError:
+				await ctx.author.send('**Waiting too long! Aborted!**')
+				return
+
 			if option.content in cancel_keywords:
 				await ctx.author.send('**Successfully aborted!**')
 				return
 			options.append(option.content)
 
-		# Send a success message
 		await ctx.author.send(f'Great! The poll: {title} with {len(options)} options created! On channel: {ctx.channel.name}')
 		if options_count == 2:
 			emojis = [
@@ -303,26 +269,28 @@ class PollCog(Cog):
 		for emoji_index in range(allowed_emojis_size):
 			counter[emojis[emoji_index]] = 0
 
-		# Create poll embed
-		poll_embed = PollEmbed(
+
+		self.poll_embed = PollEmbed(
 			options=options, 
 			emojis=emojis, 
 			counter=counter, 
 			title=title
 		)
-		# Create poll view
-		view = PollView(emojis, allowed_emojis_size, poll_embed)
-		# build/initialize embed
-		poll_embed.build()
 
-		# Send a poll message
-		poll = await ctx.channel.send(embed=poll_embed, view=view)
-		# Create timer
-		timer = Timer(poll, poll_time, poll_embed, view)
+		self.view = PollView(emojis, allowed_emojis_size, self.poll_embed)
+		self.poll_embed.build()
+
+
+		poll = await ctx.channel.send(embed=self.poll_embed, view=self.view)
+
+		timer = Timer(poll, poll_time, self.poll_embed, self.view)
 		await timer.start()
+
+		self.poll_embed.finish()
+		await poll.edit(embed=self.poll_embed, view=self.view)
 		
 		# Output the winner option
-		await poll_embed.get_and_print_winner(ctx)
+		await self.get_and_print_winner(ctx)
 
 
 async def setup(bot):
