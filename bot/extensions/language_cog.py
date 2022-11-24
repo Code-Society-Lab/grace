@@ -173,7 +173,7 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
 
     @puns_group.command(name="remove", help="Remove a pun", usage="{pun_id}")
     async def remove_pun(self, ctx, pun_id: int):
-        pun = Pun.get_by(id=pun_id)
+        pun = Pun.get(id)
 
         if pun:
             await ctx.send("Pun removed.")
@@ -182,7 +182,7 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
 
     @puns_group.command(name="add-word", help="Add a pun word to a pun")
     async def add_pun_word(self, ctx, pun_id: int, pun_word, emoji):
-        pun = Pun.get_by(id=pun_id)
+        pun = Pun.get(id)
 
         if pun:
             if pun_word in map(lambda pun_word: pun_word.word, pun.pun_words):
@@ -195,7 +195,7 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
 
     @puns_group.command(name="remove-word", help="Remove a pun from a pun word")
     async def remove_pun_word(self, ctx, pun_id: int, pun_word):
-        pun = Pun.get_by(id=pun_id)
+        pun = Pun.get(id)
 
         if pun:
             if pun_word not in map(lambda pun_word: pun_word.word, pun.pun_words):
