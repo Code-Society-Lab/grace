@@ -75,6 +75,9 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
                 await message.add_reaction(linus_trigger.positive_emoji)
 
     async def pun_react(self, message: Message):
+        if message.author == self.bot.user:
+            return
+
         message_tokens = self.tokenizer.tokenize(message.content)
         tokenlist = set(map(str.lower, message_tokens))
 
