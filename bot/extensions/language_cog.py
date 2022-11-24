@@ -172,7 +172,7 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
         await ctx.send("Pun added.")
 
     @puns_group.command(name="remove", help="Remove a pun", usage="{pun_id}")
-    async def remove_pun(self, ctx, pun_id: int):
+    async def remove_pun(self, ctx, id: int):
         pun = Pun.get(id)
 
         if pun:
@@ -181,11 +181,11 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
             await ctx.send("Pun with id {pun.id} does not exist.")
 
     @puns_group.command(name="add-word", help="Add a pun word to a pun")
-    async def add_pun_word(self, ctx, pun_id: int, pun_word, emoji):
+    async def add_pun_word(self, ctx, id: int, pun_word, emoji):
         pun = Pun.get(id)
 
         if pun:
-            if pun_word in map(lambda pun_word: pun_word.word, pun.pun_words):
+            if pun.has_word(pun_word):
                 await ctx.send(f"Pun word {pun_word} already exists.")
             else:
                 pun.add_pun_word(pun_word, demojize(emoji))
@@ -194,11 +194,11 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
             await ctx.send(f"Pun with id {pun.id} does not exist.")
 
     @puns_group.command(name="remove-word", help="Remove a pun from a pun word")
-    async def remove_pun_word(self, ctx, pun_id: int, pun_word):
+    async def remove_pun_word(self, ctx, id: int, pun_word):
         pun = Pun.get(id)
 
         if pun:
-            if pun_word not in map(lambda pun_word: pun_word.word, pun.pun_words):
+            if not pun.has_word(pun_word):
                 await ctx.send(f"Pun word {pun_word} does not exist.")
             else:
                 pun.remove_pun_word(pun_word)

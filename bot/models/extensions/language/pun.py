@@ -16,6 +16,9 @@ class Pun(app.base, Model):
     def words(self):
         for pun_word in self.pun_words:
             yield pun_word.word
+            
+    def has_word(self, word):
+       return self.pun_words.filter(PunWord.word == word).count() > 0
 
     def add_pun_word(self, pun_word, emoji_code):
         PunWord(pun_id=self.id, word=pun_word, emoji_code=emoji_code).save()
