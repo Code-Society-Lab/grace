@@ -178,7 +178,7 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
         if pun:
             await ctx.send("Pun removed.")
         else:
-            await ctx.send("Pun with id {pun.id} does not exist.")
+            await ctx.send(f"Pun with id **{pun.id}** does not exist.")
 
     @puns_group.command(name="add-word", help="Add a pun word to a pun")
     async def add_pun_word(self, ctx, id: int, pun_word, emoji):
@@ -186,7 +186,7 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
 
         if pun:
             if pun.has_word(pun_word):
-                await ctx.send(f"Pun word {pun_word} already exists.")
+                await ctx.send(f"Pun word **{pun_word}** already exists.")
             else:
                 pun.add_pun_word(pun_word, demojize(emoji))
                 await ctx.send("Pun word added.")
@@ -199,12 +199,12 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
 
         if pun:
             if not pun.has_word(pun_word):
-                await ctx.send(f"Pun word {pun_word} does not exist.")
+                await ctx.send(f"Pun word **{pun_word}** does not exist.")
             else:
                 pun.remove_pun_word(pun_word)
                 await ctx.send("Pun word removed.")
         else:
-            await ctx.send(f"Pun with id {pun.id} does not exist.")
+            await ctx.send(f"Pun with id **{pun.id}** does not exist.")
 
 
 async def setup(bot):
