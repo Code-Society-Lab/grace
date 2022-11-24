@@ -1,4 +1,4 @@
-import emoji
+from emoji import demojize
 from discord.ext.commands import Cog, has_permissions, hybrid_group
 from discord import Message, Embed
 from nltk.tokenize import TweetTokenizer
@@ -178,14 +178,14 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
             await ctx.send("Pun with id {pun.id} does not exist.")
 
     @puns_group.command(name="add-word", help="Add a pun word to a pun")
-    async def add_pun_word(self, ctx, pun_id: int, pun_word, emo):
+    async def add_pun_word(self, ctx, pun_id: int, pun_word, emoji):
         pun = Pun.get_by(id=pun_id)
 
         if pun:
             if pun_word in map(lambda pun_word: pun_word.word, pun.pun_words):
                 await ctx.send(f"Pun word {pun_word} already exists.")
             else:
-                pun.add_pun_word(pun_word, emoji.demojize(emo))
+                pun.add_pun_word(pun_word, demojize(emoji))
                 await ctx.send("Pun word added.")
         else:
             await ctx.send(f"Pun with id {pun.id} does not exist.")
