@@ -10,7 +10,7 @@ class Pun(app.base, Model):
 
     id = Column(Integer, primary_key=True)
     text = Column(Text(), unique=True)
-    pun_words = relationship("PunWord", cascade="all, delete-orphan")
+    pun_words = relationship("PunWord", lazy='dynamic', cascade="all, delete-orphan")
 
     @property
     def words(self):
