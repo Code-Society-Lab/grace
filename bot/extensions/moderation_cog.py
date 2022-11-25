@@ -1,7 +1,9 @@
+from typing import Optional
+
 from bot import app
 from logging import info
 from discord import Member
-from discord.ext.commands import Cog, has_permissions, hybrid_command, Context
+from discord.ext.commands import Cog, has_permissions, hybrid_command
 from bot.helpers.log_helper import danger
 from datetime import datetime
 
@@ -17,6 +19,8 @@ class ModerationCog(Cog, name="Moderation", description="Collection of administr
     @hybrid_command(name='kick', help="Allows a staff member to kick a user based on their behaviour.")
     @has_permissions(kick_members=True)
     async def kick(self, ctx, member: Member, reason="No reason given"):
+        await ctx.defer()
+
         log = danger("KICK", f"{member.mention} has been kicked.")
         log.add_field("Issuer: ", ctx.author)
         log.add_field("Reason: ", reason)
@@ -27,6 +31,8 @@ class ModerationCog(Cog, name="Moderation", description="Collection of administr
     @hybrid_command(name='ban', help="Allows a staff member to ban a user based on their behaviour.")
     @has_permissions(ban_members=True)
     async def ban(self, ctx, member: Member, reason="No reason"):
+        await ctx.defer()
+
         log = danger("BAN", f"{member.mention} has been banned.")
         log.add_field("Issuer: ", ctx.author.mention)
         log.add_field("Reason: ", reason)
@@ -37,6 +43,8 @@ class ModerationCog(Cog, name="Moderation", description="Collection of administr
     @hybrid_command(name='unban', help="Allows a staff member to unban a user.")
     @has_permissions(ban_members=True)
     async def unban(self, ctx, user_id: int):
+        await ctx.defer()
+
         user = await self.bot.fetch_user(user_id)
         log = danger("UNBAN", f"{user.name} has been unbanned.")
 
@@ -45,12 +53,14 @@ class ModerationCog(Cog, name="Moderation", description="Collection of administr
 
     @hybrid_command(name='purge', help="Deletes n amount of messages.")
     @has_permissions(manage_messages=True)
-    async def purge(self, ctx: Context, limit):
-        await ctx.channel.purge(limit=limit+1)
-        await danger(
-            "PURGE",
-            f"{limit} message(s) purged by {ctx.author.mention} in {ctx.channel.mention}"
-        ).send(ctx.channel)
+    async def purge(self, ctx, limit: int, reason: Optional[str] = "No reason given"):
+        await ctx.defer()
+
+        log = danger("PURGE", f"{limit} message(s) purged by {ctx.author.mention} in {ctx.channel.mention}")
+        log.add_field("Reason", reason)
+
+        await ctx.channel.purge(limit=int(limit) + 1, bulk=True, reason=reason)
+        await log.send(ctx.channel)
 
     @Cog.listener()
     async def on_member_join(self, member):
