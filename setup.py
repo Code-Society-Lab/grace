@@ -31,6 +31,7 @@ setup(
         'sqlalchemy',
         'sqlalchemy-utils',
         'discord>=2.1',
+        'pytest',
         'emoji>=2.1.0',
         'nltk',
         'discord-pretty-help==1.3.4',
@@ -43,7 +44,7 @@ setup(
         'alembic',
         'configparser',
         'pygithub',
-        'googletrans==4.0.0-rc1'
+        'googletrans==4.0.0-rc1',
     ],
     scripts=['bin/grace']
 )

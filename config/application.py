@@ -30,10 +30,6 @@ class Application:
     template_path: Path = Path("bin/templates/default.database.template.cfg")
     database_config_path: Path = Path("config/database.cfg")
 
-    @property
-    def base(self):
-        return self.__base
-
     def __init__(self):
         if not self.database_config_path.exists():
             self._generate_database_config()
@@ -42,6 +38,10 @@ class Application:
         self.__engine: Union[Engine, None] = None
 
         self.command_sync: bool = True
+
+    @property
+    def base(self):
+        return self.__base
 
     @property
     def token(self) -> str:
