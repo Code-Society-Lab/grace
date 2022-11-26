@@ -17,4 +17,4 @@ def test_bot():
 
 
 def test_that_fails():
-    assert 1 == 2
+    assert 1 == 3
