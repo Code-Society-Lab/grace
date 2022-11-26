@@ -14,3 +14,7 @@ def test_bot():
 
     assert app.bot is not None
     assert app.bot.name == "client"
+
+
+def test_that_fails():
+    assert 1 == 2
