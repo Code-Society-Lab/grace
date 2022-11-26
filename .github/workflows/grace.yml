@@ -5,9 +5,9 @@ name: Grace tests
 
 on:
   push:
-    branches: [ "unit-test" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "unit-test" ]
+    branches: [ "main" ]
 
 permissions:
   contents: read
