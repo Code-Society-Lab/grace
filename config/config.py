@@ -66,7 +66,7 @@ class Config:
     @property
     def database_uri(self) -> Union[str, URL]:
         if self.database.get("url"):
-            return URL.create(self.database.get("url"))
+            return self.database.get("url")
 
         return URL.create(
             self.database["adapter"],
