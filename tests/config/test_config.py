@@ -15,11 +15,12 @@ def test_section_name():
     assert config.environment.name == "test"
 
 
-def test_database_name():
+def test_database():
     config = Config()
     config.set_environment("test")
 
-    assert config.database_name == "grace_test"
+    assert config.database["adapter"] == "sqlite"
+    assert config.database["database"] == "grace_test.db"
 
 
 def test_database_uri():
