@@ -11,7 +11,6 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import declarative_base, sessionmaker, Session, DeclarativeMeta
 from sqlalchemy_utils import database_exists, create_database, drop_database
-from bot import models, extensions
 from config.config import Config
 from pathlib import Path
 
@@ -71,6 +70,7 @@ class Application:
     @property
     def extension_modules(self) -> Generator[ModuleInfo, Any, None]:
         """Generate the extensions modules"""
+        from bot import extensions
 
         for module in walk_packages(extensions.__path__, f"{extensions.__name__}."):
             if module.ispkg:
@@ -111,6 +111,7 @@ class Application:
     @staticmethod
     def load_models():
         """Import all models in the `bot/models` folder."""
+        from bot import models
 
         for module in walk_packages(models.__path__, f"{models.__name__}."):
             if not module.ispkg:
