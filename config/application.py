@@ -1,7 +1,6 @@
 from configparser import SectionProxy
 from importlib import import_module
-from pkgutil import walk_packages, ModuleInfo
-from logging import basicConfig, critical
+from logging import basicConfig, critical, warning
 from logging.handlers import RotatingFileHandler
 from types import ModuleType
 from typing import Generator, Any, Union, IO, Dict
@@ -13,6 +12,7 @@ from sqlalchemy.orm import declarative_base, sessionmaker, Session, DeclarativeM
 from sqlalchemy_utils import database_exists, create_database, drop_database
 from config.config import Config
 from pathlib import Path
+from config.loader import walk_packages, ModuleInfo, load_models
 
 
 class Application:
@@ -72,12 +72,11 @@ class Application:
         """Generate the extensions modules"""
         from bot import extensions
 
-        for module in walk_packages(extensions.__path__, f"{extensions.__name__}."):
-            if module.ispkg:
-                imported: ModuleType = import_module(module.name)
+        for module in walk_packages(extensions):
+            imported: ModuleType = import_module(module.name)
 
-                if not hasattr(imported, "setup"):
-                    continue
+            if not hasattr(imported, "setup"):
+                continue
             yield module
 
     @property
@@ -102,20 +101,12 @@ class Application:
     def load(self, environment: str, command_sync: bool = True):
         """Sets the environment and loads all the component of the application"""
 
+        load_models()
+
         self.command_sync = command_sync
         self.config.set_environment(environment)
         self.load_logs()
-        self.load_models()
         self.load_database()
-
-    @staticmethod
-    def load_models():
-        """Import all models in the `bot/models` folder."""
-        from bot import models
-
-        for module in walk_packages(models.__path__, f"{models.__name__}."):
-            if not module.ispkg:
-                import_module(module.name)
 
     def load_logs(self):
         file_handler: RotatingFileHandler = RotatingFileHandler(
