@@ -41,19 +41,8 @@ jobs:
     - name: Test with pytest
       run: |
         pytest
-        
-    - name: Use Node 12
-      uses: actions/setup-node@v1
+
+    - name: Deploy to Railway
+      uses: devtomio/action-railway@v1.1.4
       with:
-        node-version: 12.x
-
-    - name: Install packages
-      run: yarn install --frozen-lockfile
-
-    - name: Install Railway
-      run: npm i -g @railway/cli
-
-    - name: Deploy
-      run: railway up
-      env:
         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
