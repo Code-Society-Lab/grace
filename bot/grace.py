@@ -25,15 +25,15 @@ class Grace(Bot):
 
     async def load_extensions(self):
         for module in app.extension_modules:
-            extension = Extension.get_by(module_name=module.name)
+            extension = Extension.get_by(module_name=module)
 
             if not extension:
                 warning(f"{module.name} is not registered. Registering the extension.")
                 extension = Extension.create(module_name=module.name)
 
             if extension.is_enabled():
-                info(f"Loading {module.name}")
-                await self.load_extension(module.name)
+                info(f"Loading {module}")
+                await self.load_extension(module)
             else:
                 info(f"{module.name} is disabled, it will not be loaded.")
 

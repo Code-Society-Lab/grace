@@ -1,7 +1,7 @@
 from config.config import Config
 
 
-def test_current_environment():
+def test_set_environment():
     config = Config()
     config.set_environment("test")
 
@@ -41,3 +41,11 @@ def test_get():
     assert config.get("test", "test_float") == 42.5
     assert config.get("test", "test_bool") is True
     assert config.get("test", "test_fallback") is None
+
+
+def test_client():
+    config = Config()
+    config.set_environment("test")
+
+    assert config.client is not None
+

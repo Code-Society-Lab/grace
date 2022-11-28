@@ -1,6 +1,6 @@
 from configparser import SectionProxy
 from importlib import import_module
-from logging import basicConfig, critical, warning
+from logging import basicConfig, critical
 from logging.handlers import RotatingFileHandler
 from types import ModuleType
 from typing import Generator, Any, Union, IO, Dict
@@ -12,7 +12,7 @@ from sqlalchemy.orm import declarative_base, sessionmaker, Session, DeclarativeM
 from sqlalchemy_utils import database_exists, create_database, drop_database
 from config.config import Config
 from pathlib import Path
-from config.loader import walk_packages, ModuleInfo, load_models
+from config.utils import find_all_importables
 
 
 class Application:
@@ -24,7 +24,7 @@ class Application:
 
     __config: Union[Config, None] = None
     __session: Union[Session, None] = None
-    __base = declarative_base()  # type: DeclarativeMeta
+    __base: DeclarativeMeta = declarative_base()
 
     template_path: Path = Path("bin/templates/default.database.template.cfg")
     database_config_path: Path = Path("config/database.cfg")
@@ -38,8 +38,10 @@ class Application:
 
         self.command_sync: bool = True
 
+        print(type(self.base))
+
     @property
-    def base(self):
+    def base(self) -> DeclarativeMeta:
         return self.__base
 
     @property
@@ -68,12 +70,12 @@ class Application:
         return self.config.client
 
     @property
-    def extension_modules(self) -> Generator[ModuleInfo, Any, None]:
+    def extension_modules(self) -> Generator[str, Any, None]:
         """Generate the extensions modules"""
         from bot import extensions
 
-        for module in walk_packages(extensions):
-            imported: ModuleType = import_module(module.name)
+        for module in find_all_importables(extensions):
+            imported: ModuleType = import_module(module)
 
             if not hasattr(imported, "setup"):
                 continue
@@ -90,23 +92,29 @@ class Application:
     def database_exists(self):
         return database_exists(self.config.database_uri)
 
-    def get_extension_module(self, extension_name) -> Union[ModuleInfo, None]:
+    def get_extension_module(self, extension_name) -> Union[str, None]:
         """Return the extension from the given extension name"""
 
         for extension in self.extension_modules:
-            if extension.name == extension_name:
+            if extension == extension_name:
                 return extension
         return None
 
     def load(self, environment: str, command_sync: bool = True):
         """Sets the environment and loads all the component of the application"""
 
-        load_models()
-
         self.command_sync = command_sync
         self.config.set_environment(environment)
         self.load_logs()
+        self.load_models()
         self.load_database()
+
+    def load_models(self):
+        """Import all models in the `bot/models` package."""
+        from bot import models
+
+        for module in find_all_importables(models):
+            import_module(module)
 
     def load_logs(self):
         file_handler: RotatingFileHandler = RotatingFileHandler(
