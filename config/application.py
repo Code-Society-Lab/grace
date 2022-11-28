@@ -24,7 +24,7 @@ class Application:
 
     __config: Union[Config, None] = None
     __session: Union[Session, None] = None
-    __base = declarative_base()  # type: DeclarativeMeta
+    __base: DeclarativeMeta = declarative_base()
 
     template_path: Path = Path("bin/templates/default.database.template.cfg")
     database_config_path: Path = Path("config/database.cfg")
@@ -38,8 +38,10 @@ class Application:
 
         self.command_sync: bool = True
 
+        print(type(self.base))
+
     @property
-    def base(self):
+    def base(self) -> DeclarativeMeta:
         return self.__base
 
     @property
