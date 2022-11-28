@@ -28,14 +28,14 @@ class Grace(Bot):
             extension = Extension.get_by(module_name=module)
 
             if not extension:
-                warning(f"{module.name} is not registered. Registering the extension.")
-                extension = Extension.create(module_name=module.name)
+                warning(f"{module} is not registered. Registering the extension.")
+                extension = Extension.create(module_name=module)
 
             if extension.is_enabled():
                 info(f"Loading {module}")
                 await self.load_extension(module)
             else:
-                info(f"{module.name} is disabled, it will not be loaded.")
+                info(f"{module} is disabled, it will not be loaded.")
 
     async def on_ready(self):
         info(f"{self.user.name}#{self.user.id} is online and ready to use!")
