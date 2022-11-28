@@ -1,3 +1,4 @@
+from logging import warning
 from os import walk
 from pkgutil import walk_packages
 from itertools import chain
@@ -37,6 +38,9 @@ def _discover_path_importables(pkg_pth, pkg_name) -> Generator[Any, Any, Any]:
 
         rel_pt: PurePath = pkg_dir_path.relative_to(pkg_pth)
         pkg_pref: str = '.'.join((pkg_name, ) + rel_pt.parts)
+
+        if '__init__.py' not in file_names:
+            warning(f"'{pkg_dir_path}' seems to be missing an '__init__.py'. This might cause issues.")
 
         yield from (
             pkg_path
