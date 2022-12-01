@@ -10,9 +10,9 @@ class Wordle(app.base, Model):
 	__tablename__ = 'wordle'
 
 	id = Column(Integer, primary_key=True)
-	user_id = Column(String, nullable=False)
-	points = Column(Integer, nullable=False)
-	play_date = Column(DateTime, nullable=False)
+	user_id = Column(String)
+	points = Column(Integer)
+	play_date = Column(DateTime)
 
 	@classmethod
 	def add_user(cls, user_id: str, points: int, date: datetime, id: int) -> None:
