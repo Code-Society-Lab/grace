@@ -75,7 +75,7 @@ class Model:
 
     @classmethod
     def first(cls, limit: int = 1) -> Query:
-        """Retrieve N firsts records
+        """Retrieve N first records
 
         :usage
             Model.first()

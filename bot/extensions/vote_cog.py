@@ -183,6 +183,7 @@ class PollCog(Cog):
 		content = self.make_sequence(content)
 		if lower:
 			content = tuple(c.lower() for c in content)
+
 		def check(message: Message):
 			if ignore_bot and message.author.bot:
 				return False
@@ -269,7 +270,6 @@ class PollCog(Cog):
 		for emoji_index in range(allowed_emojis_size):
 			counter[emojis[emoji_index]] = 0
 
-
 		self.poll_embed = PollEmbed(
 			options=options, 
 			emojis=emojis, 
@@ -279,7 +279,6 @@ class PollCog(Cog):
 
 		self.view = PollView(emojis, allowed_emojis_size, self.poll_embed)
 		self.poll_embed.build()
-
 
 		poll = await ctx.channel.send(embed=self.poll_embed, view=self.view)
 
