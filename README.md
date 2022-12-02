@@ -3,6 +3,8 @@
 Grace is the official Code Society discord bot. The goal is to give our members the opportunity to participate in the
 development of the server's bot and contribute to a team project while also improving it.
 
+[![Grace tests](https://github.com/Code-Society-Lab/grace/actions/workflows/grace.yml/badge.svg?branch=main)](https://github.com/Code-Society-Lab/grace/actions/workflows/grace.yml)
+
 ---
 
 ## Installation
