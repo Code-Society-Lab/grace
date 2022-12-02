@@ -11,7 +11,6 @@ from asyncio import TimeoutError
 
 
 class PollView(View):
-	# TODO: Create PollView's own timer event
 	def __init__(
 			self,
 			emojis: list[str],
