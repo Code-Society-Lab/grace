@@ -5,16 +5,28 @@ from discord.ext.commands import Bot, Cog, Context, hybrid_command, hybrid_group
 from discord import Embed, Member, ButtonStyle, Interaction, Message
 from discord.ui import Button, View
 from asyncio import sleep as async_sleep
+from asyncio import wait_for as async_wait
+from asyncio import create_task
 from asyncio import TimeoutError
 
 
 class PollView(View):
-	def __init__(self, emojis: list[str], possible_emojis_size: int, ref_embed: Embed) -> None:
+	# TODO: Create PollView's own timer event
+	def __init__(
+			self,
+			emojis: list[str],
+			possible_emojis_size: int,
+			ref_embed: Embed,
+			seconds: int,
+	) -> None:
 		super().__init__()
 		self._buttons = []
 		self._possible_emojis_size = possible_emojis_size
 		self._emojis = emojis
 		self._embed = ref_embed
+		self._seconds = seconds
+		self._msg = None
+		self._timer_task = None
 		self.create_buttons()
 
 	def create_buttons(self) -> None:
@@ -25,12 +37,48 @@ class PollView(View):
 			self.add_item(button)
 			self._buttons.append(button)
 
-	def disable_buttons(self) -> None:
-		for button in self._buttons:
-			button.disabled = True
+	def set_message(self, msg: Message) -> None:
+		self._msg = msg
+
+	async def start(self) -> None:
+		self._timer_task = create_task(self._timer_start())
+
+	async def wait(self) -> None:
+		await async_wait(self._timer_task, timeout=None)
+
+	async def _timer_start(self) -> None:
+		""" Starts and executes the timer """
+		while self._seconds >= 0:
+			await self.timer_info_update()
+			await async_sleep(1)
+			self._seconds -= 1
+
+	def dozen_seconds(self) -> bool:
+		""" Checks if there is more than 10 seconds"""
+		if self._seconds % 60 >= 10:
+			return True
+		return False
+
+	def dozen_minutes(self) -> bool:
+		""" Checks if there is more than 10 minutes"""
+		if self._seconds // 60 >= 10:
+			return True
+		return False
+
+	def set_timer_label(self) -> None:
+		dozen_minutes = self.dozen_minutes()
+		dozen_seconds = self.dozen_seconds()
+		self._embed.set_timer_label(f'**{0 if not dozen_minutes else ""}{self._seconds // 60}:{0 if not dozen_seconds else ""}{self._seconds % 60}**')
+
+	async def timer_info_update(self) -> None:
+		""" Updates the embed's timer label """
+		self.set_timer_label()
+		self._embed.build()
+		await self._msg.edit(embed=self._embed)
 
 
 class PollEmbed(Embed):
+
 	def __init__(self, *, options: list[str], emojis: list[str], counter: dict, title: str) -> None:
 		super().__init__()
 		self._voted_users = {}
@@ -76,7 +124,7 @@ class PollEmbed(Embed):
 		""" Builds/initializes embed's properties: title, description """
 
 		self.title = self._poll_title
-		
+
 		# Generate the description
 		main_text = ''
 		if self._timer_label:
@@ -121,46 +169,6 @@ class VoteButton(Button):
 		await interaction.response.defer()
 
 
-class Timer:
-	def __init__(self, msg: Message, seconds: int, embed: PollEmbed, view: PollView) -> None:
-		self._seconds = seconds
-		self._embed = embed
-		self._view = view
-		self._msg = msg
-
-	async def start(self) -> None:
-		""" Starts and executes the timer """
-		while self._seconds >= 0:
-			await self.timer_info_update()
-			await async_sleep(1)
-			self._seconds -= 1
-
-		self._view.disable_buttons()	
-
-	def dozen_seconds(self) -> bool:
-		""" Checks if there is more than 10 seconds"""
-		if self._seconds % 60 >= 10:
-			return True
-		return False
-
-	def dozen_minutes(self) -> bool:
-		""" Checks if there is more than 10 minutes"""
-		if self._seconds // 60 >= 10:
-			return True
-		return False
-
-	def set_timer_label(self) -> None:
-		dozen_minutes = self.dozen_minutes()
-		dozen_seconds = self.dozen_seconds()
-		self._embed.set_timer_label(f'**{0 if not dozen_minutes else ""}{self._seconds // 60}:{0 if not dozen_seconds else ""}{self._seconds % 60}**')
-
-	async def timer_info_update(self) -> None:
-		""" Updates the embed's timer label """
-		self.set_timer_label()
-		self._embed.build()
-		await self._msg.edit(embed=self._embed)
-
-
 class PollCog(Cog):
 	def __init__(self, bot: Bot) -> None:
 		self.bot = bot
@@ -183,6 +191,7 @@ class PollCog(Cog):
 		content = self.make_sequence(content)
 		if lower:
 			content = tuple(c.lower() for c in content)
+
 		def check(message: Message):
 			if ignore_bot and message.author.bot:
 				return False
@@ -196,11 +205,11 @@ class PollCog(Cog):
 			return True
 		return check
 
-	async def get_and_print_winner(self, ctx: Context) -> None:
+	async def get_and_print_winner(self, ctx: Context, poll_embed: PollEmbed) -> None:
 		""" Calculates the highest voted option and sends the victory message """
 		highest = 0
 		win_emoji = ''
-		for emoji, count in self.poll_embed.counter.items():
+		for emoji, count in poll_embed.counter.items():
 			if count > highest:
 				highest = count
 				win_emoji = emoji
@@ -259,7 +268,7 @@ class PollCog(Cog):
 			]
 		else:
 			emojis = [
-				'🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬛', '⬜', '🟫', 
+				'🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬛', '⬜', '🟫',
 				'🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫', '⚪', '🟤',
 			]
 		# Votes counter according to vote emoji chosen
@@ -269,28 +278,33 @@ class PollCog(Cog):
 		for emoji_index in range(allowed_emojis_size):
 			counter[emojis[emoji_index]] = 0
 
-
-		self.poll_embed = PollEmbed(
-			options=options, 
-			emojis=emojis, 
-			counter=counter, 
+		poll_embed = PollEmbed(
+			options=options,
+			emojis=emojis,
+			counter=counter,
 			title=title
 		)
+		poll_embed.build()
 
-		self.view = PollView(emojis, allowed_emojis_size, self.poll_embed)
-		self.poll_embed.build()
+		view = PollView(
+			emojis,
+			allowed_emojis_size,
+			poll_embed,
+			poll_time
+		)
 
+		poll = await ctx.channel.send(embed=poll_embed, view=view)
 
-		poll = await ctx.channel.send(embed=self.poll_embed, view=self.view)
+		view.set_message(poll)
 
-		timer = Timer(poll, poll_time, self.poll_embed, self.view)
-		await timer.start()
+		await view.start()
+		await view.wait()
 
-		self.poll_embed.finish()
-		await poll.edit(embed=self.poll_embed, view=self.view)
-		
+		poll_embed.finish()
+		await poll.edit(embed=poll_embed, view=None)
+
 		# Output the winner option
-		await self.get_and_print_winner(ctx)
+		await self.get_and_print_winner(ctx, poll_embed)
 
 
 async def setup(bot):
