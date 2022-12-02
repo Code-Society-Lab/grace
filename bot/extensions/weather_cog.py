@@ -68,6 +68,10 @@ class WeatherCog(Cog, name="Weather", description="get current weather informati
 
             fahrenheit = self.kelvin_to_fahrenheit(int(current_temperature))
             celsius = self.kelvin_to_celsius(int(current_temperature))
+            
+            feels_like = main["feels_like"]
+            feels_like_fahrenheit = self.kelvin_to_fahrenheit(int(feels_like))
+            feels_like_celsius = self.kelvin_to_celsius(int(feels_like))
 
             current_pressure = main["pressure"]
             current_humidity = main["humidity"]
@@ -96,6 +100,11 @@ class WeatherCog(Cog, name="Weather", description="get current weather informati
             embed.add_field(
                 name="Temperature",
                 value=f"{round(fahrenheit, 2)}°F | {round(celsius, 2)}°C",
+                inline=False
+            )
+            embed.add_field(
+                name="Feels Like",
+                value=f"{round(feels_like_fahrenheit, 2)}°F | {round(feels_like_celsius, 2)}°C",
                 inline=False
             )
             embed.add_field(

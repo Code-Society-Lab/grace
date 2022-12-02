@@ -1,3 +1,4 @@
+from emoji import demojize
 from discord.ext.commands import Cog, has_permissions, hybrid_group
 from discord import Message, Embed
 from nltk.tokenize import TweetTokenizer
@@ -41,7 +42,8 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
 
         message_tokens = self.tokenizer.tokenize(message.content)
         tokenlist = list(map(lambda s: s.lower(), message_tokens))
-        linustarget = [i for i, x in enumerate(tokenlist) if x in linus_trigger.words]
+        linustarget = [i for i, x in enumerate(
+            tokenlist) if x in linus_trigger.words]
         # Get the indices of all linuses in the message
 
         if linustarget:
@@ -73,6 +75,9 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
                 await message.add_reaction(linus_trigger.positive_emoji)
 
     async def pun_react(self, message: Message):
+        if message.author == self.bot.user:
+            return
+
         message_tokens = self.tokenizer.tokenize(message.content)
         tokenlist = set(map(str.lower, message_tokens))
 
@@ -144,6 +149,62 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
                 await ctx.send(f"Trigger **{old_word}** removed successfully")
         else:
             await ctx.send(f"Unable to remove **{old_word}**")
+
+    @hybrid_group(name="puns", help="Commands to manage puns")
+    @has_permissions(administrator=True)
+    async def puns_group(self, ctx):
+        if ctx.invoked_subcommand is None:
+            pun_texts_with_ids = map(lambda pun: '{}.\t{}'.format(
+                pun.id, pun.text), Pun.all())
+
+            embed = Embed(
+                color=self.bot.default_color,
+                title=f"Puns",
+                description="\n".join(pun_texts_with_ids)
+            )
+
+            await ctx.send(embed=embed)
+
+    @puns_group.command(name="add", help="Add a pun", usage="{pun_text}")
+    async def add_pun(self, ctx, pun_text):
+        Pun.create(text=pun_text)
+
+        await ctx.send("Pun added.")
+
+    @puns_group.command(name="remove", help="Remove a pun", usage="{pun_id}")
+    async def remove_pun(self, ctx, id: int):
+        pun = Pun.get(id)
+
+        if pun:
+            await ctx.send("Pun removed.")
+        else:
+            await ctx.send(f"Pun with id **{pun.id}** does not exist.")
+
+    @puns_group.command(name="add-word", help="Add a pun word to a pun")
+    async def add_pun_word(self, ctx, id: int, pun_word, emoji):
+        pun = Pun.get(id)
+
+        if pun:
+            if pun.has_word(pun_word):
+                await ctx.send(f"Pun word **{pun_word}** already exists.")
+            else:
+                pun.add_pun_word(pun_word, demojize(emoji))
+                await ctx.send("Pun word added.")
+        else:
+            await ctx.send(f"Pun with id {pun.id} does not exist.")
+
+    @puns_group.command(name="remove-word", help="Remove a pun from a pun word")
+    async def remove_pun_word(self, ctx, id: int, pun_word):
+        pun = Pun.get(id)
+
+        if pun:
+            if not pun.has_word(pun_word):
+                await ctx.send(f"Pun word **{pun_word}** does not exist.")
+            else:
+                pun.remove_pun_word(pun_word)
+                await ctx.send("Pun word removed.")
+        else:
+            await ctx.send(f"Pun with id **{pun.id}** does not exist.")
 
 
 async def setup(bot):
