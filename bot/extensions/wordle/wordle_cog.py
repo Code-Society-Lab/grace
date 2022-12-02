@@ -473,14 +473,23 @@ class WordleCog(Cog):
     @wordle_group.command(name='leaderboard', help='Send a leaderboard of top N players')
     @has_permissions(administrator=True)
     async def leaderboard_command(self, ctx: Context, *, top: int) -> None:
-        # user_list = Wordle.all()
-        # users = {}
-        # for query in user_list:
-        #     users[query.user_id] = query.points
-        # What?
-        # users = sorted(users)
-        # top_players = []
-        pass
+        user_list = Wordle.all()
+        users = {}
+        for query in user_list:
+            users[query.user_id] = query.points
+
+        top_users = dict(sorted(users.items(), key=lambda item: item[1], reverse=True))
+        top_users = list(zip(list(top_users.keys()), list(top_users.values())))
+
+        leaderboard_embed = Embed(
+            title=f"**Wordle Game Top {top} Leaderboard**",
+            description=''
+        )
+        for position, top_user_data in enumerate(top_users[:top]):
+            username = await self.bot.fetch_user(int(top_user_data[0]))
+            leaderboard_embed.description += f"_{position + 1}._ **{username}**: **{top_user_data[1]}** points\n"
+
+        await ctx.channel.send(embed=leaderboard_embed)
 
 
 async def setup(bot):
