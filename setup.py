@@ -44,8 +44,7 @@ setup(
         'alembic',
         'configparser',
         'pygithub',
-        'googletrans==4.0.0-rc1',
-        'Pillow',
+        'googletrans==4.0.0-rc1'
     ],
     scripts=['bin/grace']
 )
