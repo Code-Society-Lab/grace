@@ -13,10 +13,10 @@ class TimedView(View):
     :param seconds: The time in seconds to display the view, default to 900 seconds (15 minutes).
     :type seconds: int
     """
-    def __init__(self, seconds: int = 900, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, seconds: int = 900):
+        super().__init__(timeout=None)
 
-        self.__seconds: int = seconds
+        self.seconds: int = seconds
         self.__timer_task: Optional[Task[None]] = None
 
     @property
@@ -29,8 +29,16 @@ class TimedView(View):
         return self.__seconds
 
     @seconds.setter
-    def seconds(self, seconds):
-        """Change the number of seconds for the timer to elapse."""
+    def seconds(self, seconds: int):
+        """Change the number of seconds for the timer to elapse.
+
+        :param seconds: The new amount of seconds before the timer elapses
+        :type: int
+        :raises ValueError: Raised if the given value is lower than 1
+        """
+        if seconds < 1:
+            raise ValueError("Value cannot be lower than 1")
+
         self.__seconds = seconds
 
     @property
