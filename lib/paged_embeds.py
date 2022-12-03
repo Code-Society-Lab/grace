@@ -6,6 +6,31 @@ from emoji.core import emojize
 from lib.bidirectional_iterator import BidirectionalIterator
 
 
+class EmbedIterator:
+    def __init__(self, collection):
+        self._collection: List[Embed] = collection
+        self._position: int = 0
+
+    def current(self):
+        return self._collection[self._position]
+
+    def next(self) -> Embed:
+        if self.has_next():
+            self._position += 1
+        return self._collection[self._position]
+
+    def previous(self) -> Embed:
+        if self.has_previous():
+            self._position -= 1
+        return self._collection[self._position]
+
+    def has_next(self) -> bool:
+        return self._position + 1 < len(self._collection)
+
+    def has_previous(self) -> bool:
+        return self._position > 0
+
+
 class EmbedButton(Button):
     def __init__(self, embed_callback: Callable, *args, **kwargs):
         super().__init__(*args, **kwargs)
