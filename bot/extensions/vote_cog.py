@@ -88,11 +88,11 @@ class PollEmbed(Embed):
 		self._timer_label = None
 
 	def increment_counter(self, emoji: str) -> None:
-		""" Increment emoji counter (when someone voted)"""
+		""" Increment emoji counter """
 		self._poll_counter[emoji] += 1
 
 	def decrement_counter(self, emoji: str) -> None:
-		""" Decrement emoji counter (when someone changed their vote)"""
+		""" Decrement emoji counter """
 		self._poll_counter[emoji] -= 1
 
 	def set_user(self, user: Member, emoji: str) -> None:
@@ -120,11 +120,10 @@ class PollEmbed(Embed):
 		return self._poll_counter
 
 	def build(self) -> None:
-		""" Builds/initializes embed's properties: title, description """
+		""" Builds embed's properties """
 
 		self.title = self._poll_title
 
-		# Generate the description
 		main_text = ''
 		if self._timer_label:
 			main_text += self._timer_label + '\n\n'
@@ -147,8 +146,7 @@ class VoteButton(Button):
 		self._embed = embed
 
 	async def callback(self, interaction: Interaction) -> None:
-		""" When button was clicked.
-			Manipulates the embed counter depending on user interaction """
+		""" Manipulates the embed counter depending on user interaction """
 		if self._embed is None:
 			raise ValueError('Embed is not set')
 
@@ -173,7 +171,9 @@ class PollCog(Cog):
 		self.bot = bot
 
 	def make_sequence(self, seq):
-		""" Returns the variable depending on it's type """
+		"""
+		:return: variable depending on it's type
+		"""
 		if seq is None:
 			return ()
 		if isinstance(seq, Sequence) and not isinstance(seq, str):
@@ -225,13 +225,10 @@ class PollCog(Cog):
 			await send_command_help(ctx)
 
 	@poll_group.command(name='create', help='Create a poll')
-	async def vote(self, ctx: Context, *, title: str, options_count: int = 2, poll_time: int = 120) -> None:
-		""" Constructs the vote embed """
+	async def vote(self, ctx: Context, *, title: str, options_count: int = 2, poll_time: int = 120):
+		""" Constructs the poll embed """
 		if options_count < 2:
-			await ctx.interaction.response.send_message('Only 2 or more options is allowed.', ephemeral=True)
-			return
-
-		cancel_keywords = ['!abort']
+			return await ctx.interaction.response.send_message('Only 2 or more options is allowed.', ephemeral=True)
 
 		options_embed = Embed(
 			color=self.bot.default_color,
@@ -252,12 +249,11 @@ class PollCog(Cog):
 			try:
 				option = await self.bot.wait_for('message', check=self.message_check(ctx.author.dm_channel), timeout=360)
 			except TimeoutError:
-				await ctx.author.send('**Waiting too long! Aborted!**')
-				return
+				return await ctx.author.send('**Waiting too long! Aborted!**')
 
-			if option.content in cancel_keywords:
-				await ctx.author.send('**Successfully aborted!**')
-				return
+			if option.content == '!abort':
+				return await ctx.author.send('**Successfully aborted!**')
+
 			options.append(option.content)
 
 		await ctx.author.send(f'Great! The poll: {title} with {len(options)} options created! On channel: {ctx.channel.name}')
@@ -270,7 +266,6 @@ class PollCog(Cog):
 				'🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬛', '⬜', '🟫',
 				'🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫', '⚪', '🟤',
 			]
-		# Votes counter according to vote emoji chosen
 		counter = {}
 		# allowed size of counter array, needed if there is more than 18 options.
 		allowed_emojis_size = len(options) if len(options) < len(emojis) else len(emojis)
@@ -302,7 +297,6 @@ class PollCog(Cog):
 		poll_embed.finish()
 		await poll.edit(embed=poll_embed, view=None)
 
-		# Output the winner option
 		await self.get_and_print_winner(ctx, poll_embed)
 
 
