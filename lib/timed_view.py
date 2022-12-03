@@ -13,8 +13,8 @@ class TimedView(View):
     :param seconds: The time in seconds to display the view, default to 900 seconds (15 minutes).
     :type seconds: int
     """
-    def __init__(self, seconds: int = 900, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, seconds: int = 900):
+        super().__init__(timeout=None)
 
         self.__seconds: int = seconds
         self.__timer_task: Optional[Task[None]] = None
