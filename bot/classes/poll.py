@@ -1,78 +1,63 @@
+from collections import namedtuple
 from discord import Member
 from typing import List, Dict, Optional
 
-class PollModel:
-	def __init__(
-			self,
-			options: List[str],
-			emojis: List[str],
-			allowed_emoji_size: int,
-			counter: Dict,
-			title: str
-	):
-		self._voted_users: Dict[Member, str] = {}
-		self._poll_options: List[str] = options
-		self._poll_emojis: List[str] = emojis
-		self._poll_counter: Dict[str, int] = counter
-		self._poll_title: str = title
-		self._allowed_emoji_size: int = allowed_emoji_size
-		self._timer_label: Optional[str] = None
+Option = namedtuple("Option", ["title", "emoji"])
+
+
+class Poll:
+	def __init__(self, options: List[Option], title: str):
+		self.title: str = title
+
+		self.__selected_option_by_users: Dict[Member, Option] = {}
+		self.__options: List[Option] = options
+		self.__counter: Dict[Option, int] = {}
+
+		for option in self.__options:
+			self.__counter[option] = 0
 
 	@property
-	def timer_label(self):
-		return self._timer_label
-
-	@timer_label.setter
-	def timer_label(self, new_label: str):
-		self._timer_label = new_label
+	def options(self) -> List[Option]:
+		return self.__options
 
 	@property
-	def title(self):
-		return self._poll_title
+	def counter(self) -> Dict[Option, int]:
+		return self.__counter
 
 	@property
-	def options(self):
-		return self._poll_options
+	def winner(self) -> Optional[Option]:
+		if max(self.__counter.values()) > 0:
+			return max(self.__counter, key=self.__counter.get)
 
-	@property
-	def emojis(self):
-		return self._poll_emojis
-
-	@property
-	def counter(self):
-		return self._poll_counter
-
-	@property
-	def allowed_emoji_size(self):
-		return self._allowed_emoji_size
-
-	def increment_counter(self, emoji: str) -> None:
+	def _increment_counter(self, option: Option) -> None:
 		""" Increment emoji counter
 			:param emoji: Emoji string
 		"""
-		self._poll_counter[emoji] += 1
+		self.__counter[option] += 1
 
-	def decrement_counter(self, emoji: str) -> None:
+	def _decrement_counter(self, option: Option) -> None:
 		""" Decrement emoji counter
-			:param emoji: Emoji string
+			:param option: Emoji string
 		"""
-		self._poll_counter[emoji] -= 1
+		self.__counter[option] -= 1
 
-	def set_user(self, user: Member, emoji: str) -> None:
+	def set_user_option(self, member: Member, option: Option) -> None:
 		""" Set user's vote choice
-			:param user: User
-			:param emoji: Corresponding emoji that the user chose
+			:param member: User
+			:param option: Corresponding emoji that the user chose
 		"""
-		self._voted_users[user] = emoji
+		current_option = self.selected_option_for(member)
 
-	def get_user_emoji(self, user: Member) -> str:
-		""" Get user's voted option
-			:param user: User
-			:return: Returns emoji that the user chose
-		"""
-		return self._voted_users[user]
+		if current_option:
+			self._decrement_counter(current_option)
 
-	def user_has_voted(self, user: Member) -> bool:
-		if user in self._voted_users:
+		self._increment_counter(option)
+		self.__selected_option_by_users[member] = option
+
+	def has_user_voted(self, member: Member) -> bool:
+		if member in self.__selected_option_by_users:
 			return True
 		return False
+
+	def selected_option_for(self, member: Member):
+		return self.__selected_option_by_users.get(member)
