@@ -12,10 +12,17 @@ from bot.classes.poll import Poll, Option
 
 
 async def create_poll_embed(poll: Poll) -> Embed:
+	""" Returns a newly created poll embed
+
+		:param poll: A Poll
+		:returns: Created embed
+		:rtype: Embed
+
+	"""
 	description: str = "{timer}\n\n"
 
 	for option in poll.options:
-		description += f"{option.emoji} **{option.title}** {poll.counter[option]}\n\n"
+		description += f"{option.emoji} **{option.title}**: {poll.counter[option]}\n\n"
 
 	return Embed(title=poll.title, description=description)
 
@@ -30,7 +37,7 @@ class PollView(TimedView):
 		self.__message: Optional[Message] = None
 
 	@property
-	def poll(self):
+	def poll(self) -> Poll:
 		return self.__poll
 
 	@property
@@ -45,19 +52,22 @@ class PollView(TimedView):
 	def add_option_button(self, option: Option):
 		self.add_item(OptionButton(option))
 
-	async def update(self):
+	async def update(self, replace_str: str):
+		""" Updates Poll embed
+
+			:param replace_str: String that will replace {timer} placeholder
+		"""
 		self.__embed = await create_poll_embed(self.__poll)
-		self.__embed.description = self.__embed.description.replace("{timer}", self.remaining_time)
+		self.__embed.description = self.__embed.description.replace("{timer}", replace_str)
 
 		await self.__message.edit(embed=self.__embed, view=self)
 
-	async def on_timer_update(self) -> Any:
-		await self.update()
+	async def on_timer_update(self):
+		await self.update(self.remaining_time)
 
 	async def on_timer_elapsed(self):
 		self.clear_items()
-
-		await self.update()
+		await self.update('Poll is finished!')
 		await self.__winner_callback(self.__poll)
 
 	async def send(self, ctx: Context, embed: Embed):
@@ -71,7 +81,7 @@ class OptionButton(Button):
 		self.option = option
 
 	async def callback(self, interaction: Interaction):
-		""" Manipulates the embed counter depending on user interaction
+		""" Changes the counter based on user vote
 
 		:param interaction: Button interaction
 		"""
@@ -80,15 +90,15 @@ class OptionButton(Button):
 
 		if current_option != self.option:
 			poll.set_user_option(interaction.user, self.option)
-			await self.view.update()
+			await self.view.update(self.view.remaining_time)
 
 		if not interaction.is_expired():
 			await interaction.response.defer()
 
 
 class PollCog(Cog):
-	# Due to discord's limitation, we added a maximum number of option which correspond
-	# to the limit of items in a discord.ui.View
+	# Current discord's view limitation is 25 buttons
+	# An extra 7 more buttons/options still can be added
 	MAX_OPTIONS: int = 18
 
 	def __init__(self, bot: Grace):
@@ -143,7 +153,7 @@ class PollCog(Cog):
 		return check
 
 	async def display_winner(self, ctx: Context, poll: Poll):
-		""" Calculates the highest voted option and sends the victory message
+		""" Displays the winner option of the poll
 			:param ctx: Context of an interaction
 			:param poll: A Poll
 		"""
@@ -155,6 +165,10 @@ class PollCog(Cog):
 			await ctx.channel.send('No one voted.')
 
 	def get_emojis(self, options_count: int = 2):
+		""" Retrieve emojis based on options count
+
+		    :param options_count: Number of options chosen by the user
+		"""
 		if options_count == 2:
 			return ['👍', '👎']
 
@@ -164,6 +178,12 @@ class PollCog(Cog):
 		][:options_count]
 
 	async def get_options(self, ctx: Context, options_count: int = 2):
+		""" Read options from user's dm channel
+
+			:param ctx: Command context
+			:param options_count: Number of options chosen by the user
+		"""
+
 		options = []
 		emojis = self.get_emojis(options_count)
 
@@ -197,21 +217,21 @@ class PollCog(Cog):
 	@hybrid_group(name="poll", help="Poll commands")
 	async def poll_group(self, ctx: Context):
 		""" If no invoked subcommand was executed
-			:param ctx: Context of an interaction
+			:param ctx: Command context
 			:rtype: None
 		"""
 		if ctx.invoked_subcommand is None:
 			await send_command_help(ctx)
 
 	@poll_group.command(name='create', help='Create a poll')
-	async def create_poll(self, ctx: Context, *, title: str, options_count: int = 2, poll_time: int = 120):
-		""" Constructs the poll embed
-			:param ctx: 			Context of an interaction
-			:param title: 			Title of the poll
-			:param options_count: 	Number of options in the poll
-			:param poll_time: 		Duration of the poll
+	async def create_poll(self, ctx: Context, *, title: str, options_count: int = 2, poll_time_in_seconds: int = 120):
+		""" Creates the poll
+			:param ctx: 						Command context
+			:param title: 						Title of the poll
+			:param options_count: 				Number of options in the poll
+			:param poll_time_in_seconds: 		Duration of the poll in seconds
 		"""
-		if 2 > options_count > self.MAX_OPTIONS:
+		if options_count < 2 or options_count > self.MAX_OPTIONS:
 			return await ctx.send(f'A poll needs between 2 and {self.MAX_OPTIONS} options.', ephemeral=True)
 
 		await ctx.interaction.response.defer()
@@ -225,7 +245,7 @@ class PollCog(Cog):
 
 		poll = Poll(options=options, title=title)
 		poll_embed = await create_poll_embed(poll)
-		view = PollView(poll, poll_embed, partial(self.display_winner, ctx), poll_time)
+		view = PollView(poll, poll_embed, partial(self.display_winner, ctx), poll_time_in_seconds)
 
 		for option in options:
 			view.add_option_button(option)

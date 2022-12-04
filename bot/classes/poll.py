@@ -26,25 +26,32 @@ class Poll:
 
 	@property
 	def winner(self) -> Optional[Option]:
+		""" Returns the winner option. None if no one voted
+
+		 	:rtype: Option | None
+		 """
 		if max(self.__counter.values()) > 0:
 			return max(self.__counter, key=self.__counter.get)
 
 	def _increment_counter(self, option: Option) -> None:
-		""" Increment emoji counter
-			:param emoji: Emoji string
+		""" Increment option counter
+
+			:param option: Poll option
 		"""
 		self.__counter[option] += 1
 
 	def _decrement_counter(self, option: Option) -> None:
-		""" Decrement emoji counter
-			:param option: Emoji string
+		""" Decrement option counter
+
+			:param option: Poll option
 		"""
 		self.__counter[option] -= 1
 
 	def set_user_option(self, member: Member, option: Option) -> None:
-		""" Set user's vote choice
+		""" Sets user's chosen option
+
 			:param member: User
-			:param option: Corresponding emoji that the user chose
+			:param option: Corresponding option that the user chose
 		"""
 		current_option = self.selected_option_for(member)
 
@@ -55,9 +62,19 @@ class Poll:
 		self.__selected_option_by_users[member] = option
 
 	def has_user_voted(self, member: Member) -> bool:
+		""" Checks if user has voted
+
+			:param member: User
+			:rtype: bool
+		"""
 		if member in self.__selected_option_by_users:
 			return True
 		return False
 
-	def selected_option_for(self, member: Member):
+	def selected_option_for(self, member: Member) -> Option:
+		""" Returns the option that the user chose
+
+			:param member: User
+			:rtype: Option
+		"""
 		return self.__selected_option_by_users.get(member)
