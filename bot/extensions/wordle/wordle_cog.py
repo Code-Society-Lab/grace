@@ -27,6 +27,7 @@ class MenuStartButton(Button):
     async def callback(self, interaction: Interaction) -> Any:
         embed: Embed = self.view.next_embed()
         view: View = self.view.next_view()
+
         header_file = 'wordle_header.png'
         header_path = Path(f'./bot/assets/{header_file}')
 
@@ -83,13 +84,13 @@ class WordleEnterButton(Button):
         self.__layout = layout
 
     async def has_user_tries(self, interaction: Interaction) -> bool:
-        """ Checks whether we have any tries left
+        """Checks whether user has any tries left
 
-            :param interaction: User interaction with button
+        :param interaction: User interaction with button
 
-            :returns: False if user has no tries left, otherwise True
+        :returns: False if user has no tries left, otherwise True
 
-            :rtype: bool
+        :rtype: bool
         """
 
         if self.__wordle.tries == 0:
@@ -108,62 +109,66 @@ class WordleEnterButton(Button):
         return True
 
     async def has_user_won(self, processed_guess: dict, interaction: Interaction) -> bool:
-        """ Checks if user won
+        """Checks if user won
 
-            :param processed_guess: Guess converted into dict format:
-                                    {guess_letter: guess_type, ...} => {'a': WordleGuess.GOOD, ...}
-            :param interaction: User interaction with button
+        :param processed_guess: Guess converted into dict format:
+                                {guess_letter: guess_type, ...} => {'a': WordleGuess.GOOD, ...}
+        :param interaction: User interaction with button
 
-            :returns: True if user has won(guessed the word correctly), otherwise False
+        :returns: True if user has won(guessed the word correctly), otherwise False
 
-            :rtype: bool
+        :rtype: bool
         """
-        if WordleGame.has_user_won(processed_guess):
-            points = (self.__wordle.tries + 1) * 2
-            win_embed = Embed(
-                title='**Wordle Game**',
-                description=f'**Congratulations!** You guessed the word correctly!\n'
-                            f'The word was: **{self.__wordle.word}**\n'
-                            f'Points: **{points}**\n'
-                            f'**Thanks for playing! You can try again tomorrow!**',
-            )
-            Wordle.update_database(str(interaction.user.id), points)
+        if not WordleGame.has_user_won(processed_guess):
+            return False
 
-            await interaction.response.edit_message(embed=win_embed, view=None, attachments=[])
-            return True
-        return False
+        points = (self.__wordle.tries + 1) * 2
+        win_embed = Embed(
+            title='**Wordle Game**',
+            description=f'**Congratulations!** You guessed the word correctly!\n'
+                        f'The word was: **{self.__wordle.word}**\n'
+                        f'Points: **{points}**\n'
+                        f'**Thanks for playing! You can try again tomorrow!**',
+        )
+        Wordle.update_database(str(interaction.user.id), points)
+
+        await interaction.response.edit_message(embed=win_embed, view=None, attachments=[])
+        return True
 
     def change_buttons_color(self, processed_guess: dict):
-        """ Changes the color of the buttons depending on the guessed letters"""
-        if self.__layout is not None:
-            for button in self.__layout:
-                if isinstance(button, LetterButton):
-                    button.disabled = False
-                    letter = button.label.lower()
-                    # Find all the letters of a button label in the processed dict
-                    letters = dict(filter(lambda x: x[0][0] == letter, processed_guess.items()))
-                    for _, guess_type in letters.items():
-                        # Change according to the correct answers hierarchy
-                        if guess_type == WordleGuess.GOOD:
-                            button.style = ButtonStyle.green
-                        elif guess_type == WordleGuess.PARTIALLY:
-                            if button.style == ButtonStyle.danger or \
-                               button.style == ButtonStyle.gray:
-                                button.style = ButtonStyle.primary
-                        else:
-                            if button.style == ButtonStyle.gray:
-                                button.style = ButtonStyle.danger
+        """ Changes the color of the buttons depending on the guessed letters and enables them """
+        if self.__layout is None:
+            return
+
+        for button in self.__layout:
+            if not isinstance(button, LetterButton):
+                continue
+            button.disabled = False
+            letter = button.label.lower()
+            # Find all the letters of a button label in the processed dict
+            letters = dict(filter(lambda x: x[0][0] == letter, processed_guess.items()))
+            for _, guess_type in letters.items():
+                # Change according to the correct answers hierarchy
+                if guess_type == WordleGuess.GOOD:
+                    button.style = ButtonStyle.green
+                elif guess_type == WordleGuess.PARTIALLY:
+                    if button.style == ButtonStyle.danger or \
+                       button.style == ButtonStyle.gray:
+                        button.style = ButtonStyle.primary
+                else:
+                    if button.style == ButtonStyle.gray:
+                        button.style = ButtonStyle.danger
 
     async def is_guess_valid(self, processed_guess: dict | bool, interaction: Interaction) -> bool:
-        """ Checks if the user's guess is valid
+        """Checks if the user's guess is valid
 
-            :param processed_guess: Guess converted into dict format:
-                                    {guess_letter: guess_type, ...} => {'a': WordleGuess.GOOD, ...}
-            :param interaction: User interaction with button
+        :param processed_guess: Guess converted into dict format:
+                                {guess_letter: guess_type, ...} => {'a': WordleGuess.GOOD, ...}
+        :param interaction: User interaction with button
 
-            :returns: True if the guess is valid, otherwise False
+        :returns: True if the guess is valid, otherwise False
 
-            :rtype: bool
+        :rtype: bool
         """
         if isinstance(processed_guess, bool):
             self.view.embed.description = '**Invalid guess**'
@@ -172,31 +177,30 @@ class WordleEnterButton(Button):
         return True
 
     async def callback(self, interaction: Interaction) -> Any:
-        if self.__wordle.is_full_guess():
-            processed_guess = self.__wordle.take_guess()
-
-            if not await self.is_guess_valid(processed_guess, interaction):
-                return
-
-            if await self.has_user_won(processed_guess, interaction):
-                return
-
-            self.__wordle.decrement_tries()
-            if not await self.has_user_tries(interaction):
-                return
-
-            self.change_buttons_color(processed_guess)
-
-            self.__image_gen.set_processed_word(self.__wordle.guess, processed_guess)
-            self.__image_gen.next_row()
-
-            await self.view.change_embed_image(interaction, self.__image_gen)
-
-            self.__wordle.clear_guess()
-
-        else:
+        if not self.__wordle.is_full_guess():
             self.view.embed.description = '**Invalid length**'
             return await interaction.response.edit_message(embed=self.view.embed, view=self.view)
+
+        processed_guess = self.__wordle.take_guess()
+
+        if not await self.is_guess_valid(processed_guess, interaction):
+            return
+
+        if await self.has_user_won(processed_guess, interaction):
+            return
+
+        self.__wordle.decrement_tries()
+        if not await self.has_user_tries(interaction):
+            return
+
+        self.change_buttons_color(processed_guess)
+
+        self.__image_gen.set_processed_word(self.__wordle.guess, processed_guess)
+        self.__image_gen.next_row()
+
+        await self.view.change_embed_image(interaction, self.__image_gen)
+
+        self.__wordle.clear_guess()
 
 
 class WordleCancelButton(Button):
@@ -235,11 +239,13 @@ class WordleClearButton(Button):
 
     def try_to_enable_buttons(self):
         """ Enables all the letter buttons if the row is full"""
+        if self.__layout is None:
+            return
+
         if self.__wordle.is_full_guess():
-            if self.__layout is not None:
-                for button in self.__layout:
-                    if isinstance(button, LetterButton):
-                        button.disabled = False
+            for button in self.__layout:
+                if isinstance(button, LetterButton):
+                    button.disabled = False
 
     async def callback(self, interaction: Interaction) -> Any:
         self.try_to_enable_buttons()
@@ -276,11 +282,13 @@ class LetterButton(Button):
 
     def try_to_disable_buttons(self):
         """ Disables all the letter buttons in case current grid row is full/complete """
+        if self.__layout is None:
+            return
+
         if not self.__image_gen.has_next_column():
-            if self.__layout is not None:
-                for button in self.__layout:
-                    if isinstance(button, LetterButton):
-                        button.disabled = True
+            for button in self.__layout:
+                if isinstance(button, LetterButton):
+                    button.disabled = True
 
     async def callback(self, interaction: Interaction) -> Any:
         if self.__image_gen.has_next_column():
@@ -295,40 +303,56 @@ class LetterButton(Button):
 class ArrowButton(Button):
     def __init__(
         self,
-        embed_callback,
         direction: str,
         *args,
         **kwargs
     ):
         super().__init__(*args, **kwargs)
         self.emoji: str = emojize(f':{direction}_arrow:')
-        self.__view = None
-        self.__embed = embed_callback
-
-    def set_view(self, direction_callback: Callable, view_callback: Callable):
-        """ Sets the view to which the button is pointing """
-        self.disabled = not direction_callback()
-        self.__view = view_callback()
-        # if self.__view is None:
-        #     self.disabled = True
+        self.__direction = direction
 
     async def callback(self, interaction: Interaction) -> Any:
-        await interaction.response.edit_message(embed=self.view.embed, view=self.__view)
+        view = None
+        if self.__direction == 'left':
+            view = self.view.previous_view()
+        elif self.__direction == 'right':
+            view = self.view.next_view()
+        view.update_arrow_buttons()
+
+        await interaction.response.edit_message(embed=self.view.embed, view=view)
 
 
 class ViewPage(View):
     def __init__(
         self,
         embed_callback: Callable,
+        has_previous_callback: Callable,
+        has_next_callback: Callable,
+        previous_view_callback: Callable,
+        next_view_callback: Callable,
         *args,
         **kwargs
     ):
         super().__init__(*args, **kwargs)
         self.__embed = embed_callback
-        # self.__left_arrow: ArrowButton = ArrowButton('left')
-        # self.__right_arrow: ArrowButton = ArrowButton('right')
-        # self.add_item(self.left_arrow)
-        # self.add_item(self.right_arrow)
+        self.__has_previous = has_previous_callback
+        self.__has_next = has_next_callback
+        self.__previous = previous_view_callback
+        self.__next = next_view_callback
+        self.__left_arrow: ArrowButton = ArrowButton('left')
+        self.__right_arrow: ArrowButton = ArrowButton('right')
+        self.add_item(self.__left_arrow)
+        self.add_item(self.__right_arrow)
+
+    def update_arrow_buttons(self):
+        self.__left_arrow.disabled = not self.__has_previous()
+        self.__right_arrow.disabled = not self.__has_next()
+
+    def next_view(self):
+        return self.__next()
+
+    def previous_view(self):
+        return self.__previous()
 
     async def change_embed_image(self, interaction: Interaction, image_gen: WordleImage):
         file_name: str = f'{interaction.user.id}.png'
@@ -340,7 +364,7 @@ class ViewPage(View):
 
         self.embed.set_image(url=f'attachment://{file_name}')
 
-        await interaction.response.edit_message(embed=self.embed, attachments=[file], view=self.__views.current)
+        await interaction.response.edit_message(embed=self.embed, attachments=[file], view=self)
 
         remove_file(Path(grid_path))
 
@@ -348,19 +372,6 @@ class ViewPage(View):
     def embed(self) -> Embed:
         return self.__embed()
 
-    def add_button(self, button):
-        self.add_item(button)
-
-    # @property
-    # def left_arrow(self) -> ArrowButton:
-    #     return self.__left_arrow
-    #
-    # @property
-    # def right_arrow(self) -> ArrowButton:
-    #     return self.__right_arrow
-
-# TODO: If approved, add 2 separate classes for ViewPages, to know for sure which elements they contain.
-# TODO: And create them in their respective classes.
 
 class PagedGameView(View):
     def __init__(
@@ -369,8 +380,6 @@ class PagedGameView(View):
         image_gen: WordleImage
     ):
         super().__init__()
-
-
 
         self.__image_gen: WordleImage = image_gen
         self.__wordle: WordleGame = current_wordle
@@ -384,94 +393,54 @@ class PagedGameView(View):
             MenuView(self.game_embed, self.next_view, self.cancel)
         ])
 
-        left_arrow: ArrowButton = ArrowButton(self.game_embed, 'left')
-        right_arrow: ArrowButton = ArrowButton(self.game_embed, 'right')
+        self.create_view_pages()
 
-        view_page1 = View()
-        view_page2 = View()
+    def create_view_page(self, letter_range_start: int, letter_range_end: int) -> ViewPage:
+        view_page = ViewPage(
+            self.game_embed,
+            self.__views.has_previous,
+            self.__views.has_next,
+            self.__views.previous,
+            self.__views.next,
+        )
 
-        view_page1.add_item(left_arrow)
-        view_page1.add_item(right_arrow)
-
-        view_page2.add_item(left_arrow)
-        view_page2.add_item(right_arrow)
-
-        for i in range(65, 78):
-            view_page1.add_item(LetterButton(
+        for i in range(letter_range_start, letter_range_end):
+            view_page.add_item(LetterButton(
                 chr(i),
                 self.__wordle,
                 self.__image_gen,
-                self.change_embed_image
-        ))
-
-        # Create Enter Button in the 1st ViewPage
-        view_page1.add_item(WordleEnterButton(
-            self.game_embed,
-            self.__wordle,
-            self.__image_gen,
-            self.change_embed_image
-        ))
-        # Create Clear Button in the 1st ViewPage
-        view_page1.add_item(WordleClearButton(
-            self.game_embed,
-            self.__wordle,
-            self.__image_gen,
-            self.change_embed_image
-        ))
-        # Create Cancel Button in the 1st ViewPage
-        view_page1.add_item(WordleCancelButton(self.cancel))
-
-        # Create Letter buttons in the 2nd ViewPage
-        for i in range(78, 91):
-            view_page2.add_item(LetterButton(
-                chr(i),
-                self.__wordle,
-                self.__image_gen,
-                self.change_embed_image
             ))
 
-        # Create Enter Button in the 2nd ViewPage
-        view_page2.add_item(WordleEnterButton(
-            self.game_embed,
+        view_page.add_item(WordleEnterButton(
             self.__wordle,
             self.__image_gen,
-            self.change_embed_image
-
         ))
 
-        # Create Clear Button in the 2nd ViewPage
-        view_page2.add_item(WordleClearButton(
-            self.game_embed,
+        view_page.add_item(WordleClearButton(
             self.__wordle,
             self.__image_gen,
-            self.change_embed_image
         ))
-        # Create Cancel Button in the 2nd ViewPage
-        view_page2.add_item(WordleCancelButton(self.cancel))
 
+        view_page.add_item(WordleCancelButton(self.cancel))
+
+        return view_page
+
+    def create_view_pages(self):
+        view_page1 = self.create_view_page(65, 78)
+        view_page2 = self.create_view_page(78, 91)
+
+        view_pages_children = view_page1.children + view_page2.children
          # Set the layout(view page items) for each button in the view page, except the ArrowButton
-        for button in (view_page1.children + view_page2.children):
-            if isinstance(button, LetterButton) \
-               or isinstance(button, WordleClearButton) \
-               or isinstance(button, WordleEnterButton):
-                button.set_layout(view_page1.children + view_page2.children)
+        for button in view_pages_children:
+            if isinstance(button, WordleCancelButton) or isinstance(button, ArrowButton):
+                continue
 
-        # left_arrow: ArrowButton = ArrowButton('left')
-        # right_arrow: ArrowButton = ArrowButton('right')
+            button.set_layout(view_pages_children)
 
         self.__views.add(view_page1)
         self.__views.add(view_page2)
 
-        left_arrow.set_view(self.__views.has_previous, self.__views.previous)
-        right_arrow.set_view(self.__views.has_next, self.__views.next)
-
-
-        # left_arrow.set_view(self.__views.has_previous, self.__views.previous)
-        # right_arrow.set_view(self.__views.has_next, self.__views.next)
-
-        # TODO: Try to involve the Iterator in the ViewPage switching.
-
-
+        view_page1.update_arrow_buttons()
 
     def game_embed(self) -> Embed:
         return self.__embeds['game']
@@ -480,77 +449,16 @@ class PagedGameView(View):
         return self.__embeds['menu']
 
     def next_view(self) -> View:
-        """ Switches to the next view, and instantiates the view elements."""
-
-        # Delete current MenuView
+        """ Removes MenuView """
         self.__views.remove(self.__views.current)
-
         return self.__views.current
-        #
-        # # Create Letter buttons in the 1st ViewPage
-        # for i in range(65, 78):
-        #     self.__views.current.add_button(LetterButton(
-        #         chr(i),
-        #         self.__wordle,
-        #         self.__image_gen,
-        #     ))
-        #
-        # # Create Enter Button in the 1st ViewPage
-        # self.__views.current.add_button(WordleEnterButton(
-        #     self.__wordle,
-        #     self.__image_gen
-        # ))
-        # # Create Clear Button in the 1st ViewPage
-        # self.__views.current.add_button(WordleClearButton(
-        #     self.__wordle,
-        #     self.__image_gen
-        # ))
-        # # Create Cancel Button in the 1st ViewPage
-        # self.__views.current.add_button(WordleCancelButton(self.cancel))
-        #
-        # # Create Letter buttons in the 2nd ViewPage
-        # for i in range(78, 91):
-        #     self.__views.last.add_button(LetterButton(
-        #         chr(i),
-        #         self.__wordle,
-        #         self.__image_gen,
-        #     ))
-        #
-        # # Create Enter Button in the 2nd ViewPage
-        # self.__views.last.add_button(WordleEnterButton(
-        #     self.__wordle,
-        #     self.__image_gen
-        # ))
-        #
-        # # Create Clear Button in the 2nd ViewPage
-        # self.__views.last.add_button(WordleClearButton(
-        #     self.__wordle,
-        #     self.__image_gen
-        # ))
-        # # Create Cancel Button in the 2nd ViewPage
-        # self.__views.last.add_button(WordleCancelButton(self.cancel))
-        #
-        # Set the layout(view page items) for each button in the view page, except the ArrowButton
-        # for button in (self.__views.current.children + self.__views.last.children):
-        #     if isinstance(button, LetterButton) \
-        #        or isinstance(button, WordleClearButton) \
-        #        or isinstance(button, WordleEnterButton):
-        #         button.set_layout(self.__views.current.children + self.__views.last.children)
-        #
-        # # Set the respective views for the arrow buttons
-        # self.__views.current.left_arrow.set_view(None)
-        # self.__views.current.right_arrow.set_view(self.__views.last)
-        # self.__views.last.left_arrow.set_view(self.__views.current)
-        # self.__views.last.right_arrow.set_view(None)
-        #
-        # # Set the current view (1st ViewPage)
-        # return self.__views.current
 
     async def cancel(self):
         await self.__message.delete()
 
     async def on_timeout(self):
-        await self.__message.edit(embed=self.__embeds['game'], view=self)
+        # await self.__message.edit(embed=self.__embeds['game'], view=self)
+        await self.cancel()
 
     async def send(self, ctx: Context, ephemeral: bool = True):
         self.__message = await ctx.reply(
@@ -567,12 +475,10 @@ class WordleCog(Cog):
 
     @hybrid_group(name='wordle', help='All wordle commands')
     async def wordle_group(self, ctx: Context) -> None:
-        """ If no invoked subcommand was executed """
         if ctx.invoked_subcommand is None:
             await send_command_help(ctx)
 
     async def has_user_played(self, ctx: Context) -> bool:
-        """ Checks is the user has played before """
         user_query = Wordle.get_by(user_id=ctx.interaction.user.id)
         if user_query is not None:
             last_play_date = user_query.play_date
@@ -600,12 +506,9 @@ class WordleCog(Cog):
         image_gen.set_cell_path(WordleGuess.WRONG, './bot/assets/wrong_letters')
         image_gen.set_cell_path(WordleGuess.EMPTY, './bot/assets/empty_letters')
 
-    # TODO: Add a cooldown for the command
     @wordle_group.command(name='play', help='Start a wordle game')
     async def play_command(self, ctx: Context) -> None:
-
-        last_play_check = await self.has_user_played(ctx)
-        if last_play_check:
+        if await self.has_user_played(ctx):
             return
 
         image_generator = WordleImage()
@@ -622,19 +525,17 @@ class WordleCog(Cog):
     @has_permissions(administrator=True)
     async def leaderboard_command(self, ctx: Context, *, top: int) -> None:
         user_list = Wordle.all()
-        users = {}
+        users = []
+
         for query in user_list:
             if query.user_id is None:
                 continue
-            users[query.user_id] = query.points
+            users.append((query.user_id, query.points))
 
-        top_users = dict(slice_dict(dict(sorted(users.items(), key=lambda item: item[1], reverse=True)).items(), top))
+        top_users = list(sorted(users, key=lambda item: item[1], reverse=True))
 
-        leaderboard_embed = Embed(
-            title=f"**Wordle Game Top {top} Leaderboard**",
-            description=''
-        )
-        for position, (user_id, points) in enumerate(top_users.items()):
+        leaderboard_embed = Embed(title=f"**Wordle Game Top {top} Leaderboard**", description='')
+        for position, (user_id, points) in enumerate(top_users):
             username = (await self.bot.fetch_user(int(user_id))).display_name
             leaderboard_embed.description += f"_{position + 1}._ **{username}**: **{points}** points\n"
 
