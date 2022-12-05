@@ -1,6 +1,6 @@
 from collections import namedtuple
-from discord import Member
-from typing import List, Dict, Optional
+from discord import Member, User
+from typing import List, Dict, Optional, Union
 
 Option = namedtuple("Option", ["title", "emoji"])
 
@@ -60,22 +60,22 @@ class Poll:
 		"""
 		self.__counter[option] -= 1
 
-	def set_user_option(self, member: Member, option: Option) -> None:
+	def set_user_option(self, user_or_member: Union[User, Member], option: Option) -> None:
 		"""Sets user's chosen option
 
-		:param member: A member
+		:param user_or_member: A member
 		:type: member: Member
 
 		:param option: Corresponding option that the user chose
 		:type option: Option
 		"""
-		current_option = self.selected_option_for(member)
+		current_option = self.selected_option_for(user_or_member)
 
 		if current_option:
 			self._decrement_counter(current_option)
 
 		self._increment_counter(option)
-		self.__selected_option_by_users[member] = option
+		self.__selected_option_by_users[user_or_member] = option
 
 	def has_user_voted(self, member: Member) -> bool:
 		"""Checks if member has voted
@@ -90,7 +90,7 @@ class Poll:
 			return True
 		return False
 
-	def selected_option_for(self, member: Member) -> Option:
+	def selected_option_for(self, member: Union[User, Member]) -> Option:
 		"""Returns the option that the user chose
 
 		:param member: A member
