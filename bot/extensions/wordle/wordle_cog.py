@@ -67,21 +67,17 @@ class MenuView(View):
 class WordleEnterButton(Button):
     def __init__(
         self,
-        embed_callback: Callable,
         current_wordle: WordleGame,
         image_gen: WordleImage,
-        change_embed_image_callback: Callable,
         *args,
         **kwargs
     ):
         super().__init__(*args, **kwargs)
         self.label: str = 'Enter'
         self.style: ButtonStyle = ButtonStyle.green
-        self.__embed = embed_callback
         self.__wordle: WordleGame = current_wordle
         self.__image_gen: WordleImage = image_gen
         self.__layout = None
-        self.__change_embed_image = change_embed_image_callback
 
     def set_layout(self, layout):
         self.__layout = layout
@@ -170,15 +166,12 @@ class WordleEnterButton(Button):
             :rtype: bool
         """
         if isinstance(processed_guess, bool):
-            embed = self.__embed()
-            embed.description = '**Invalid guess**'
-            await interaction.response.edit_message(embed=embed, view=self.view)
+            self.view.embed.description = '**Invalid guess**'
+            await interaction.response.edit_message(embed=self.view.embed, view=self.view)
             return False
         return True
 
     async def callback(self, interaction: Interaction) -> Any:
-        embed = self.__embed()
-
         if self.__wordle.is_full_guess():
             processed_guess = self.__wordle.take_guess()
 
@@ -197,13 +190,13 @@ class WordleEnterButton(Button):
             self.__image_gen.set_processed_word(self.__wordle.guess, processed_guess)
             self.__image_gen.next_row()
 
-            await self.__change_embed_image(interaction, self.__image_gen)
+            await self.view.change_embed_image(interaction, self.__image_gen)
 
             self.__wordle.clear_guess()
 
         else:
-            embed.description = '**Invalid length**'
-            return await interaction.response.edit_message(embed=embed, view=self.view)
+            self.view.embed.description = '**Invalid length**'
+            return await interaction.response.edit_message(embed=self.view.embed, view=self.view)
 
 
 class WordleCancelButton(Button):
@@ -225,21 +218,17 @@ class WordleCancelButton(Button):
 class WordleClearButton(Button):
     def __init__(
         self,
-        embed_callback: Callable,
         current_wordle: WordleGame,
         image_generator: WordleImage,
-        change_embed_image_callback: Callable,
         *args,
         **kwargs
     ):
         super().__init__(*args, **kwargs)
         self.label = 'Clear'
         self.style = ButtonStyle.primary
-        self.__embed = embed_callback
         self.__wordle = current_wordle
         self.__image_gen = image_generator
         self.__layout = None
-        self.__change_embed_image = change_embed_image_callback
 
     def set_layout(self, layout):
         self.__layout = layout
@@ -253,16 +242,14 @@ class WordleClearButton(Button):
                         button.disabled = False
 
     async def callback(self, interaction: Interaction) -> Any:
-        embed = self.__embed()
-
         self.try_to_enable_buttons()
 
         self.__image_gen.clear_row()
         self.__wordle.clear_guess()
 
-        embed.description = ''
+        self.view.embed.description = ''
 
-        await self.__change_embed_image(interaction, self.__image_gen)
+        await self.view.change_embed_image(interaction, self.__image_gen)
 
 
 class LetterButton(Button):
@@ -271,7 +258,6 @@ class LetterButton(Button):
         letter: str,
         current_wordle: WordleGame,
         image_gen: WordleImage,
-        change_embed_image_callback: Callable,
         *args,
         **kwargs
     ):
@@ -281,7 +267,6 @@ class LetterButton(Button):
 
         self.__image_gen = image_gen
         self.__wordle = current_wordle
-        self.__change_embed_image = change_embed_image_callback
         self.__layout = None
         self.label = letter
 
@@ -304,7 +289,7 @@ class LetterButton(Button):
 
             self.try_to_disable_buttons()
 
-            await self.__change_embed_image(interaction, self.__image_gen)
+            await self.view.change_embed_image(interaction, self.__image_gen)
 
 
 class ArrowButton(Button):
@@ -328,37 +313,51 @@ class ArrowButton(Button):
         #     self.disabled = True
 
     async def callback(self, interaction: Interaction) -> Any:
-        await interaction.response.edit_message(embed=self.__embed(), view=self.__view)
+        await interaction.response.edit_message(embed=self.view.embed, view=self.__view)
 
 
-# class ViewPage(View):
-#     def __init__(
-#         self,
-#         embed_callback: Callable,
-#         *args,
-#         **kwargs
-#     ):
-#         super().__init__(*args, **kwargs)
-#         self.__embed = embed_callback
-#         self.__left_arrow: ArrowButton = ArrowButton('left')
-#         self.__right_arrow: ArrowButton = ArrowButton('right')
-#         self.add_item(self.left_arrow)
-#         self.add_item(self.right_arrow)
-#
-#     @property
-#     def embed(self) -> Embed:
-#         return self.__embed()
-#
-#     def add_button(self, button):
-#         self.add_item(button)
-#
-#     @property
-#     def left_arrow(self) -> ArrowButton:
-#         return self.__left_arrow
-#
-#     @property
-#     def right_arrow(self) -> ArrowButton:
-#         return self.__right_arrow
+class ViewPage(View):
+    def __init__(
+        self,
+        embed_callback: Callable,
+        *args,
+        **kwargs
+    ):
+        super().__init__(*args, **kwargs)
+        self.__embed = embed_callback
+        # self.__left_arrow: ArrowButton = ArrowButton('left')
+        # self.__right_arrow: ArrowButton = ArrowButton('right')
+        # self.add_item(self.left_arrow)
+        # self.add_item(self.right_arrow)
+
+    async def change_embed_image(self, interaction: Interaction, image_gen: WordleImage):
+        file_name: str = f'{interaction.user.id}.png'
+        grid_path: str = f'./tmp/{file_name}'
+
+        image_gen.save(grid_path)
+
+        file: File = File(fp=Path(grid_path), filename=file_name)
+
+        self.embed.set_image(url=f'attachment://{file_name}')
+
+        await interaction.response.edit_message(embed=self.embed, attachments=[file], view=self.__views.current)
+
+        remove_file(Path(grid_path))
+
+    @property
+    def embed(self) -> Embed:
+        return self.__embed()
+
+    def add_button(self, button):
+        self.add_item(button)
+
+    # @property
+    # def left_arrow(self) -> ArrowButton:
+    #     return self.__left_arrow
+    #
+    # @property
+    # def right_arrow(self) -> ArrowButton:
+    #     return self.__right_arrow
 
 # TODO: If approved, add 2 separate classes for ViewPages, to know for sure which elements they contain.
 # TODO: And create them in their respective classes.
@@ -472,21 +471,7 @@ class PagedGameView(View):
 
         # TODO: Try to involve the Iterator in the ViewPage switching.
 
-    async def change_embed_image(self, interaction: Interaction, image_gen: WordleImage):
-        embed = self.game_embed()
 
-        file_name: str = f'{interaction.user.id}.png'
-        grid_path: str = f'./tmp/{file_name}'
-
-        image_gen.save(grid_path)
-
-        file: File = File(fp=Path(grid_path), filename=file_name)
-
-        embed.set_image(url=f'attachment://{file_name}')
-
-        await interaction.response.edit_message(embed=embed, attachments=[file], view=self.__views.current)
-
-        remove_file(Path(grid_path))
 
     def game_embed(self) -> Embed:
         return self.__embeds['game']
