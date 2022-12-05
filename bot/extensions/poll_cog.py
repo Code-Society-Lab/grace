@@ -94,7 +94,7 @@ class OptionButton(Button):
 
 		if current_option != self.__option:
 			poll.set_user_option(interaction.user, self.__option)
-			await self.view.update(self.view.remaining_time)
+			await self.view.update()
 
 		if not interaction.is_expired():
 			await interaction.response.defer()
@@ -112,9 +112,9 @@ class PollCog(Cog):
 		winner: Optional[Option] = poll.winner
 
 		if winner:
-			await ctx.channel.send(f'{winner.emoji} ***option has won!***')
+			await ctx.reply(f'{winner.emoji} ***option has won!***')
 		else:
-			await ctx.channel.send('No one voted.')
+			await ctx.reply('No one voted.')
 
 	def get_emojis(self, options_count: int = 2) -> List[str]:
 		if options_count == 2:
