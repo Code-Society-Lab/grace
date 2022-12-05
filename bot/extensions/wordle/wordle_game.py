@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List
+from typing import List, Dict
 from random import choice as random_choice
 
 
@@ -11,6 +11,12 @@ class WordleGuess(Enum):
 
 
 class WordleGame:
+    """ Class with the game logic.
+
+        :param words_list: The list of words to choose from
+        :param tries: Amount of tries player has
+    """
+
     WORDLE_LENGTH = 5
 
     def __init__(self, words_list: List[str], tries: int = 5) -> None:
@@ -68,7 +74,7 @@ class WordleGame:
 
     def clear_guess(self):
         """ Clears the current guess """
-        self.__guess = ''
+        self.__guess: str = ''
 
     def valid_guess(self) -> bool:
         """ Checks if the guess is valid, meaning that it exists in the bank of words """
@@ -99,11 +105,11 @@ class WordleGame:
         """
 
         # Temporary word needed for handling the removal of letters in the word.
-        tmp_word = self.__word
+        tmp_word: str = self.__word
         # Letters that were already processed
-        processed = []
-        result = {}
-        indexes_to_remove = []
+        processed: List = []
+        result: Dict = {}
+        indexes_to_remove: List = []
 
         # Process GOOD letters
         for index, let in enumerate(self.__guess):
@@ -130,7 +136,7 @@ class WordleGame:
 
         return result
 
-    def take_guess(self) -> dict | bool:
+    def take_guess(self) -> Dict | bool:
         """ Processes guess if it's valid
 
             :returns: False if the guess isn't valid, otherwise processed guess dict

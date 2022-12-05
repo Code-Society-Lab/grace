@@ -1,4 +1,5 @@
 # WORDLE GRID IMAGE GENERATOR BASED ON THE GUESSED LETTERS #
+from typing import Dict, List
 
 from PIL import Image
 from pathlib import Path
@@ -11,36 +12,36 @@ class WordleImage:
     IMAGE_VERTICAL_SPACE = 70
 
     def __init__(self):
-        self._header_default = None
-        self._header = None
-        self._current_row = 0
-        self._current_column = 0
-        self._history = {}
-        self._paths = {}
+        self._header_default: Image = None
+        self._header: Image = None
+        self._current_row: int = 0
+        self._current_column: int = 0
+        self._history: Dict = {}
+        self._paths: Dict = {}
 
     def set_header_path(self, path: str):
-        """ Sets the path of the header/grid image
+        """Sets the path of the header/grid image
 
-            :param path: Path to the header image
+        :param path: Path to the header image
         """
         self._header_default = Image.open(Path(path))
         self._header = self._header_default.copy()
 
     def set_cell_path(self, guess_type: WordleGuess, path: str) -> None:
-        """ Sets the path to the letter images of the respective guess type
+        """Sets the path to the letter images of the respective guess type
 
-            :param guess_type: Wordle guess type
-            :param path: Path to the assets with the respective guess type
+        :param guess_type: Wordle guess type
+        :param path: Path to the assets with the respective guess type
         """
         self._paths[guess_type] = path
 
     def set_processed_word(self, word: str, processed_dict: dict) -> None:
-        """ Sets the colors depending on the guess type: GOOD, PARTIAL or WRONG
+        """Sets the colors depending on the guess type: GOOD, PARTIAL or WRONG
 
-            :param word: The word to be set
-            :param processed_dict:
+        :param word: The word to be set
+        :param processed_dict:
         """
-        elements = []
+        elements: List = []
         for index, let in enumerate(word.lower()):
             elements.append((let, index, processed_dict[(let, index)]))
 
@@ -49,8 +50,6 @@ class WordleImage:
             self.append_letter(letter, guess_type)
 
         self._history[word] = processed_dict
-
-        # TODO: Maybe return automatic next row
 
     def has_next_column(self):
         return self._current_column <= WordleGame.WORDLE_LENGTH - 1
@@ -64,12 +63,12 @@ class WordleImage:
 
     def clear_row(self):
         """ Resets all the parameters, redraws the grid, excluding the last one that wasn't yet set """
-        self._header = self._header_default.copy()
-        self._current_column = 0
-        self._current_row = 0
+        self._header: Image = self._header_default.copy()
+        self._current_column: int = 0
+        self._current_row: int = 0
         if self._history != {}:
             current_history = self._history.copy()
-            self._history = {}
+            self._history: Dict = {}
             for word, processed_dict in current_history.items():
                 self.set_processed_word(word, processed_dict)
                 self.next_row()
