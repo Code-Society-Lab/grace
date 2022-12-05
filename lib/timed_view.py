@@ -13,6 +13,7 @@ class TimedView(View):
     :param seconds: The time in seconds to display the view, default to 900 seconds (15 minutes).
     :type seconds: int
     """
+
     def __init__(self, seconds: int = 900, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -51,7 +52,7 @@ class TimedView(View):
         self.__timer_task.cancel()
 
     async def __impl_timer_task(self):
-        while self.seconds > 0:
+        while not self.has_time_elapsed():
             await self.on_timer_update()
 
             self.__seconds -= 1
@@ -71,3 +72,11 @@ class TimedView(View):
         By default, the callback calls `self.stop()` but can be overriden to change its behaviour.
         """
         self.stop()
+
+    def has_time_elapsed(self):
+        """Returns true if the time has elapsed
+
+        :returns: True if the time has elapsed or False
+        :rtype: bool
+        """
+        return self.seconds <= 0
