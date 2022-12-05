@@ -127,7 +127,7 @@ class PollCog(Cog):
 
 	async def get_options(self, ctx: Context, options_count: int = 2) -> Optional[List[Option]]:
 		def check(m: Message) -> bool:
-			return ctx.author == m.author
+			return ctx.author == m.author and ctx.channel == m.author.dm_channel
 
 		options: List[Option] = []
 		emojis: List[str] = self.get_emojis(options_count)
