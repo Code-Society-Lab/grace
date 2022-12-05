@@ -38,8 +38,6 @@ class Application:
 
         self.command_sync: bool = True
 
-        print(type(self.base))
-
     @property
     def base(self) -> DeclarativeMeta:
         return self.__base
