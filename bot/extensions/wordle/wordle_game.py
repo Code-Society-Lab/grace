@@ -14,25 +14,41 @@ class WordleGame:
     WORDLE_LENGTH = 5
 
     def __init__(self, words_list: List[str], tries: int = 5) -> None:
-        self._tries = tries
-        self._words = words_list
-        self._word = ''
-        self._guess = ''
+        self.__tries: int = tries
+        self.__words: List[str] = words_list
+        self.__word: str = ''
+        self.__guess: str = ''
         self.random_word()
 
     def add_guess_letter(self, letter: str):
+        """ Appends letter to the current guess
+
+            :param letter: Letter to append
+        """
         if len(letter) != 1:
             print('Passed parameter must be a letter not a string.')
             return
-        self._guess += letter
+        self.__guess += letter.lower()
 
-    def full_guess(self):
-        if len(self._guess) == self.WORDLE_LENGTH:
+    def is_full_guess(self) -> bool:
+        """ Checks if the current guess is full/complete
+
+            :returns: True if the guess is complete, otherwise False
+
+            :rtype: bool
+        """
+        if len(self.__guess) == self.WORDLE_LENGTH:
             return True
         return False
 
     @staticmethod
-    def check_win(processed_dict: dict) -> bool:
+    def has_user_won(processed_dict: dict) -> bool:
+        """ User won if all the guess types are GOOD
+
+            :returns: True if all the letters were guessed correctly, otherwise False
+
+            :rtype: bool
+        """
         for let_pos, guess_type in processed_dict.items():
             if guess_type != WordleGuess.GOOD:
                 return False
@@ -40,48 +56,57 @@ class WordleGame:
 
     @property
     def word(self):
-        return self._word
+        return self.__word
 
     @property
     def guess(self):
-        return self._guess
+        return self.__guess
 
     @property
     def tries(self):
-        return self._tries
+        return self.__tries
 
     def clear_guess(self):
-        self._guess = ''
+        """ Clears the current guess """
+        self.__guess = ''
 
-    def valid_guess(self, guess: str) -> bool:
-        if guess not in self._words:
+    def valid_guess(self) -> bool:
+        """ Checks if the guess is valid, meaning that it exists in the bank of words """
+        if self.__guess not in self.__words:
             return False
         return True
 
     def random_word(self) -> None:
-        self._word = random_choice(self._words)
+        """ Chooses random word from the bank of words """
+        self.__word = random_choice(self.__words)
 
     def decrement_tries(self):
-        self._tries -= 1
+        """ Decrements the tries count """
+        self.__tries -= 1
 
-    def process_guess(self, guess: str) -> dict:
-        """ Returns representation of a word:
+    def process_guess(self) -> dict:
+        """ Processes guess string
+
+            :returns: Representation of a word:
             - WordleGuess.GOOD
             - WordleGuess.PARTIALLY
             - WordleGuess.WRONG
             - WordleGuess.EMPTY
             Each letter is in pair with it's position => (letter, index_pos)
+            Example dict format: {(letter, index_pos): guess_type, ...} => {('b', 0): WordleGuess.PARTIALLY, ...}
+
+            :rtype: dict
         """
 
         # Temporary word needed for handling the removal of letters in the word.
-        tmp_word = self._word
+        tmp_word = self.__word
         # Letters that were already processed
         processed = []
         result = {}
         indexes_to_remove = []
 
         # Process GOOD letters
-        for index, let in enumerate(guess):
+        for index, let in enumerate(self.__guess):
             if let == tmp_word[index]:
                 if (let, index) not in processed:
                     result[(let, index)] = WordleGuess.GOOD
@@ -92,13 +117,13 @@ class WordleGame:
         tmp_word = ''.join([let for index, let in enumerate(tmp_word) if index not in indexes_to_remove])
 
         # Process PARTIALLY letters
-        for index, let in enumerate(guess):
+        for index, let in enumerate(self.__guess):
             if let in tmp_word and (let, index) not in processed:
                 result[(let, index)] = WordleGuess.PARTIALLY
                 processed.append((let, index))
 
         # Process WRONG letters
-        for index, let in enumerate(guess):
+        for index, let in enumerate(self.__guess):
             if (let, index) not in processed:
                 result[(let, index)] = WordleGuess.WRONG
                 processed.append((let, index))
@@ -106,9 +131,14 @@ class WordleGame:
         return result
 
     def take_guess(self) -> dict | bool:
-        guess: str = self._guess.lower()
-        valid: bool = self.valid_guess(guess)
+        """ Processes guess if it's valid
+
+            :returns: False if the guess isn't valid, otherwise processed guess dict
+
+            :rtype: bool | dict
+        """
+        valid: bool = self.valid_guess()
         if valid:
-            return self.process_guess(guess)
+            return self.process_guess()
         else:
             return valid

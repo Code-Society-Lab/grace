@@ -19,16 +19,27 @@ class WordleImage:
         self._paths = {}
 
     def set_header_path(self, path: str):
-        """ Sets the path of the header/grid image """
+        """ Sets the path of the header/grid image
+
+            :param path: Path to the header image
+        """
         self._header_default = Image.open(Path(path))
         self._header = self._header_default.copy()
 
     def set_cell_path(self, guess_type: WordleGuess, path: str) -> None:
-        """ Sets the path to the letter images of the respective guess type """
+        """ Sets the path to the letter images of the respective guess type
+
+            :param guess_type: Wordle guess type
+            :param path: Path to the assets with the respective guess type
+        """
         self._paths[guess_type] = path
 
     def set_processed_word(self, word: str, processed_dict: dict) -> None:
-        """ Sets the colors depending on the guess type: GOOD, PARTIAL or WRONG """
+        """ Sets the colors depending on the guess type: GOOD, PARTIAL or WRONG
+
+            :param word: The word to be set
+            :param processed_dict:
+        """
         elements = []
         for index, let in enumerate(word.lower()):
             elements.append((let, index, processed_dict[(let, index)]))
@@ -74,8 +85,7 @@ class WordleImage:
             return
 
         if not letter.islower():
-            error('Letter must be lowercase.')
-            return
+            letter = letter.lower()
 
         if self._header is None:
             error('Header path is not initialized. Use set_header_path()')
