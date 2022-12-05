@@ -90,7 +90,7 @@ class Poll:
 			return True
 		return False
 
-	def selected_option_for(self, member: Union[User, Member]) -> Option:
+	def selected_option_for(self, member: Union[User, Member]) -> Optional[Option]:
 		"""Returns the option that the user chose
 
 		:param member: A member
