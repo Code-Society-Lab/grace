@@ -42,7 +42,7 @@ class Grace(Bot):
 
     async def invoke(self, ctx):
         if ctx.command:
-            info(f"'{ctx.command}' has been invoked by {ctx.author} ({ctx.author.nick})")
+            info(f"'{ctx.command}' has been invoked by {ctx.author} ({ctx.author.display_name})") 
         await super().invoke(ctx)
 
     async def setup_hook(self):
