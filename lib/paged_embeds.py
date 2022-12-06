@@ -3,7 +3,11 @@ from discord import Embed, Interaction, Message
 from discord.ext.commands import Context
 from discord.ui import View, Button
 from emoji.core import emojize
+<<<<<<<<< Temporary merge branch 1
+from lib.iterators import EmbedIterator
+=========
 from lib.bidirectional_iterator import BidirectionalIterator
+>>>>>>>>> Temporary merge branch 2
 
 
 class EmbedButton(Button):
