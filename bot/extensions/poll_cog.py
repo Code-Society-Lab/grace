@@ -30,8 +30,6 @@ async def create_poll_embed(poll: Poll) -> Embed:
 class PollView(TimedView):
 	def __init__(self, poll: Poll, embed: Embed, winner_callback: Callable, seconds: int):
 		super().__init__(seconds=seconds)
-		self.timeout = None
-
 		self.__poll: Poll = poll
 		self.__embed: Embed = embed
 		self.__winner_callback: Callable = winner_callback
