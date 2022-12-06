@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List, Dict
+from typing import List, Dict, Tuple
 from random import choice as random_choice
 
 
@@ -9,7 +9,7 @@ class WordleGuess(Enum):
     WRONG = 3
     EMPTY = 4
 
-
+WORDLE_PROCESSED_DICT = Dict[Tuple[str, int], WordleGuess]
 class WordleGame:
     """ Class with the game logic.
 
@@ -19,7 +19,7 @@ class WordleGame:
 
     WORDLE_LENGTH = 5
 
-    def __init__(self, words_list: List[str], tries: int = 5) -> None:
+    def __init__(self, words_list: List[str], tries: int = 5):
         self.__tries: int = tries
         self.__words: List[str] = words_list
         self.__word: str = ''
@@ -48,7 +48,7 @@ class WordleGame:
         return False
 
     @staticmethod
-    def has_user_won(processed_dict: dict) -> bool:
+    def has_user_won(processed_dict: WORDLE_PROCESSED_DICT) -> bool:
         """ User won if all the guess types are GOOD
 
             :returns: True if all the letters were guessed correctly, otherwise False
@@ -61,15 +61,15 @@ class WordleGame:
         return True
 
     @property
-    def word(self):
+    def word(self) -> str:
         return self.__word
 
     @property
-    def guess(self):
+    def guess(self) -> str:
         return self.__guess
 
     @property
-    def tries(self):
+    def tries(self) -> int:
         return self.__tries
 
     def clear_guess(self):
@@ -82,7 +82,7 @@ class WordleGame:
             return False
         return True
 
-    def random_word(self) -> None:
+    def random_word(self):
         """ Chooses random word from the bank of words """
         self.__word = random_choice(self.__words)
 
@@ -90,7 +90,7 @@ class WordleGame:
         """ Decrements the tries count """
         self.__tries -= 1
 
-    def process_guess(self) -> dict:
+    def process_guess(self) -> WORDLE_PROCESSED_DICT:
         """ Processes guess string
 
             :returns: Representation of a word:
@@ -107,9 +107,9 @@ class WordleGame:
         # Temporary word needed for handling the removal of letters in the word.
         tmp_word: str = self.__word
         # Letters that were already processed
-        processed: List = []
-        result: Dict = {}
-        indexes_to_remove: List = []
+        processed: List[Tuple[str, int]] = []
+        result: WORDLE_PROCESSED_DICT = {}
+        indexes_to_remove: List[int] = []
 
         # Process GOOD letters
         for index, let in enumerate(self.__guess):
@@ -136,7 +136,7 @@ class WordleGame:
 
         return result
 
-    def take_guess(self) -> Dict | bool:
+    def take_guess(self) -> WORDLE_PROCESSED_DICT | bool:
         """ Processes guess if it's valid
 
             :returns: False if the guess isn't valid, otherwise processed guess dict
