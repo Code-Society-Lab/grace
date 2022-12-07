@@ -39,6 +39,7 @@ class ThankCog(Cog):
         for member in message.mentions:
             member_id = str(member.id)
             author_id = str(message.author.id)
+            # TODO: Check if the thanker isn't on cooldown
 
             if Thank.does_member_exist(author_id):
                 Thank.set_last_thank_date(member_id=author_id, last_thank=datetime.now())
