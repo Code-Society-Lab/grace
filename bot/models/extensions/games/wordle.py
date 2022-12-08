@@ -23,6 +23,7 @@ class Wordle(app.base, Model):
 		user = cls.get_by(user_id=user_id)
 		user.points = user.points + points
 		user.play_date = date
+		cls.create()
 
 	@classmethod
 	def update_database(cls, user_id: str, points: int):
