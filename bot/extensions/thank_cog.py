@@ -1,71 +1,73 @@
-from datetime import datetime
-
-from discord import Message, Member
+from typing import Optional, Union
+from discord import Member, Embed, User
 from discord.ext.commands import Cog, hybrid_command, Context, cooldown, BucketType
 from bot.grace import Grace
 from bot.models.extensions.thank.thank import Thank
 
 
 class ThankCog(Cog):
-    # TODO: Find all the users of the server and add them to Thank database
-    # TODO: Each time new user joins add him to the Thank database
-    # TODO: Each time user leaves remove him from database
     def __init__(self, bot: Grace):
         self.bot = bot
-        self.thank_list = [
-            'thanks',
-            'thank you',
-            'ty',
-            'thnx',
-        ]
 
-    @Cog.listener()
-    @cooldown(1, 1200, BucketType.user)
-    async def on_message(self, message: Message):
-        if not message.mentions or \
-               message.author in message.mentions or \
-               message.author.id == self.bot.user.id:
-            return
-
-        thanked = False
-        for thank in self.thank_list:
-            if thank in message.content.lower():
-                thanked = True
-                break
-
-        if not thanked:
-            return
-
-        for member in message.mentions:
-            member_id = str(member.id)
-            author_id = str(message.author.id)
-            # TODO: Check if the thanker isn't on cooldown
-
-            if Thank.does_member_exist(author_id):
-                Thank.set_last_thank_date(member_id=author_id, last_thank=datetime.now())
-            else:
-                Thank.add_member(member_id=author_id, thank_count=0, last_thank=datetime.now())
-
-            if Thank.does_member_exist(member_id):
-                Thank.increment_member_thank_count(member_id=member_id)
-            else:
-                Thank.add_member(member_id=member_id, thank_count=1, last_thank=None)
-
-            await message.channel.send(f'<@{member_id}> thanks for helping <@{message.author.id}>!')
+    def get_user_title(self, thank_count: int) -> str:
+        if thank_count in range(1, 11):
+            return 'Intern'
+        elif thank_count in range(11, 21):
+            return 'Helper'
+        elif thank_count in range(21, 31):
+            return 'Vetted helper'
+        elif thank_count > 30:
+            return 'Expert'
+        else:
+            return 'Unknown'
 
     @hybrid_command(name='thank_stats', description='Shows your current thank level.')
-    async def thank_stats(self, ctx: Context, *, member: Member = None):
-        # TODO: Check here if user is in the database, if not, send him a message saying that
-        # TODO: he wasn't thanked before thus he's not yet a helper.
-        # Command can be executed as: /thank_stats => It will output the thank stats of the member who called the command
-        # If as: /thank_stats member=@MrNesli => Will output stats of the respective member
-        """
-        range(0, 10) => "Beginner helper"
-        range(10, 20) => "Helper"
-        range(20, 30) => "Vetted Helper"
-        range(30, 40) => "Professional"
-        """
-        pass
+    @cooldown(1, 20, BucketType.user)
+    async def thank_stats(self, ctx: Context, *, user_or_member: Optional[Union[Member, User]] = None):
+        stats_embed = Embed(title="Stats")
+
+        if user_or_member is None or ctx.author.id == user_or_member.id:
+            if not Thank.does_member_exist(str(ctx.author.id)):
+                stats_embed.description = "You haven't been thanked yet."
+            else:
+                thank_count = Thank.retrieve_member_thank_count(str(ctx.author.id))
+                stats_embed.description = f"Your title is: **{self.get_user_title(thank_count)}**\nYour thank count is: {thank_count}"
+        else:
+            if user_or_member.id == self.bot.user.id:
+                stats_embed.description = "Grace has a range of commands that can help you greatly!"
+                return await ctx.reply(embed=stats_embed, ephemeral=True)
+
+            if not Thank.does_member_exist(str(user_or_member.id)):
+                stats_embed.description = f"User **@{user_or_member.display_name}** hasn't helped anyone yet."
+            else:
+                thank_count = Thank.retrieve_member_thank_count(str(user_or_member.id))
+                stats_embed.description = f"User **@{user_or_member.display_name}** has title: **{self.get_user_title(thank_count)}**"
+
+        await ctx.reply(embed=stats_embed, ephemeral=True)
+
+    @hybrid_command(name='thank', description='Thank a person')
+    @cooldown(1, 600, BucketType.user)
+    async def thank(self, ctx: Context, *, user_or_member: Union[Member, User]):
+        if user_or_member.id == self.bot.user.id:
+            return await ctx.send("😊", ephemeral=True)
+
+        if ctx.author.id == user_or_member.id:
+            return await ctx.send('You cannot thank yourself.', ephemeral=True)
+
+        user_id = str(user_or_member.id)
+        if Thank.does_member_exist(user_id):
+            Thank.increment_member_thank_count(user_id)
+        else:
+            Thank.add_member(user_id, 1)
+
+        thank_embed = Embed(
+            title="INFO",
+            description=f"{user_or_member.display_name}, you were thanked by **{ctx.author.display_name}**\n"
+                        f"Now, your thank count is: **{Thank.retrieve_member_thank_count(user_id)}**"
+        )
+
+        await user_or_member.send(embed=thank_embed)
+        await ctx.interaction.response.send_message(f"Successfully thanked **@{user_or_member.display_name}**", ephemeral=True)
 
 
 async def setup(bot: Grace):
