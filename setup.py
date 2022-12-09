@@ -11,7 +11,7 @@ def after_install():
 
 setup(
     name='Grace',
-    version='2.2.0',
+    version='1.18.2',
     author='Code Society Lab',
     description='The Code Society community Bot',
     url="https://github.com/Code-Society-Lab/grace",
@@ -45,7 +45,6 @@ setup(
         'configparser',
         'pygithub',
         'googletrans==4.0.0-rc1',
-        'Pillow',
     ],
     scripts=['bin/grace']
 )
