@@ -300,6 +300,7 @@ class ViewPage(View):
         **kwargs
     ) -> None:
         super().__init__(*args, **kwargs)
+        self.timeout = None
         self.__embed: Callable = embed_callback
         self.__wordle: WordleGame = current_wordle
         self.__image_generator: WordleImage = image_generator
@@ -477,6 +478,9 @@ class WordleCog(Cog):
 
     @wordle_group.command(name='play', help='Start a wordle game')
     async def play_command(self, ctx: Context) -> None:
+        if ctx.interaction.is_expired():
+            return await ctx.interaction.response.defer()
+
         if await self.has_user_played(ctx):
             return
 
@@ -485,36 +489,35 @@ class WordleCog(Cog):
 
         view: PagedGameView = PagedGameView(
             current_wordle=WordleGame(self.words, 6),
-            image_gen=image_generator
+            image_gen=image_generator,
         )
 
         await view.send(ctx)
 
     @wordle_group.command(name='leaderboard', help='Send a leaderboard of top N players')
     @has_permissions(administrator=True)
-    async def leaderboard_command(self, ctx: Context, *, top: int) -> None:
+    async def leaderboard_command(self, ctx: Context, *, top: int):
         members: List[Query] = Wordle.query().order_by(Wordle.points.desc()).all()
-        # users: List[Tuple[str, int]] = []
-        #
-        # for query in user_list:
-        #     if query.user_id is None:
-        #         continue
-        #     users.append((query.user_id, query.points))
         if not members:
-            return await ctx.interaction.response.send_message('No players found.', ephemeral=True)
+            return await ctx.reply('No players found.', ephemeral=True)
 
         if top <= 0:
-            return await ctx.interaction.response.send_message('The top parameter must have value of at least 1.')
+            return await ctx.reply('The top parameter must have '
+                                   'value of at least 1.', ephemeral=True)
 
-        # top_users: List[Tuple[str, int]] = list(sorted(users, key=lambda item: item[1], reverse=True))
+        top = min(len(members), top)
+        leaderboard_embed: Embed = Embed(
+            title=f"**Wordle Game Top {top} Leaderboard**",
+            description='',
+            color=self.bot.default_color
+        )
 
-        leaderboard_embed: Embed = Embed(title=f"**Wordle Game Top {top} Leaderboard**", description='')
-        for position in range(min(len(members), top)):
+        for position in range(top):
             member = members[position]
             username = (await self.bot.fetch_user(member.member_id)).display_name
             leaderboard_embed.description += f"_{position + 1}._ **{username}**: **{member.points}** points\n"
 
-        await ctx.interaction.response.send_message(embed=leaderboard_embed)
+        await ctx.send(embed=leaderboard_embed)
 
 
 async def setup(bot: Grace) -> None:

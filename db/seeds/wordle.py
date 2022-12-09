@@ -7,5 +7,3 @@ def seed_database():
 
 	for word in words:
 		WordleWords.create(word=word)
-
-	
