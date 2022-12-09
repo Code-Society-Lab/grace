@@ -1,6 +1,5 @@
 # WORDLE GRID IMAGE GENERATOR BASED ON THE GUESSED LETTERS #
-from typing import Dict, List, Tuple, Optional
-
+from typing import Dict, List, Tuple
 from PIL import Image
 from pathlib import Path
 from bot.extensions.wordle.wordle_game import WordleGuess, WordleGame, WORDLE_PROCESSED_DICT

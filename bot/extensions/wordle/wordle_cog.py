@@ -23,7 +23,7 @@ class MenuStartButton(Button):
         view_callback: Callable,
         *args,
         **kwargs
-    ):
+    ) -> None:
         super().__init__(*args, **kwargs)
         self.__embed: Callable = embed_callback
         self.__view: Callable = view_callback
@@ -45,7 +45,7 @@ class MenuStartButton(Button):
 
 
 class MenuCancelButton(Button):
-    def __init__(self, cancel_callback: Callable, *args, **kwargs):
+    def __init__(self, cancel_callback: Callable, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.__cancel_callback: Callable = cancel_callback
         self.label = 'Cancel'
@@ -59,7 +59,7 @@ class WordleEnterButton(Button):
         self,
         *args,
         **kwargs
-    ):
+    ) -> None:
         super().__init__(*args, **kwargs)
         self.label = 'Enter'
         self.style = ButtonStyle.green
@@ -82,7 +82,7 @@ class WordleEnterButton(Button):
                             f'Points: **{points}**\n'
                             f'**Thanks for playing! You can try again tomorrow!**',
             )
-            Wordle.update_database(str(interaction.user.id), points)
+            Wordle.update_database(interaction.user.id, points)
 
             await interaction.response.edit_message(embed=defeat_embed, view=None, attachments=[])
             return False
@@ -109,14 +109,14 @@ class WordleEnterButton(Button):
                             f'Points: **{points}**\n'
                             f'**Thanks for playing! You can try again tomorrow!**',
             )
-            Wordle.update_database(str(interaction.user.id), points)
+            Wordle.update_database(interaction.user.id, points)
 
             await interaction.response.edit_message(embed=win_embed, view=None, attachments=[])
             return True
 
         return False
 
-    def change_buttons_color(self, processed_guess: WORDLE_PROCESSED_DICT):
+    def change_buttons_color(self, processed_guess: WORDLE_PROCESSED_DICT) -> None:
         """ Changes the color of the buttons depending on the guessed letters and enables them """
         for button in self.view.layout:
             if not isinstance(button, LetterButton):
@@ -193,7 +193,7 @@ class WordleCancelButton(Button):
         cancel_callback: Callable,
         *args,
         **kwargs
-    ):
+    ) -> None:
         super().__init__(*args, **kwargs)
         self.label = 'Cancel'
         self.style = ButtonStyle.danger
@@ -208,12 +208,12 @@ class WordleClearButton(Button):
         self,
         *args,
         **kwargs
-    ):
+    ) -> None:
         super().__init__(*args, **kwargs)
         self.label = 'Clear'
         self.style = ButtonStyle.primary
 
-    def try_to_enable_buttons(self):
+    def try_to_enable_buttons(self) -> None:
         """ Enables all the letter buttons if the row is full/complete """
         if self.view.wordle.is_full_guess():
             for button in self.view.layout:
@@ -237,14 +237,14 @@ class LetterButton(Button):
         letter: str,
         *args,
         **kwargs
-    ):
+    ) -> None:
         super().__init__(*args, **kwargs)
         if len(letter) != 1:
             raise Exception('Letter button must only be passed a letter.')
 
         self.label = letter
 
-    def try_to_disable_buttons(self):
+    def try_to_disable_buttons(self) -> None:
         """ Disables all the letter buttons in case current grid row is full/complete """
         if not self.view.image_generator.has_next_column():
             for button in self.view.layout:
@@ -270,13 +270,13 @@ class ArrowButton(Button):
         direction: str,
         *args,
         **kwargs
-    ):
+    ) -> None:
         super().__init__(*args, **kwargs)
         self.emoji = emojize(f':{direction}_arrow:')
         self.__direction: str = direction
 
     async def callback(self, interaction: Interaction) -> Any:
-        view = None
+        view: Optional[ViewPage] = None
         if self.__direction == 'left':
             view = self.view.previous_view()
         elif self.__direction == 'right':
@@ -298,7 +298,7 @@ class ViewPage(View):
         next_view_callback: Callable,
         *args,
         **kwargs
-    ):
+    ) -> None:
         super().__init__(*args, **kwargs)
         self.__embed: Callable = embed_callback
         self.__wordle: WordleGame = current_wordle
@@ -313,7 +313,7 @@ class ViewPage(View):
         self.add_item(self.__left_arrow)
         self.add_item(self.__right_arrow)
 
-    def update_arrow_buttons(self):
+    def update_arrow_buttons(self) -> None:
         self.__left_arrow.disabled = not self.__has_previous()
         self.__right_arrow.disabled = not self.__has_next()
 
@@ -335,7 +335,7 @@ class ViewPage(View):
     def embed(self) -> Embed:
         return self.__embed()
 
-    async def change_embed_image(self, interaction: Interaction, image_gen: WordleImage):
+    async def change_embed_image(self, interaction: Interaction, image_gen: WordleImage) -> None:
         file_name: str = f'{interaction.user.id}.png'
         grid_path: str = f'./tmp/{file_name}'
 
@@ -355,7 +355,7 @@ class PagedGameView(View):
         self,
         current_wordle: WordleGame,
         image_gen: WordleImage
-    ):
+    ) -> None:
         super().__init__()
 
         self.__image_gen: WordleImage = image_gen
@@ -369,7 +369,7 @@ class PagedGameView(View):
         self.create_menu()
         self.create_view_pages()
 
-    def create_menu(self):
+    def create_menu(self) -> None:
         menu_view: View = View()
 
         menu_view.add_item(MenuStartButton(self.game_embed, self.next_view))
@@ -398,7 +398,7 @@ class PagedGameView(View):
 
         return view_page
 
-    def create_view_pages(self):
+    def create_view_pages(self) -> None:
         view_page1: ViewPage = self.create_view_page(65, 78)
         view_page2: ViewPage = self.create_view_page(78, 91)
 
@@ -423,13 +423,13 @@ class PagedGameView(View):
         self.__views.remove(self.__views.current)
         return self.__views.current
 
-    async def cancel(self):
+    async def cancel(self) -> None:
         await self.__message.delete()
 
-    async def on_timeout(self):
+    async def on_timeout(self) -> None:
         await self.cancel()
 
-    async def send(self, ctx: Context, ephemeral: bool = True):
+    async def send(self, ctx: Context, ephemeral: bool = True) -> None:
         self.__message = await ctx.reply(
             embed=self.__embeds['menu'],
             view=self.__views.current,
@@ -448,18 +448,18 @@ class WordleCog(Cog):
             await send_command_help(ctx)
 
     async def has_user_played(self, ctx: Context) -> bool:
-        user_query: Query = Wordle.get_by(user_id=ctx.interaction.user.id)
-        if user_query is not None:
-            last_play_date: datetime = user_query.play_date
+        wordle_user: Wordle = Wordle.get_by(member_id=ctx.interaction.user.id)
+        if wordle_user is not None:
+            last_play_date: datetime = wordle_user.play_date
             present_date: datetime = datetime.now()
             time_delta: timedelta = present_date - last_play_date
 
             if time_delta.days < 1:
-                user_name: str = self.bot.get_user(int(user_query.user_id)).display_name
+                user_name: str = self.bot.get_user(wordle_user.member_id).display_name
                 early_embed: Embed = Embed(
                     title='**Wordle Game**',
                     description=f'**{user_name}**\n'
-                                f'Points: **{user_query.points}**\n'
+                                f'Points: **{wordle_user.points}**\n'
                                 f'_You can try tomorrow at the same time you played the last game!_'
                 )
                 await ctx.interaction.response.send_message(embed=early_embed, ephemeral=True)
@@ -467,7 +467,7 @@ class WordleCog(Cog):
 
         return False
 
-    def set_resource_paths(self, image_gen: WordleImage):
+    def set_resource_paths(self, image_gen: WordleImage) -> None:
         """ Sets the asset paths of the image generator """
         image_gen.set_header_path('./bot/assets/wordle_header.png')
         image_gen.set_cell_path(WordleGuess.GOOD, './bot/assets/good_letters')
@@ -493,26 +493,29 @@ class WordleCog(Cog):
     @wordle_group.command(name='leaderboard', help='Send a leaderboard of top N players')
     @has_permissions(administrator=True)
     async def leaderboard_command(self, ctx: Context, *, top: int) -> None:
-        user_list: List[Query] = Wordle.all()
-        users: List[Tuple[str, int]] = []
-
-        for query in user_list:
-            if query.user_id is None:
-                continue
-            users.append((query.user_id, query.points))
-
-        if not users:
+        members: List[Query] = Wordle.query().order_by(Wordle.points.desc()).all()
+        # users: List[Tuple[str, int]] = []
+        #
+        # for query in user_list:
+        #     if query.user_id is None:
+        #         continue
+        #     users.append((query.user_id, query.points))
+        if not members:
             return await ctx.interaction.response.send_message('No players found.', ephemeral=True)
 
-        top_users: List[Tuple[str, int]] = list(sorted(users, key=lambda item: item[1], reverse=True))
+        if top <= 0:
+            return await ctx.interaction.response.send_message('The top parameter must have value of at least 1.')
+
+        # top_users: List[Tuple[str, int]] = list(sorted(users, key=lambda item: item[1], reverse=True))
 
         leaderboard_embed: Embed = Embed(title=f"**Wordle Game Top {top} Leaderboard**", description='')
-        for position, (user_id, points) in enumerate(top_users):
-            username = (await self.bot.fetch_user(int(user_id))).display_name
-            leaderboard_embed.description += f"_{position + 1}._ **{username}**: **{points}** points\n"
+        for position in range(min(len(members), top)):
+            member = members[position]
+            username = (await self.bot.fetch_user(member.member_id)).display_name
+            leaderboard_embed.description += f"_{position + 1}._ **{username}**: **{member.points}** points\n"
 
         await ctx.interaction.response.send_message(embed=leaderboard_embed)
 
 
-async def setup(bot: Grace):
+async def setup(bot: Grace) -> None:
     await bot.add_cog(WordleCog(bot))
