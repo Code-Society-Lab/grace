@@ -1,10 +1,10 @@
 from asyncio import sleep as async_sleep, create_task, Task
 from datetime import timedelta
-from typing import Any, Optional
-from discord.ui import View
+from typing import Optional
+from random import randint
 
 
-class TimedView(View):
+class Timer:
     """A discord.ui.View class that implements a timer.
 
     The view will call an event (`on_time_update`) each seconds until the timer elapsed. Once the timer elapsed,
@@ -15,8 +15,7 @@ class TimedView(View):
     """
 
     def __init__(self, seconds: int = 900):
-        super().__init__(timeout=None)
-        
+        # super().__init__()
         self.seconds: int = seconds
         self.__timer_task: Optional[Task[None]] = None
 
@@ -24,7 +23,7 @@ class TimedView(View):
     def seconds(self) -> int:
         """Returns the timer's remaining seconds.
 
-        :return: The remaining seconds
+        :return: The remaining seconds      
         :rtype: int
         """
         return self.__seconds
@@ -53,7 +52,7 @@ class TimedView(View):
 
     def start_timer(self):
         """Starts the view's timer task"""
-        self.__timer_task = create_task(self.__impl_timer_task(), name=f"grace-timed-view-timer-{self.id}")
+        self.__timer_task = create_task(self.__impl_timer_task(), name=f"grace-timed-view-timer-{randint(1, 100)}")
 
     def cancel_timer(self):
         """Cancels the view's timer task"""
@@ -77,9 +76,9 @@ class TimedView(View):
     async def on_timer_elapsed(self):
         """A callback that is called when the timer elapsed.
 
-        By default, the callback calls `self.stop()` but can be overriden to change its behaviour.
+        This callback does nothing by default but can be overriden to change its behaviour.
         """
-        self.stop()
+        pass
 
     def has_time_elapsed(self):
         """Returns true if the time has elapsed
