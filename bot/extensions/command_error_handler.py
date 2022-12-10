@@ -1,3 +1,4 @@
+from datetime import timedelta
 from logging import warning
 from discord.ext.commands import Cog, \
     MissingRequiredArgument, \
@@ -21,7 +22,7 @@ class CommandErrorHandler(Cog):
         elif isinstance(error, MissingPermissions):
             await send_error(ctx, "You don't have the authorization to use that command.")
         elif isinstance(error, CommandOnCooldown):
-            await send_error(ctx, f"You're on Cooldown, wait {error.retry_after:.2f} seconds.")
+            await send_error(ctx, f"You're on Cooldown, wait {timedelta(seconds=int(error.retry_after))}")
         elif isinstance(error, DisabledCommand):
             await send_error(ctx, "This command is disabled.")
         elif isinstance(error, MissingRequiredArgument):
