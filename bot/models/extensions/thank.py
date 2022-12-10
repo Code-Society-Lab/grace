@@ -1,7 +1,8 @@
-from typing import Optional
+from typing import Optional, List
 from sqlalchemy import Column, Integer
 from bot import app
 from db.model import Model
+from sqlalchemy import desc
 
 
 class Thank(app.base, Model):
@@ -23,3 +24,7 @@ class Thank(app.base, Model):
 			return 'Expert'
 		else:
 			return None
+
+	@classmethod
+	def ordered(cls) -> List['Thank']:
+		return cls.query().order_by(desc(cls.count)).all()
