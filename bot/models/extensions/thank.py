@@ -1,5 +1,5 @@
 from typing import Optional, List
-from sqlalchemy import Column, Integer
+from sqlalchemy import Column, Integer, BigInteger
 from bot import app
 from db.model import Model
 from sqlalchemy import desc
@@ -9,7 +9,7 @@ class Thank(app.base, Model):
 	__tablename__ = 'thanks'
 
 	id = Column(Integer, primary_key=True)
-	member_id = Column(Integer, nullable=False, unique=True)
+	member_id = Column(BigInteger, nullable=False, unique=True)
 	count = Column(Integer, default=0)
 
 	@property
