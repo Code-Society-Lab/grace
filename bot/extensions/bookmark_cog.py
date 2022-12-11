@@ -79,3 +79,4 @@ class BookmarkCog(Cog):
 
 async def setup(bot: Grace):
 	await bot.add_cog(BookmarkCog(bot))
+	
