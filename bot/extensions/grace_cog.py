@@ -1,4 +1,5 @@
-from discord import Embed
+from discord.utils import get as get_role
+from discord import Embed, Colour
 from discord.ext.commands import Cog, hybrid_command
 from discord.ui import Button, View
 from emoji import emojize
@@ -40,6 +41,22 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
             )
 
         return embed
+
+    @hybrid_command(name='change_color', help='Changes the color of the Grace nickname')
+    async def color_command(self, ctx, *, color: str):
+        role = await get_role(ctx.guild.roles, name=self.bot.name)
+        if not role:
+            return await ctx.send(f'The bot needs the role {self.bot.name}', ephemeral=True)
+
+        await role.edit(colour=Colour.from_str(color))
+        await ctx.send(f"Successfully changed Grace color to: {color}", ephemeral=True)
+
+    @color_command.error
+    async def color_command_error(self, ctx, error):
+        if isinstance(error.original.original, ValueError):
+            await ctx.send('Incorrect color format. Acceptable formats are **hex**, **rgb**\n'
+                           'rgb: **rgb(<number>, <number>, <number>)**\n'
+                           'hex: **#<hex>** or **0x<hex>**', ephemeral=True)
 
     @hybrid_command(name='info', help='Show information about the bot')
     async def info_command(self, ctx, ephemeral=True):
