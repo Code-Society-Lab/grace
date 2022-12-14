@@ -1,5 +1,5 @@
 from discord.utils import get as get_role
-from discord import Embed, Colour
+from discord import Embed, Colour, Permissions, Forbidden
 from discord.ext.commands import Cog, hybrid_command
 from discord.ui import Button, View
 from emoji import emojize
@@ -39,14 +39,18 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
                 value=f"{contributor.contributions} contributions",
                 inline=True
             )
-
         return embed
 
     @hybrid_command(name='change_color', help='Changes the color of the Grace nickname')
-    async def color_command(self, ctx, *, color: str):
-        role = await get_role(ctx.guild.roles, name=self.bot.name)
+    async def color_command(self, ctx, *, color):
+        role = get_role(ctx.guild.roles, name=f"{self.bot.user.name} color")
         if not role:
-            return await ctx.send(f'The bot needs the role {self.bot.name}', ephemeral=True)
+            await ctx.send(f"{self.bot.user.name} color role wasn't found. Creating...", ephemeral=True)
+            role = await ctx.guild.create_role(
+                name=f"{self.bot.user.name} color",
+                permissions=Permissions.advanced()
+            )
+            await (await ctx.guild.fetch_member(self.bot.user.id)).add_roles(role)
 
         await role.edit(colour=Colour.from_str(color))
         await ctx.send(f"Successfully changed Grace color to: {color}", ephemeral=True)
@@ -54,9 +58,11 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
     @color_command.error
     async def color_command_error(self, ctx, error):
         if isinstance(error.original.original, ValueError):
-            await ctx.send('Incorrect color format. Acceptable formats are **hex**, **rgb**\n'
-                           'rgb: **rgb(<number>, <number>, <number>)**\n'
-                           'hex: **#<hex>** or **0x<hex>**', ephemeral=True)
+            await ctx.send("Incorrect color format. Acceptable formats are **hex**, **rgb**\n"
+                           "rgb: **rgb(<number>, <number>, <number>)**\n"
+                           "hex: **#<hex>** or **0x<hex>**", ephemeral=True)
+        elif isinstance(error.original.original, Forbidden):
+            await ctx.send("You don't have the permissions to modify this role.", ephemeral=True)
 
     @hybrid_command(name='info', help='Show information about the bot')
     async def info_command(self, ctx, ephemeral=True):
