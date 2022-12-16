@@ -40,8 +40,11 @@ class TranslatorCog(Cog, name="Translator", description="Translate a sentence/wo
                 for lang in LANGUAGES if current.lower() in lang.lower()
             ]
 
-    @hybrid_command(name='translator', help='Translate a sentence/word from any languages into any languages', \
-                                        usage="sentence={sentence}")
+    @hybrid_command(
+        name='translator',
+        help='Translate a sentence/word from any languages into any languages',
+        usage="sentence={sentence}"
+        )
     @autocomplete(translate_into=language_autocomplete)
     async def translator(self, ctx, *, sentence: str, translate_into: str):
         """Translate a sentence or word from any language into any languages.
