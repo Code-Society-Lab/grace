@@ -10,7 +10,7 @@ def get_languages_available():
     :return: A list of language names.
     :rtype: List of str
     """
-    return list([language_code[lang] for lang in language_code])
+    return [language_code[lang] for lang in language_code]
 
 
 class TranslatorCog(Cog, name="Translator", description="Translate a sentence/word from any languages into any languages."):
@@ -21,9 +21,11 @@ class TranslatorCog(Cog, name="Translator", description="Translate a sentence/wo
         """Provide autocomplete suggestions for language names.
 
         :param interaction: The interaction object.
+        :type: Interaction
         :param current: The current value of the input field.
+        :type: str
         :return: A list of `Choice` objects containing language names.
-        :rtype: A list of str
+        :rtype: list[Choice[str]]
         """
 
         LANGUAGES = get_languages_available()
@@ -45,8 +47,11 @@ class TranslatorCog(Cog, name="Translator", description="Translate a sentence/wo
         """Translate a sentence or word from any language into any languages.
 
         :param ctx: The context object.
+        :type: Context
         :param sentence: The sentence or word to be translated.
+        :type: str
         :param translate_into: The language code for the target language.
+        :type: str
         :return: Embed with original input and its translation
         """
         
