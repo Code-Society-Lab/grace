@@ -21,9 +21,9 @@ class TranslatorCog(Cog, name="Translator", description="Translate a sentence/wo
         """Provide autocomplete suggestions for language names.
 
         :param interaction: The interaction object.
-        :type: Interaction
+        :type interaction: Interaction
         :param current: The current value of the input field.
-        :type: str
+        :type current: str
         :return: A list of `Choice` objects containing language names.
         :rtype: list[Choice[str]]
         """
@@ -47,11 +47,11 @@ class TranslatorCog(Cog, name="Translator", description="Translate a sentence/wo
         """Translate a sentence or word from any language into any languages.
 
         :param ctx: The context object.
-        :type: Context
+        :type ctx: Context
         :param sentence: The sentence or word to be translated.
-        :type: str
+        :type sentence: str
         :param translate_into: The language code for the target language.
-        :type: str
+        :type tramslate_into: str
         :return: Embed with original input and its translation
         """
         
