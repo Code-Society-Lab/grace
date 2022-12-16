@@ -4,11 +4,11 @@ from discord import Embed, Interaction
 from discord.app_commands import Choice, autocomplete
 
 
-def get_languages_available():
+def get_languages_available() -> list:
     """Return a list of all available language names, sorted in alphabetical order.
 
     :return: A list of language names.
-    :rtype: List of str
+    :rtype: list
     """
     return [language_code[lang] for lang in language_code]
 
@@ -17,7 +17,7 @@ class TranslatorCog(Cog, name="Translator", description="Translate a sentence/wo
     def __init__(self, bot):
         self.bot = bot
 
-    async def language_autocomplete(self, interaction, current):
+    async def language_autocomplete(self, interaction: Interaction, current: str) -> list[Choice[str]]:
         """Provide autocomplete suggestions for language names.
 
         :param interaction: The interaction object.
@@ -43,7 +43,7 @@ class TranslatorCog(Cog, name="Translator", description="Translate a sentence/wo
     @hybrid_command(name='translator', help='Translate a sentence/word from any languages into any languages', \
                                         usage="sentence={sentence}")
     @autocomplete(translate_into=language_autocomplete)
-    async def translator(self, ctx, *,sentence, translate_into):
+    async def translator(self, ctx, *, sentence: str, translate_into: str):
         """Translate a sentence or word from any language into any languages.
 
         :param ctx: The context object.
