@@ -17,7 +17,7 @@ class TranslatorCog(Cog, name="Translator", description="Translate a sentence/wo
     def __init__(self, bot):
         self.bot = bot
 
-    async def language_autocomplete(self, interaction: Interaction, current: str,) -> list[Choice[str]]:
+    async def language_autocomplete(self, interaction, current):
         """Provide autocomplete suggestions for language names.
 
         :param interaction: The interaction object.
