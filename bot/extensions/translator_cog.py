@@ -5,11 +5,10 @@ from discord.app_commands import Choice, autocomplete
 
 
 def get_languages_available():
-    """
-    Return a list of all available language names, sorted in alphabetical order.
+    """Return a list of all available language names, sorted in alphabetical order.
 
-    :return: list of str
-        A list of language names.
+    :return: A list of language names.
+    :rtype: List of str
     """
     return list([language_code[lang] for lang in language_code])
 
@@ -19,15 +18,12 @@ class TranslatorCog(Cog, name="Translator", description="Translate a sentence/wo
         self.bot = bot
 
     async def language_autocomplete(self, interaction: Interaction, current: str,) -> list[Choice[str]]:
-        """
-        Provide autocomplete suggestions for language names.
+        """Provide autocomplete suggestions for language names.
 
-        :param interaction: Interaction
-            The interaction object.
-        :param current: str
-            The current value of the input field.
-        :return: list[Choice[str]]
-            A list of `Choice` objects containing language names.
+        :param interaction: The interaction object.
+        :param current: The current value of the input field.
+        :return: A list of `Choice` objects containing language names.
+        :rtype: A list of str
         """
 
         LANGUAGES = get_languages_available()
@@ -46,15 +42,12 @@ class TranslatorCog(Cog, name="Translator", description="Translate a sentence/wo
                                         usage="sentence={sentence}")
     @autocomplete(translate_into=language_autocomplete)
     async def translator(self, ctx, *,sentence, translate_into):
-        """
-        Translate a sentence or word from any language into any languages.
+        """Translate a sentence or word from any language into any languages.
 
-        :param ctx: Context
-            The context object.
-        :param sentence: str
-            The sentence or word to be translated.
-        :param translate_into: str
-            The language code for the target language.
+        :param ctx: The context object.
+        :param sentence: The sentence or word to be translated.
+        :param translate_into: The language code for the target language.
+        :return: Embed with original input and its translation
         """
         
         text_translator = Translator()
