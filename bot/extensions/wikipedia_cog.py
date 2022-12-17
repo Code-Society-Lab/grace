@@ -28,7 +28,7 @@ class Buttons(View):
         self.search = search
         self.result = result
 
-    async def wiki_result(self, interaction: Interaction, _, index: int):
+    async def wiki_result(self, interaction, _, index: int):
         """Send the selected search result to the user.
 
         :param interaction: The interaction object representing the user's interaction with the bot.
