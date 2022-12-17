@@ -11,7 +11,7 @@ def after_install():
 
 setup(
     name='Grace',
-    version='1.18.2',
+    version='1.20.0',
     author='Code Society Lab',
     description='The Code Society community Bot',
     url="https://github.com/Code-Society-Lab/grace",
