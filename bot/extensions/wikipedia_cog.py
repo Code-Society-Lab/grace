@@ -6,7 +6,7 @@ from urllib.parse import quote_plus
 from json import loads
 
 
-def search_results(search: str):
+def search_results(search: str) -> list:
     """Return search results from Wikipedia for the given search query.
     
     :param search: The search query to be used to search Wikipedia.
@@ -22,12 +22,12 @@ def search_results(search: str):
 
 
 class Buttons(View):
-    def __init__(self, search: str, result: list):
+    def __init__(self, search: str, result: list) -> None:
         super().__init__()
         self.search = search
         self.result = result
 
-    async def wiki_result(self, interaction, _, index: int):
+    async def wiki_result(self, interaction, _, index: int) -> None:
         """Send the selected search result to the user.
 
         :param interaction: The interaction object representing the user's interaction with the bot.
@@ -62,7 +62,7 @@ class Wikipedia(Cog, name="Wikipedia", description="Search on Wikipedia."):
         self.bot = bot
 
     @hybrid_command(name="wiki", description="Searches and displays the first 3 results from Wikipedia.")
-    async def wiki(self, ctx, *, search: str):
+    async def wiki(self, ctx, *, search: str) -> None:
         """Search Wikipedia and display the first 3 search results to the user.
 
         :param ctx: The context in which the command was invoked.
