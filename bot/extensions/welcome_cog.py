@@ -7,6 +7,7 @@ from discord import Embed
 
 class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
     """A cog that sends a welcome message to new members when they join the server."""
+
     WELCOME_MESSAGE = "Hi {member_name}! Welcome to the **Code Society**.\n\nBefore posting please:\n    - Take a " \
                       "moment to read the <#{info_id}> and the <#{rules_id}>.\n    - Choose some <#{roles_id}>.\n" \
                       "- Feel free to introduce yourself in <#{intro_id}>."
@@ -14,7 +15,7 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
     def __init__(self, bot):
         self.bot = bot
 
-    def get_welcome_message(self, member: Member):
+    def get_welcome_message(self, member):
         """Return the welcome message for the given member.
 
         :param member: The member to welcome.
@@ -68,13 +69,12 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
         """
         info(f"{ctx.author.display_name} asked to get welcomed!")
 
-        embed = Embed(
-                    color=self.bot.default_color
-                )
+        embed = Embed(color=self.bot.default_color)
         embed.add_field(
-                name="The Code Society Server",
-                value=self.get_welcome_message(ctx.author),
-                inline=False)
+            name="The Code Society Server",
+            value=self.get_welcome_message(ctx.author),
+            inline=False
+        )
 
         await ctx.send(embed=embed, ephemeral=True)
 
