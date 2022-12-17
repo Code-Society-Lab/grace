@@ -49,7 +49,15 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
             if not welcome_channel:
                 welcome_channel = before.bot.system_channel
 
-            await welcome_channel.send(self.get_welcome_message(after))
+            embed = Embed(color=self.bot.default_color)
+            embed.add_field(
+                name="The Code Society Server",
+                value=self.get_welcome_message(after),
+                inline=False
+            )
+
+            await welcome_channel.send(embed=embed, ephemeral=True)
+
 
     @Cog.listener()
     async def on_member_join(self, member):
