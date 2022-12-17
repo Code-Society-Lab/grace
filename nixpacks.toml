@@ -1,5 +1,5 @@
 [phases.setup]
-aptPkgs = ["python", "python-pip", "libpq-dev", "python3-dev", "postgresql"]   # Install the wget package with apt-get
+aptPkgs = ["python3", "python-is-python3", "python-pip", "libpq-dev", "python3-dev", "postgresql"]   # Install the wget package with apt-get
 
 [phases.build]
 cmds = ["pip install psycopg2-binary nltk", "pip install ."]
