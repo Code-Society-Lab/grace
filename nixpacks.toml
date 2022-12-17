@@ -2,7 +2,7 @@
 aptPkgs = ["python3", "python-is-python3", "python-pip", "libpq-dev", "python3-dev", "postgresql"]   # Install the wget package with apt-get
 
 [phases.build]
-cmds = ["pip install psycopg2-binary nltk", "pip install ."]
+cmds = ["pip3 install psycopg2-binary nltk", "pip3 install ."]
 
 [start]
 cmd = "python -m alembic upgrade head && python -m grace db seed && python -m grace start"
