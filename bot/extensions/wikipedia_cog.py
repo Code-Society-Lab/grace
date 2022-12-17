@@ -7,19 +7,14 @@ from json import loads
 from discord import Embed
 
 
-def search_results(search):
-    """
-    Return search results from Wikipedia for the given search query.
+def search_results(search: str):
+    """Return search results from Wikipedia for the given search query.
+    
+    :param search: The search query to be used to search Wikipedia.
+    :type search: str
 
-    Parameters
-    ----------
-    search : str
-        The search query to be used to search Wikipedia.
-
-    Returns
-    -------
-    list
-        A list of search results.
+    :return: A list of search results.
+    :rtype: list
     """
     url_encode = quote_plus(search)
     url = f"https://en.wikipedia.org/w/api.php?action=opensearch&format=json&limit=3&namespace=0&search={url_encode}"
@@ -33,16 +28,13 @@ class Buttons(View):
         self.search = search
         self.result = result
 
-    async def wiki_result(self, interaction, _, index):
-        """
-        Send the selected search result to the user.
+    async def wiki_result(self, interaction: Interaction, _, index: int):
+        """Send the selected search result to the user.
 
-        Parameters
-        ----------
-        interaction : discord.interactions.Interaction
-            The interaction object representing the user's interaction with the bot.
-        index : int
-            The index of the search result to be sent to the user.
+        :param interaction: The interaction object representing the user's interaction with the bot.
+        :type interaction: Interaction
+        :param index: The index of the search result to be sent to the user.
+        :type index: int
         """
         if len(self.result[3]) >= index:
             await interaction.response.send_message("{mention} requested:\n {request}".format(
@@ -72,15 +64,12 @@ class Wikipedia(Cog, name="Wikipedia", description="Search on Wikipedia."):
 
     @hybrid_command(name="wiki", description="Searches and displays the first 3 results from Wikipedia.")
     async def wiki(self, ctx, *, search: str):
-        """
-        Search Wikipedia and display the first 3 search results to the user.
+        """Search Wikipedia and display the first 3 search results to the user.
 
-        Parameters
-        ----------
-        ctx : discord.ext.commands.Context
-            The context in which the command was invoked.
-        search : str
-            The search query to be used to search Wikipedia.
+        :param ctx: The context in which the command was invoked.
+        :type ctx: Context
+        :param search: The search query to be used to search Wikipedia.
+        :type search: str
         """
         result = search_results(search)
         view = Buttons(search, result)
