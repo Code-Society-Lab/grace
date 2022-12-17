@@ -41,7 +41,7 @@ setup(
         'pytz',
         'timezonefinder',
         'mypy',
-        'alembic',
+        'alembic==1.8.1',
         'configparser',
         'pygithub',
         'googletrans==4.0.0-rc1',
