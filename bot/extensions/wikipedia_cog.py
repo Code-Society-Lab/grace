@@ -1,10 +1,9 @@
 from discord.ext.commands import Cog, hybrid_command
 from discord.ui import View
-from discord import ButtonStyle, ui
+from discord import ButtonStyle, ui, Embed
 from urllib.request import urlopen
 from urllib.parse import quote_plus
 from json import loads
-from discord import Embed
 
 
 def search_results(search: str):
@@ -23,7 +22,7 @@ def search_results(search: str):
 
 
 class Buttons(View):
-    def __init__(self, search, result):
+    def __init__(self, search: str, result: list):
         super().__init__()
         self.search = search
         self.result = result
