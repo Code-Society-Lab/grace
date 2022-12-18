@@ -56,8 +56,7 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
                 inline=False
             )
 
-            await welcome_channel.send(embed=embed, ephemeral=True)
-
+            await welcome_channel.send(embed=embed)
 
     @Cog.listener()
     async def on_member_join(self, member):
