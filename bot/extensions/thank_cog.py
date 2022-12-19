@@ -1,5 +1,5 @@
 from typing import List
-from discord import Member, Embed
+from discord import Member, Embed, Message
 from discord.ext.commands import Cog, Context, cooldown, BucketType, hybrid_group, has_permissions
 from bot.extensions.command_error_handler import send_command_help
 from bot.grace import Grace
@@ -7,17 +7,33 @@ from bot.models.extensions.thank import Thank
 
 
 class ThankCog(Cog):
+    """A cog containing thank you commands """
     def __init__(self, bot: Grace):
         self.bot: Grace = bot
 
     @hybrid_group(name='thank', help='Thank commands', invoke_without_command=True)
-    async def thank_group(self, ctx: Context):
+    async def thank_group(self, ctx: Context) -> None:
+        """Event listener for the `thank` command group. If no subcommand is 
+        invoked, it sends the command help to the user.
+
+        :param ctx: The context of the command invocation.
+        :type ctx: Context
+        :return: None
+        """
         if ctx.invoked_subcommand is None:
             await send_command_help(ctx)
 
     @thank_group.command(name='send', description='Send a thank you to a person')
     @cooldown(1, 3600, BucketType.user)
-    async def thank(self, ctx: Context, *, member: Member):
+    async def thank(self, ctx: Context, *, member: Member) -> (Message | None):
+        """Send a thank you message to a member and increase their thank count by 1.
+
+        :param ctx: The context of the command invocation.
+        :type ctx: Context
+        :param member: The member to thank.
+        :type member: Member
+        :return: Message | None
+        """
         if member.id == self.bot.user.id:
             return await ctx.send(f'{ctx.author.display_name}, thank you 😊', ephemeral=True)
 
@@ -43,7 +59,15 @@ class ThankCog(Cog):
         await ctx.interaction.response.send_message(f'Successfully thanked **@{member.display_name}**', ephemeral=True)
 
     @thank_group.command(name='leaderboard', description='Shows top n helpers.')
-    async def thank_leaderboard(self, ctx: Context, *, top: int = 10):
+    async def thank_leaderboard(self, ctx: Context, *, top: int = 10) -> (Message | None):
+        """Display the top n helpers, sorted by their thank count.
+        
+        :param ctx: The context of the command invocation.
+        :type ctx: Context
+        :param top: The number of top helpers to display. Default is 10.
+        :type top: int (optional)
+        :return: Message | None
+        """
         helpers: List[Thank] = Thank.ordered()
 
         if not helpers:
@@ -72,7 +96,15 @@ class ThankCog(Cog):
         await ctx.reply(embed=leaderboard_embed, ephemeral=True)
 
     @thank_group.command(name='rank', description='Shows your current thank rank.')
-    async def thank_rank(self, ctx: Context, *, member: Member = None):
+    async def thank_rank(self, ctx: Context, *, member: Member = None) -> None:
+        """Show the current rank of the member who issue this command.
+        
+        :param ctx: The context of the command invocation.
+        :type ctx: Context
+        :param member: The member rank.
+        :type member: Member
+        :return: None
+        """
         if not member or member.id == ctx.author.id:
             await self.send_author_rank(ctx)
         elif member.id == self.bot.user.id:
@@ -80,14 +112,26 @@ class ThankCog(Cog):
         else:
             await self.send_member_rank(ctx, member)
 
-    async def send_bot_rank(self, ctx: Context):
+    async def send_bot_rank(self, ctx: Context) -> None:
+        """Send a message showing the rank of the bot.
+        
+        :param ctx: The context of the command invocation.
+        :type ctx: Context
+        :return: None
+        """
         rank_embed: Embed = Embed(title='Grace RANK', color=self.bot.default_color)
         rank_embed.description = 'Grace has a range of commands that can help you greatly!\n' \
                                  'Rank: **Bot**'
 
         await ctx.reply(embed=rank_embed, ephemeral=True)
 
-    async def send_author_rank(self, ctx: Context):
+    async def send_author_rank(self, ctx: Context) -> None:
+        """Send a message showing the rank of the user who issued the command.
+        
+        :param ctx: The context of the command invocation.
+        :type ctx: Context
+        :return: None
+        """
         rank_embed: Embed = Embed(title='YOUR RANK', color=self.bot.default_color)
         thank = Thank.get_by(member_id=ctx.author.id)
 
@@ -99,7 +143,15 @@ class ThankCog(Cog):
 
         await ctx.reply(embed=rank_embed, ephemeral=True)
 
-    async def send_member_rank(self, ctx: Context, member: Member):
+    async def send_member_rank(self, ctx: Context, member: Member) -> None:
+        """Send a message showing the rank of the given member.
+        
+        :param ctx: The context of the command invocation.
+        :type ctx: Context
+        :param member: The member rank.
+        :type member: Member
+        :return: None
+        """
         rank_embed: Embed = Embed(title=f'{member.display_name} RANK', color=self.bot.default_color)
         thank = Thank.get_by(member_id=member.id)
 
