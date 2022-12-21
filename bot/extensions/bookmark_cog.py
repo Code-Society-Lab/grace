@@ -1,81 +1,52 @@
-from enum import Enum
-from typing import Dict, Union
-from discord import (
-	Member,
-	Embed,
-	RawReactionActionEvent,
-	GroupChannel,
-	DMChannel,
-	Thread,
-	TextChannel,
-	Message
-)
-from discord.ext.commands import Cog, hybrid_group, Context
+from typing import List
+from discord import Embed, Message, Interaction, File
+from discord.app_commands import ContextMenu
+from discord.ext.commands import Cog
 from bot.extensions.command_error_handler import send_command_help
 from bot.grace import Grace
-
-ChannelType = Union[TextChannel, Thread, DMChannel, GroupChannel]
-
-
-class Mode(Enum):
-	NORMAL = 0
-	SAVE = 1
+from datetime import timedelta
 
 
 class BookmarkCog(Cog):
 	def __init__(self, bot: Grace) -> None:
-		self.bot = bot
-		self.mode_by_user: Dict[Member, Mode] = {}
+		self.bot: Grace = bot
 
-	@Cog.listener()
-	async def on_raw_reaction_add(self, payload: RawReactionActionEvent):
-		if payload.member not in self.mode_by_user:
-			return
-
-		if self.mode_by_user[payload.member] == Mode.SAVE:
-			if payload.emoji.name == '📖':
-				channel: ChannelType  = await self.bot.fetch_channel(payload.channel_id)
-				message: Message = await channel.fetch_message(payload.message_id)
-				save_embed: Embed = Embed(
-					title='Saved message',
-					description=f'Message sent by: **{message.author}**\n'
-					            f'Sent at: **{message.created_at.strftime("%m.%d.%Y %H:%M:%S %Z%z")}**\n'
-					            f'Message: **{message.content}**',
-				)
-				await message.remove_reaction(payload.emoji, payload.member)
-				await payload.member.send(embed=save_embed)
-
-	@hybrid_group(name='bookmark')
-	async def bookmark(self, ctx: Context):
-		if ctx.invoked_subcommand is None:
-			await send_command_help(ctx)
-
-	@bookmark.command(name='save', description='Enters into a save mode where you can start saving messages')
-	async def save_mode(self, ctx: Context):
-		save_mode_embed: Embed = Embed(
-			title='SAVE MODE',
-			description='You have entered the **Save Mode**.\n'
-			            'You can save messages by reacting with 📖 **emoji** on them\n'
-			            'To **exit** the save mode, use this command: _/bookmark exit_',
-			color=self.bot.default_color
+		save_message_ctx_menu = ContextMenu(
+			name='Save Message',
+			callback=self.save_message
 		)
 
-		self.mode_by_user[ctx.author] = Mode.SAVE
+		self.bot.tree.add_command(save_message_ctx_menu)
+	
+	async def fetch_files(self, message: Message) -> List[File]:
+		"""Fetch files from the message attachments
+		
+		:param message: Message to fetch files from
+		"""
+		files = []
+		for attachment in message.attachments:
+			files.append(await attachment.to_file())
+		return files
 
-		await ctx.reply(embed=save_mode_embed, ephemeral=True)
-
-	@bookmark.command(name='exit', description='Enters into a normal mode')
-	async def save_mode(self, ctx: Context):
-		normal_mode_embed: Embed = Embed(
-			title='NORMAL MODE',
-			description='You are back in the **Normal Mode**.',
+	async def save_message(self, interaction: Interaction, message: Message) -> None:
+		"""Saves the message
+		
+		:param interaction: ContextMenu command interaction
+		:param message: Message of the interaction
+		"""
+		date: int = (message.created_at + timedelta(hours=1)).strftime('%s')
+		files = await self.fetch_files(message)
+		save_embed: Embed = Embed(
+			title='Save Info',
+			description=f'Message sent by: **{message.author}**\n'
+						f'Sent at: **<t:{date}>**\n'
+						f':arrow_down:',
 			color=self.bot.default_color
 		)
+		await interaction.user.send(embed=save_embed)
+		await interaction.user.send(message.content, embeds=message.embeds, files=files)
+		await interaction.response.send_message("Message successfully saved.", ephemeral=True)
 
-		self.mode_by_user[ctx.author] = Mode.NORMAL
 
-		await ctx.reply(embed=normal_mode_embed, ephemeral=True)
-
-
-async def setup(bot: Grace):
+async def setup(bot: Grace) -> None:
 	await bot.add_cog(BookmarkCog(bot))
