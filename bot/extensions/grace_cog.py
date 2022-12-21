@@ -43,9 +43,17 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
 
     @hybrid_command(name='change_color', help='Changes the color of the Grace nickname')
     async def color_command(self, ctx, *, color):
+        """Command that changes the color of the Grace nickname 
+        
+        :param ctx: The invocation context
+        :type ctx: discord.ext.commands.Context
+
+        :param color: The color to change the nickname to
+        :type color: str
+        """
         role = get_role(ctx.guild.roles, name=f"{self.bot.user.name} color")
         if not role:
-            await ctx.send(f"{self.bot.user.name} color role wasn't found. Creating...", ephemeral=True)
+            await ctx.send(f"_{self.bot.user.name} color role wasn't found. Creating..._", ephemeral=True)
             role = await ctx.guild.create_role(
                 name=f"{self.bot.user.name} color",
                 permissions=Permissions.advanced()
@@ -53,16 +61,37 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
             await (await ctx.guild.fetch_member(self.bot.user.id)).add_roles(role)
 
         await role.edit(colour=Colour.from_str(color))
-        await ctx.send(f"Successfully changed Grace color to: {color}", ephemeral=True)
+        success_embed = Embed(
+            title="Change success!",
+            description=f"Successfully changed Grace color to: {color}",
+            color=self.bot.default_color
+        )
+        await ctx.send(embed=success_embed, ephemeral=True)
 
     @color_command.error
     async def color_command_error(self, ctx, error):
+        """A callback for when the exception is raised in a color command 
+        
+        :param ctx: The invocation context
+        :type ctx: discord.ext.commands.Context
+
+        :param error: The exception that was raised
+        :type error: Exception
+        """
+        error_embed = Embed(color=self.bot.default_color)
         if isinstance(error.original.original, ValueError):
-            await ctx.send("Incorrect color format. Acceptable formats are **hex**, **rgb**\n"
-                           "rgb: **rgb(<number>, <number>, <number>)**\n"
-                           "hex: **#<hex>** or **0x<hex>**", ephemeral=True)
+            error_embed.title = "Format error"
+            error_embed.description = "Incorrect color format. Acceptable formats are **hex**, **rgb**\n" \
+                                      "rgb: **rgb(<number>, <number>, <number>)**\n" \
+                                      "hex: **#<hex>** or **0x<hex>**"
         elif isinstance(error.original.original, Forbidden):
-            await ctx.send("You don't have the permissions to modify this role.", ephemeral=True)
+            error_embed.title = "Permission error"
+            error_embed.description = "You do not have permission to modify this role."
+        else:
+            error_embed.title = "Error"
+            error_embed.description = str(error)
+
+        await ctx.send(embed=error_embed, ephemeral=True)
 
     @hybrid_command(name='info', help='Show information about the bot')
     async def info_command(self, ctx, ephemeral=True):
