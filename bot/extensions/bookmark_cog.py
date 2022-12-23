@@ -34,7 +34,7 @@ class BookmarkCog(Cog):
 		:param interaction: ContextMenu command interaction
 		:param message: Message of the interaction
 		"""
-		date: int = (message.created_at + timedelta(hours=1)).strftime('%s')
+		date: int = int(message.created_at.timestamp())
 		files = await self.fetch_files(message)
 		save_embed: Embed = Embed(
 			title='Save Info',
