@@ -36,7 +36,7 @@ class BookmarkCog(Cog):
 		:type message: Message
 		"""
 		sent_at: int = int(message.created_at.timestamp())
-		files = await self.get_message_files(message)
+		files: List[File] = await self.get_message_files(message)
 
 		save_embed: Embed = Embed(
 			title='Bookmark Info',
