@@ -76,11 +76,10 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
         """
         info(f"{ctx.author.display_name} asked to get welcomed!")
 
-        embed = Embed(color=self.bot.default_color)
-        embed.add_field(
-            name="The Code Society Server",
-            value=self.get_welcome_message(ctx.author),
-            inline=False
+        embed = Embed(
+            color=self.bot.default_color,
+            title="The Code Society Server",
+            description=self.get_welcome_message(ctx.author),
         )
 
         await ctx.send(embed=embed, ephemeral=True)
