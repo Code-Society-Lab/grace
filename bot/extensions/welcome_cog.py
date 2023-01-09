@@ -8,7 +8,7 @@ from discord import Embed
 class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
     """A cog that sends a welcome message to new members when they join the server."""
 
-    WELCOME_MESSAGE = "Hi {member_name}! Welcome to the **Code Society**.\n\nBefore posting please:\n    - Take a " \
+    WELCOME_MESSAGE = "Hi **{member_name}!** Welcome to the **Code Society**.\n\nBefore posting please:\n    - Take a " \
                       "moment to read the <#{info_id}> and the <#{rules_id}>.\n    - Choose some <#{roles_id}>.\n" \
                       "- Feel free to introduce yourself in <#{intro_id}>."
 
@@ -26,7 +26,7 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
         """
         
         return self.WELCOME_MESSAGE.format(
-            member_name=member.mention,
+            member_name=member.display_name,
             info_id=Channel.get_by(channel_name="info").channel_id,
             rules_id=Channel.get_by(channel_name="rules").channel_id,
             roles_id=Channel.get_by(channel_name="roles").channel_id,
