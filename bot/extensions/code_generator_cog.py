@@ -66,7 +66,7 @@ class codeGenerator(
         :type sentence: str
         :return: Embed with code generated
         """
-        openai.api_key = # ---- Add you KEY API here link[https://beta.openai.com/account/api-keys] ---- #
+        openai.api_key = " " # ---- Add you KEY API here link[https://beta.openai.com/account/api-keys] ---- #
 
         embed = Embed(
                     color=self.bot.default_color
