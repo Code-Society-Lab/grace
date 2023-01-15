@@ -5,16 +5,26 @@ from discord.ext.commands import Cog, \
     CommandNotFound, \
     MissingPermissions, \
     CommandOnCooldown, \
-    DisabledCommand, HybridCommandError
+    DisabledCommand, HybridCommandError, Context
 from bot.helpers.error_helper import send_error
+from typing import Any, Coroutine, Optional
+from discord import Interaction
 
 
 class CommandErrorHandler(Cog):
+    """A Discord Cog that listens for command errors and sends an appropriate message to the user."""
     def __init__(self, bot):
         self.bot = bot
 
     @Cog.listener("on_command_error")
-    async def get_command_error(self, ctx, error):
+    async def get_command_error(self, ctx: Context, error: Exception) -> None:
+        """Event listener for command errors. It logs the error and sends an appropriate message to the user.
+    
+        :param ctx: The context of the command invocation.
+        :type ctx: Context
+        :param error: The error that was raised during command execution.
+        :type error: Exception
+        """
         warning(f"Error: {error}. Issued by {ctx.author}")
 
         if isinstance(error, CommandNotFound):
@@ -31,11 +41,28 @@ class CommandErrorHandler(Cog):
             await self.get_app_command_error(ctx.interaction, error)
 
     @Cog.listener("on_app_command_error")
-    async def get_app_command_error(self, interaction, error):
-        await interaction.response.send_message("Interaction failed, please try again later!", ephemeral=True)
+    async def get_app_command_error(self, interaction: Optional[Interaction], _: Exception) -> None:
+        """Event listener for command errors that occurred during an interaction. 
+        It sends an error message to the user.
+    
+        :param interaction: The interaction where the error occurred.
+        :type interaction: Interaction
+        :param _ : The error that was raised during command execution.
+        :type _: Exception
+        """
+        if interaction:
+            await interaction.response.send_message("Interaction failed, please try again later!", ephemeral=True)
 
 
-def send_command_help(ctx):
+def send_command_help(ctx: Context) -> Coroutine[Any, Any, Any]:
+    """Send the help message for the command that raised an error, or 
+    the general help message if no specific command was involved.
+    
+    :param ctx: The context of the command invocation.
+    :type ctx: The context
+    :return: The help message.
+    :rtype: Coroutine[Any, Any, Any]
+    """
     if ctx.command:
         return ctx.send_help(ctx.command)
     return ctx.send_help()
