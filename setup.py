@@ -11,7 +11,7 @@ def after_install():
 
 setup(
     name='Grace',
-    version='2.2.0',
+    version='1.20.0',
     author='Code Society Lab',
     description='The Code Society community Bot',
     url="https://github.com/Code-Society-Lab/grace",
@@ -30,7 +30,8 @@ setup(
         'logger',
         'sqlalchemy',
         'sqlalchemy-utils',
-        'discord>=2.0',
+        'discord>=2.1',
+        'pytest',
         'emoji>=2.1.0',
         'nltk',
         'discord-pretty-help==1.3.4',
@@ -40,9 +41,10 @@ setup(
         'pytz',
         'timezonefinder',
         'mypy',
-        'alembic',
+        'alembic==1.8.1',
         'configparser',
-        'pygithub'
+        'pygithub',
+        'googletrans==4.0.0-rc1',
     ],
     scripts=['bin/grace']
 )

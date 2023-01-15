@@ -1,6 +1,5 @@
 from configparser import SectionProxy
 from importlib import import_module
-from pkgutil import walk_packages, ModuleInfo
 from logging import basicConfig, critical
 from logging.handlers import RotatingFileHandler
 from types import ModuleType
@@ -11,9 +10,9 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import declarative_base, sessionmaker, Session, DeclarativeMeta
 from sqlalchemy_utils import database_exists, create_database, drop_database
-from bot import models, extensions
 from config.config import Config
 from pathlib import Path
+from config.utils import find_all_importables
 
 
 class Application:
@@ -25,14 +24,10 @@ class Application:
 
     __config: Union[Config, None] = None
     __session: Union[Session, None] = None
-    __base = declarative_base()  # type: DeclarativeMeta
+    __base: DeclarativeMeta = declarative_base()
 
     template_path: Path = Path("bin/templates/default.database.template.cfg")
     database_config_path: Path = Path("config/database.cfg")
-
-    @property
-    def base(self):
-        return self.__base
 
     def __init__(self):
         if not self.database_config_path.exists():
@@ -42,6 +37,10 @@ class Application:
         self.__engine: Union[Engine, None] = None
 
         self.command_sync: bool = True
+
+    @property
+    def base(self) -> DeclarativeMeta:
+        return self.__base
 
     @property
     def token(self) -> str:
@@ -69,15 +68,15 @@ class Application:
         return self.config.client
 
     @property
-    def extension_modules(self) -> Generator[ModuleInfo, Any, None]:
+    def extension_modules(self) -> Generator[str, Any, None]:
         """Generate the extensions modules"""
+        from bot import extensions
 
-        for module in walk_packages(extensions.__path__, f"{extensions.__name__}."):
-            if module.ispkg:
-                imported: ModuleType = import_module(module.name)
+        for module in find_all_importables(extensions):
+            imported: ModuleType = import_module(module)
 
-                if not hasattr(imported, "setup"):
-                    continue
+            if not hasattr(imported, "setup"):
+                continue
             yield module
 
     @property
@@ -91,11 +90,11 @@ class Application:
     def database_exists(self):
         return database_exists(self.config.database_uri)
 
-    def get_extension_module(self, extension_name) -> Union[ModuleInfo, None]:
+    def get_extension_module(self, extension_name) -> Union[str, None]:
         """Return the extension from the given extension name"""
 
         for extension in self.extension_modules:
-            if extension.name == extension_name:
+            if extension == extension_name:
                 return extension
         return None
 
@@ -108,13 +107,12 @@ class Application:
         self.load_models()
         self.load_database()
 
-    @staticmethod
-    def load_models():
-        """Import all models in the `bot/models` folder."""
+    def load_models(self):
+        """Import all models in the `bot/models` package."""
+        from bot import models
 
-        for module in walk_packages(models.__path__, f"{models.__name__}."):
-            if not module.ispkg:
-                import_module(module.name)
+        for module in find_all_importables(models):
+            import_module(module)
 
     def load_logs(self):
         file_handler: RotatingFileHandler = RotatingFileHandler(

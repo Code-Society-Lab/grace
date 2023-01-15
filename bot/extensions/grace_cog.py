@@ -1,5 +1,5 @@
 from discord import Embed
-from discord.ext.commands import Cog, hybrid_command
+from discord.ext.commands import Cog, hybrid_command, Context
 from discord.ui import Button, View
 from emoji import emojize
 from bot.services.github_service import GithubService
@@ -8,6 +8,7 @@ from lib.paged_embeds import PagedEmbedView
 
 
 class GraceCog(Cog, name="Grace", description="Default grace commands"):
+    """A cog that contains default commands for the Grace bot."""
     __DEFAULT_INFO_BUTTONS = (
         Button(
             emoji=emojize(":globe_with_meridians:"),
@@ -24,7 +25,12 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
     def __init__(self, bot):
         self.bot = bot
 
-    async def get_contributors_embed(self):
+    async def get_contributors_embed(self) -> Embed:
+        """Get an embed with a list of contributors for the Grace repository.
+
+        :return: An embed with a list of contributors.
+        :rtype: Embed
+        """
         grace_repo = GithubService().get_grace()
 
         embed = Embed(
@@ -42,7 +48,14 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
         return embed
 
     @hybrid_command(name='info', help='Show information about the bot')
-    async def info_command(self, ctx, ephemeral=True):
+    async def info_command(self, ctx: Context, ephemeral=True) -> None:
+        """Show informations about the bot.
+        
+        :param ctx: The context in which the command was called.
+        :type ctx: Context
+        :param ephemeral: A flag indicating whether the message should be sent as an ephemeral message. Default is True.
+        :type ephemeral: bool, optional
+        """
         contributors_embed = await self.get_contributors_embed()
 
         info_embed = Embed(
@@ -83,7 +96,12 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
         await view.send(ctx, ephemeral=ephemeral)
 
     @hybrid_command(name='ping', help='Shows the bot latency')
-    async def ping_command(self, ctx):
+    async def ping_command(self, ctx: Context) -> None:
+        """Show the bot latency.
+        
+        :param ctx: The context in which the command was called.
+        :type ctx: Context
+        """
         embed = Embed(
             color=self.bot.default_color,
             description=f"pong :ping_pong:  {round(self.bot.latency * 1000)}ms",
@@ -92,12 +110,23 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
         await ctx.send(embed=embed)
 
     @hybrid_command(name='hopper', help='The legend of Grace Hopper')
-    async def hopper_command(self, ctx):
+    async def hopper_command(self, ctx: Context) -> None:
+        """Show a link to a comic about Grace Hopper.
+        
+        :param ctx: The context in which the command was called.
+        :type ctx: Context
+        :return: None
+        """
         await ctx.send("https://www.smbc-comics.com/?id=2516")
 
     @command_config_required("github", "api_key")
     @hybrid_command(name="contributors", description="Show a list of Grace's contributors")
-    async def contributors(self, ctx):
+    async def contributors(self, ctx: Context) -> None:
+        """Show a list of contributors for the Grace repository.
+        
+        :param ctx: The context in which the command was called.
+        :type ctx: Context
+        """
         embed = await self.get_contributors_embed()
         view = View()
 

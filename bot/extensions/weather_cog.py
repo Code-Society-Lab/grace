@@ -11,6 +11,7 @@ from lib.config_required import cog_config_required
 
 @cog_config_required("openweather", "api_key")
 class WeatherCog(Cog, name="Weather", description="get current weather information from a city"):
+    """A cog that retrieves current weather information for a given city."""
     OPENWEATHER_BASE_URL = "https://api.openweathermap.org/data/2.5/"
 
     def __init__(self, bot):
@@ -18,15 +19,17 @@ class WeatherCog(Cog, name="Weather", description="get current weather informati
         self.api_key = self.required_config
 
     @staticmethod
-    def get_timezone(city):
-        # initialize Nominatim API
-        geolocator = Nominatim(user_agent="geoapiExercises")
+    def get_timezone(city: str) -> datetime:
+        """Get the timezone for the given city.
 
+        :param city: The city to get the timezone for.
+        :type city: str
+        :return: The timezone for the given city.
+        :rtype: datetime.tzinfo
+        """
+        geolocator = Nominatim(user_agent="geoapiExercises")
         # getting Latitude and Longitude
         location = geolocator.geocode(city)
-
-        # pass the Latitude and Longitude
-        # into a timezone_at and it return timezone
         timezone_finder = TimezoneFinder()
 
         result = timezone_finder.timezone_at(
@@ -35,14 +38,35 @@ class WeatherCog(Cog, name="Weather", description="get current weather informati
         return datetime.now(timezone(result))
 
     @staticmethod
-    def kelvin_to_celsius(kelvin):
+    def kelvin_to_celsius(kelvin: float) -> float:
+        """Convert a temperature in Kelvin to Celsius.
+
+        :param kelvin: The temperature in Kelvin.
+        :type kelvin: float
+        :return: The temperature in Celsius.
+        :rtype: float
+        """
         return kelvin - 273.15
 
     @staticmethod
-    def kelvin_to_fahrenheit(kelvin):
+    def kelvin_to_fahrenheit(kelvin: float) -> float:
+        """Convert a temperature in Kelvin to fahrenheit.
+
+        :param kelvin: The temperature in Kelvin.
+        :type kelvin: float
+        :return: The temperature in fahrenheit.
+        :rtype: float
+        """
         return kelvin * 1.8 - 459.67
 
-    async def get_weather(self, city):
+    async def get_weather(self, city: str):
+        """Retrieve weather information for the specified city.
+
+        :param city: The name of the city to retrieve weather information for
+        :type city: str
+        :return: A dictionary containing the weather information, or None if the city was not found
+        :rtype: dict
+        """
         # complete_url to retreive weather info
         response = get(f"{self.OPENWEATHER_BASE_URL}/weather?appid={self.api_key}&q={city}")
 
@@ -52,9 +76,16 @@ class WeatherCog(Cog, name="Weather", description="get current weather informati
         return None
 
     @hybrid_command(name='weather', help='Show weather information in your city', usage="{city}")
-    async def weather(self, ctx, *, city_input):
+    async def weather(self, ctx, *, city_input: str):
+        """Display weather information for the specified city.
+
+        :param ctx: the Discord context for the command
+        :type ctx: Context
+        :param city_input: The name of the city to display weather information for
+        :type city_input: str
+        :return: This function sends an embed message to the Discord channel
+        """
         city = capwords(city_input)
-        # get current date and time from the city
         timezone_city = self.get_timezone(city)
         data_weather = await self.get_weather(city)
 
@@ -68,6 +99,10 @@ class WeatherCog(Cog, name="Weather", description="get current weather informati
 
             fahrenheit = self.kelvin_to_fahrenheit(int(current_temperature))
             celsius = self.kelvin_to_celsius(int(current_temperature))
+
+            feels_like = main["feels_like"]
+            feels_like_fahrenheit = self.kelvin_to_fahrenheit(int(feels_like))
+            feels_like_celsius = self.kelvin_to_celsius(int(feels_like))
 
             current_pressure = main["pressure"]
             current_humidity = main["humidity"]
@@ -96,6 +131,11 @@ class WeatherCog(Cog, name="Weather", description="get current weather informati
             embed.add_field(
                 name="Temperature",
                 value=f"{round(fahrenheit, 2)}°F | {round(celsius, 2)}°C",
+                inline=False
+            )
+            embed.add_field(
+                name="Feels Like",
+                value=f"{round(feels_like_fahrenheit, 2)}°F | {round(feels_like_celsius, 2)}°C",
                 inline=False
             )
             embed.add_field(

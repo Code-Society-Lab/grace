@@ -13,3 +13,6 @@ config/settings.cfg
 *.log.*
 env/
 lib64
+.mypy_cache/
+.pytest_cache
+tmp

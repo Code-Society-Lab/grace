@@ -1,10 +1,11 @@
-from discord.ext.commands import Cog, has_permissions, hybrid_group
+from discord.ext.commands import Cog, has_permissions, hybrid_group, Context
 from discord import Message, Embed
 from nltk.tokenize import TweetTokenizer
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from bot.models.extensions.language.trigger import Trigger
 from bot.models.extensions.language.pun import Pun
 from bot.models.extensions.language.pun_word import PunWord
+from emoji import demojize
 
 
 class LanguageCog(Cog, name="Language", description="Analyze and reacts to messages"):
@@ -22,26 +23,26 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
         self.tokenizer = TweetTokenizer()
         self.sid = SentimentIntensityAnalyzer()
 
-    async def name_react(self, message: Message):
+    async def name_react(self, message: Message) -> None:
         grace_trigger = Trigger.get_by(name="Grace")
         if self.bot.user.mentioned_in(message) and not message.content.startswith('<@!'):
             await message.add_reaction(grace_trigger.positive_emoji)
 
-    async def penguin_react(self, message: Message):
-        """
-        Checks to see if a message contains a reference to Linus (torvalds only), will be made more complicated
+    async def penguin_react(self, message: Message) -> None:
+        """Checks to see if a message contains a reference to Linus (torvalds only), will be made more complicated
         as needed. If a linus reference is positively identified, Grace will react with a penguin emoji.
         I know using NLTK is kinda like bringing a tomahawk missile to a knife fight, but it may come in handy for
         future tasks, so the tokenizer object will be shared across all methods.
 
         :param message: A discord message to check for references to our lord and savior.
-        :return: None
+        :type message: discord.Message
         """
         linus_trigger = Trigger.get_by(name="Linus")
 
         message_tokens = self.tokenizer.tokenize(message.content)
         tokenlist = list(map(lambda s: s.lower(), message_tokens))
-        linustarget = [i for i, x in enumerate(tokenlist) if x in linus_trigger.words]
+        linustarget = [i for i, x in enumerate(
+            tokenlist) if x in linus_trigger.words]
         # Get the indices of all linuses in the message
 
         if linustarget:
@@ -72,7 +73,15 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
             if not fail:
                 await message.add_reaction(linus_trigger.positive_emoji)
 
-    async def pun_react(self, message: Message):
+    async def pun_react(self, message: Message) -> None:
+        """Add reactions and send a message in the channel if the message content contains any pun words.
+
+        :param message: The message to be checked for pun words.
+        :type message: discord.Message
+        """
+        if message.author == self.bot.user:
+            return
+
         message_tokens = self.tokenizer.tokenize(message.content)
         tokenlist = set(map(str.lower, message_tokens))
 
@@ -98,14 +107,25 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
                 await message.channel.send(embed=embed)
 
     @Cog.listener()
-    async def on_message(self, message):
+    async def on_message(self, message: Message) -> None:
+        """A listener function that calls the `penguin_react`, `name_react`, and `pun_react` functions when a message
+        is received.
+         
+         :param message: The message that was received.
+         :type message: discord.Message
+         """
         await self.penguin_react(message)
         await self.name_react(message)
         await self.pun_react(message)
 
     @hybrid_group(name="triggers", help="Commands to manage triggers")
     @has_permissions(administrator=True)
-    async def triggers_group(self, ctx):
+    async def triggers_group(self, ctx) -> None:
+        """A command group that allows administrators to manage trigger words.
+
+        :param ctx: The context in which the command was called.
+        :type ctx: discord.ext.commands.Context
+        """
         if ctx.invoked_subcommand is None:
             trigger = Trigger.get_by(name="Linus")
 
@@ -118,7 +138,14 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
             await ctx.send(embed=embed)
 
     @triggers_group.command(name="add", help="Add a trigger word", usage="{new_word}")
-    async def add_trigger_word(self, ctx, new_word):
+    async def add_trigger_word(self, ctx: Context, new_word: str) -> None:
+        """Add a new trigger word.
+
+        :param ctx: The context in which the command was called.
+        :type ctx: discord.ext.commands.Context
+        :param new_word: The new trigger word to be added.
+        :type new_word: str
+        """
         trigger = Trigger.get_by(name="Linus")
 
         if trigger:
@@ -132,7 +159,14 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
             await ctx.send(f"Unable to add **{new_word}**")
 
     @triggers_group.command(name="remove", help="Remove a trigger word", usage="{old_word}")
-    async def remove_trigger_word(self, ctx, old_word):
+    async def remove_trigger_word(self, ctx: Context, old_word: str) -> None:
+        """Remove an existing trigger word.
+
+        :param ctx: The context in which the command was called.
+        :type ctx: discord.ext.commands.Context
+        :param old_word: The trigger word to be removed.
+        :type old_word: str
+        """
         trigger = Trigger.get_by(name="Linus")
 
         if trigger:
@@ -144,6 +178,101 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
                 await ctx.send(f"Trigger **{old_word}** removed successfully")
         else:
             await ctx.send(f"Unable to remove **{old_word}**")
+
+    @hybrid_group(name="puns", help="Commands to manage puns")
+    @has_permissions(administrator=True)
+    async def puns_group(self, ctx: Context) -> None:
+        """A command group that allows administrators to manage puns words.
+
+        :param ctx: The context in which the command was called.
+        :type ctx: discord.ext.commands.Context
+        """
+        if ctx.invoked_subcommand is None:
+            pun_texts_with_ids = map(lambda pun: '{}.\t{}'.format(
+                pun.id, pun.text), Pun.all())
+
+            embed = Embed(
+                color=self.bot.default_color,
+                title=f"Puns",
+                description="\n".join(pun_texts_with_ids)
+            )
+
+            await ctx.send(embed=embed)
+
+    @puns_group.command(name="add", help="Add a pun", usage="{pun_text}")
+    async def add_pun(self, ctx: Context, pun_text: str) -> None:
+        """Add a new pun word.
+
+        :param ctx: The context in which the command was called.
+        :type ctx: discord.ext.commands.Context
+        :param pun_text: The new pun word to be added.
+        :type pun_text: str
+        """
+        Pun.create(text=pun_text)
+
+        await ctx.send("Pun added.")
+
+    @puns_group.command(name="remove", help="Remove a pun", usage="{pun_id}")
+    async def remove_pun(self, ctx: Context, pun_id: int) -> None:
+        """Remove an old pun word.
+
+        :param ctx: The context in which the command was called.
+        :type ctx: discord.ext.commands.Context
+        :param pun_id: The ID of the pun to which the word will be removed.
+        :type pun_id: str
+        """
+        pun = Pun.get(pun_id)
+
+        if pun:
+            await ctx.send("Pun removed.")
+        else:
+            await ctx.send(f"Pun with id **{pun.id}** does not exist.")
+
+    @puns_group.command(name="add-word", help="Add a pun word to a pun")
+    async def add_pun_word(self, ctx: Context, pun_id: int, pun_word: str, emoji: str) -> None:
+        """Add a new pun word.
+
+        :param ctx: The context in which the command was called.
+        :type ctx: discord.ext.commands.Context
+        :param pun_id: The ID of the pun to which the word will be added.
+        :type pun_id: int
+        :param pun_word: The new pun word to be added.
+        :type pun_word: str
+        :param emoji: An emoji to be associated with the pun word.
+        :type emoji: str
+        """
+        pun = Pun.get(pun_id)
+
+        if pun:
+            if pun.has_word(pun_word):
+                await ctx.send(f"Pun word **{pun_word}** already exists.")
+            else:
+                pun.add_pun_word(pun_word, demojize(emoji))
+                await ctx.send("Pun word added.")
+        else:
+            await ctx.send(f"Pun with id {pun.id} does not exist.")
+
+    @puns_group.command(name="remove-word", help="Remove a pun from a pun word")
+    async def remove_pun_word(self, ctx: Context, id: int, pun_word: str) -> None:
+        """Remove a new pun word.
+
+        :param ctx: The context in which the command was called.
+        :type ctx: discord.ext.commands.Context
+        :param id: The ID of the pun to which the word will be removed.
+        :type id: int
+        :param pun_word: The old pun word to be removed.
+        :type pun_word: str
+        """
+        pun = Pun.get(id)
+
+        if pun:
+            if not pun.has_word(pun_word):
+                await ctx.send(f"Pun word **{pun_word}** does not exist.")
+            else:
+                pun.remove_pun_word(pun_word)
+                await ctx.send("Pun word removed.")
+        else:
+            await ctx.send(f"Pun with id **{pun.id}** does not exist.")
 
 
 async def setup(bot):
