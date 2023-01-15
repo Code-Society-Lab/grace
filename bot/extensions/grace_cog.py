@@ -29,6 +29,7 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
         """Get an embed with a list of contributors for the Grace repository.
 
         :return: An embed with a list of contributors.
+        :rtype: Embed
         """
         grace_repo = GithubService().get_grace()
 
@@ -54,7 +55,6 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
         :type ctx: Context
         :param ephemeral: A flag indicating whether the message should be sent as an ephemeral message. Default is True.
         :type ephemeral: bool, optional
-        :return: None
         """
         contributors_embed = await self.get_contributors_embed()
 
@@ -101,7 +101,6 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
         
         :param ctx: The context in which the command was called.
         :type ctx: Context
-        :return: None
         """
         embed = Embed(
             color=self.bot.default_color,
@@ -127,7 +126,6 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
         
         :param ctx: The context in which the command was called.
         :type ctx: Context
-        :return: None
         """
         embed = await self.get_contributors_embed()
         view = View()

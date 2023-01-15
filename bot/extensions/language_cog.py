@@ -36,7 +36,6 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
 
         :param message: A discord message to check for references to our lord and savior.
         :type message: discord.Message
-        :return: None
         """
         linus_trigger = Trigger.get_by(name="Linus")
 
@@ -79,8 +78,6 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
 
         :param message: The message to be checked for pun words.
         :type message: discord.Message
-
-        :return: None
         """
         if message.author == self.bot.user:
             return
@@ -111,11 +108,11 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
 
     @Cog.listener()
     async def on_message(self, message: Message) -> None:
-        """A listener function that calls the `penguin_react`, `name_react`, and `pun_react` functions when a message is received.
+        """A listener function that calls the `penguin_react`, `name_react`, and `pun_react` functions when a message
+        is received.
          
          :param message: The message that was received.
          :type message: discord.Message
-         :return: None
          """
         await self.penguin_react(message)
         await self.name_react(message)
@@ -128,7 +125,6 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
 
         :param ctx: The context in which the command was called.
         :type ctx: discord.ext.commands.Context
-        :return: None
         """
         if ctx.invoked_subcommand is None:
             trigger = Trigger.get_by(name="Linus")
@@ -149,7 +145,6 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
         :type ctx: discord.ext.commands.Context
         :param new_word: The new trigger word to be added.
         :type new_word: str
-        :return: None
         """
         trigger = Trigger.get_by(name="Linus")
 
@@ -169,9 +164,8 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
 
         :param ctx: The context in which the command was called.
         :type ctx: discord.ext.commands.Context
-        :param old_word: The trigger word to be remove.
+        :param old_word: The trigger word to be removed.
         :type old_word: str
-        :return: None
         """
         trigger = Trigger.get_by(name="Linus")
 
@@ -192,7 +186,6 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
 
         :param ctx: The context in which the command was called.
         :type ctx: discord.ext.commands.Context
-        :return: Embed
         """
         if ctx.invoked_subcommand is None:
             pun_texts_with_ids = map(lambda pun: '{}.\t{}'.format(
@@ -214,23 +207,21 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
         :type ctx: discord.ext.commands.Context
         :param pun_text: The new pun word to be added.
         :type pun_text: str
-        :return: None
         """
         Pun.create(text=pun_text)
 
         await ctx.send("Pun added.")
 
     @puns_group.command(name="remove", help="Remove a pun", usage="{pun_id}")
-    async def remove_pun(self, ctx: Context, id: int) -> None:
+    async def remove_pun(self, ctx: Context, pun_id: int) -> None:
         """Remove an old pun word.
 
         :param ctx: The context in which the command was called.
         :type ctx: discord.ext.commands.Context
-        :param id: The ID of the pun to which the word will be removed.
-        :type id: str
-        :return: None
+        :param pun_id: The ID of the pun to which the word will be removed.
+        :type pun_id: str
         """
-        pun = Pun.get(id)
+        pun = Pun.get(pun_id)
 
         if pun:
             await ctx.send("Pun removed.")
@@ -238,20 +229,19 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
             await ctx.send(f"Pun with id **{pun.id}** does not exist.")
 
     @puns_group.command(name="add-word", help="Add a pun word to a pun")
-    async def add_pun_word(self, ctx: Context, id: int, pun_word: str, emoji: str) -> None:
+    async def add_pun_word(self, ctx: Context, pun_id: int, pun_word: str, emoji: str) -> None:
         """Add a new pun word.
 
         :param ctx: The context in which the command was called.
         :type ctx: discord.ext.commands.Context
-        :param id: The ID of the pun to which the word will be added.
-        :type id: int
+        :param pun_id: The ID of the pun to which the word will be added.
+        :type pun_id: int
         :param pun_word: The new pun word to be added.
         :type pun_word: str
         :param emoji: An emoji to be associated with the pun word.
         :type emoji: str
-        :return: None
         """
-        pun = Pun.get(id)
+        pun = Pun.get(pun_id)
 
         if pun:
             if pun.has_word(pun_word):
@@ -272,7 +262,6 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
         :type id: int
         :param pun_word: The old pun word to be removed.
         :type pun_word: str
-        :return: None
         """
         pun = Pun.get(id)
 

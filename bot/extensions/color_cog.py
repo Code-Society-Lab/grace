@@ -5,6 +5,7 @@ from discord import Embed, File, Color
 from bot.helpers.error_helper import send_command_error
 from typing import Union, Tuple
 
+
 def get_embed_color(color: Union[Tuple[int, int, int], str]) -> Color:
     """Convert a color to an Embed Color object.
     
@@ -13,6 +14,7 @@ def get_embed_color(color: Union[Tuple[int, int, int], str]) -> Color:
                   hexadecimal color.
     :type color: Union[Tuple[int, int, int], str]
     :return: An Embed Color object representing the input color.
+    :rtype: Color
     """
     if isinstance(color, tuple):
         return Color.from_rgb(*color)
@@ -31,7 +33,6 @@ class ColorCog(Cog, name="Color", description="Collection of commands to bring c
         
         :param ctx: The context of the command invocation.
         :type ctx: Context
-        :return: None
         """
         if ctx.invoked_subcommand is None:
             await ctx.send_help(ctx.command)
@@ -43,7 +44,6 @@ class ColorCog(Cog, name="Color", description="Collection of commands to bring c
         
         :param ctx: The context of the command invocation.
         :type ctx: Context
-        :return: None
         """
         if ctx.invoked_subcommand is None:
             await ctx.send_help(ctx.command)
@@ -57,7 +57,6 @@ class ColorCog(Cog, name="Color", description="Collection of commands to bring c
                       RGB color, or a string in the format '#RRGGBB' representing 
                       a hexadecimal color.
         :type color: Union[Tuple[int, int, int], str]
-        :return: None
         """
         colored_image = Image.new('RGB', (200, 200), color)
         colored_image.save('color.png')
@@ -89,7 +88,6 @@ class ColorCog(Cog, name="Color", description="Collection of commands to bring c
         :type g: int
         :param b: The blue component of the color (0-255).
         :type b: int
-        :return: None
         """
         await self.display_color(ctx, (r, g, b))
 
@@ -102,7 +100,6 @@ class ColorCog(Cog, name="Color", description="Collection of commands to bring c
         :type ctx: Context
         :param error: The error that was raised during command execution.
         :type error: Exception
-        :return: None
         """
         if isinstance(error, HybridCommandError) or isinstance(error, CommandInvokeError):
             await send_command_error(ctx, "Expected rgb color", ctx.command, "244 195 8")
@@ -119,7 +116,6 @@ class ColorCog(Cog, name="Color", description="Collection of commands to bring c
         :type ctx: Context
         :param hex_code: A string in the format '#RRGGBB' representing a hexadecimal color.
         :type hex_code: str
-        :return: None
         """
         if not hex_code.startswith('#'):
             hex_code = f'#{hex_code}'
@@ -134,7 +130,6 @@ class ColorCog(Cog, name="Color", description="Collection of commands to bring c
         :type ctx: Context
         :param error: The error that was raised during command execution.
         :type error: Exception
-        :return: None
         """
         if isinstance(error, HybridCommandError) or isinstance(error, CommandInvokeError):
             await send_command_error(ctx, "Expected hexadecimal color", ctx.command, "#F4C308")

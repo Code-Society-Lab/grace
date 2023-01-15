@@ -27,7 +27,6 @@ class ModerationCog(Cog, name="Moderation", description="Collection of administr
         :type member: discord.Member
         :param reason: The reason for the kick ("No reason given" by default).
         :type reason: str, optional
-        :return: None
         """
         await ctx.defer()
 
@@ -45,11 +44,10 @@ class ModerationCog(Cog, name="Moderation", description="Collection of administr
         
         :param ctx: The context in which the command was called.
         :type ctx: Context
-        :param member: The member to be ban.
+        :param member: The member to be banned.
         :type member: discord.Member
         :param reason: The reason for the kick ("No reason" by default).
         :type reason: str, optional
-        :return: None
         """
         await ctx.defer()
 
@@ -69,9 +67,6 @@ class ModerationCog(Cog, name="Moderation", description="Collection of administr
         :type ctx: Context
         :param user_id: The user_id of the member to unban
         :type user_id: discord.Member
-        :param reason: The reason for the kick ("No reason given" by default).
-        :type reason: str, optional
-        :return: None
         """
         await ctx.defer()
 
@@ -92,7 +87,6 @@ class ModerationCog(Cog, name="Moderation", description="Collection of administr
         :type limit: int
         :param reason: The reason for the purge
         :type reason: Optional[str]
-        :return: None
         """
         await ctx.defer()
 
@@ -109,7 +103,6 @@ class ModerationCog(Cog, name="Moderation", description="Collection of administr
 
         :param member: The member who has just joined the server.
         :type member: discord.Member
-        :return: None
         """
         minimum_account_age = app.config.get("moderation", "minimum_account_age")
         account_age_in_days = (datetime.now().replace(tzinfo=None) - member.created_at.replace(tzinfo=None)).days

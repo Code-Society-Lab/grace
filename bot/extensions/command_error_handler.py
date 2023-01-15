@@ -24,7 +24,6 @@ class CommandErrorHandler(Cog):
         :type ctx: Context
         :param error: The error that was raised during command execution.
         :type error: Exception
-        :return: None
         """
         warning(f"Error: {error}. Issued by {ctx.author}")
 
@@ -50,7 +49,6 @@ class CommandErrorHandler(Cog):
         :type interaction: Interaction
         :param _ : The error that was raised during command execution.
         :type _: Exception
-        :return: None
         """
         if interaction:
             await interaction.response.send_message("Interaction failed, please try again later!", ephemeral=True)
@@ -61,8 +59,9 @@ def send_command_help(ctx: Context) -> Coroutine[Any, Any, Any]:
     the general help message if no specific command was involved.
     
     :param ctx: The context of the command invocation.
-    :param ctx: Context
-    :return: Coroutine[Any, Any, Any]
+    :type ctx: The context
+    :return: The help message.
+    :rtype: Coroutine[Any, Any, Any]
     """
     if ctx.command:
         return ctx.send_help(ctx.command)

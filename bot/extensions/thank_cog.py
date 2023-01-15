@@ -18,15 +18,14 @@ class ThankCog(Cog):
 
         :param ctx: The context of the command invocation.
         :type ctx: Context
-        :return: None
         """
         if ctx.invoked_subcommand is None:
             await send_command_help(ctx)
 
     @thank_group.command(name='send', description='Send a thank you to a person')
     @cooldown(1, 3600, BucketType.user)
-    async def thank(self, ctx: Context, *, member: Member) -> (Message | None):
-        """Send a thank you message to a member and increase their thank count by 1.
+    async def thank(self, ctx: Context, *, member: Member) -> Message | None:
+        """Send a "thank you" message to a member and increase their thank count by 1.
 
         :param ctx: The context of the command invocation.
         :type ctx: Context
@@ -59,7 +58,7 @@ class ThankCog(Cog):
         await ctx.interaction.response.send_message(f'Successfully thanked **@{member.display_name}**', ephemeral=True)
 
     @thank_group.command(name='leaderboard', description='Shows top n helpers.')
-    async def thank_leaderboard(self, ctx: Context, *, top: int = 10) -> (Message | None):
+    async def thank_leaderboard(self, ctx: Context, *, top: int = 10) -> Message | None:
         """Display the top n helpers, sorted by their thank count.
         
         :param ctx: The context of the command invocation.
@@ -103,7 +102,6 @@ class ThankCog(Cog):
         :type ctx: Context
         :param member: The member rank.
         :type member: Member
-        :return: None
         """
         if not member or member.id == ctx.author.id:
             await self.send_author_rank(ctx)
@@ -117,7 +115,6 @@ class ThankCog(Cog):
         
         :param ctx: The context of the command invocation.
         :type ctx: Context
-        :return: None
         """
         rank_embed: Embed = Embed(title='Grace RANK', color=self.bot.default_color)
         rank_embed.description = 'Grace has a range of commands that can help you greatly!\n' \
@@ -150,7 +147,6 @@ class ThankCog(Cog):
         :type ctx: Context
         :param member: The member rank.
         :type member: Member
-        :return: None
         """
         rank_embed: Embed = Embed(title=f'{member.display_name} RANK', color=self.bot.default_color)
         thank = Thank.get_by(member_id=member.id)

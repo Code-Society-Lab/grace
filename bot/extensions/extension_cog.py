@@ -27,6 +27,7 @@ def extension_autocomplete(state: bool):
             """Creates a `Choice` object for the provided `extension`.
 
             :param extension: The extension to create the `Choice` object for.
+            :type extension: Extension
             :return: A `Choice` object for the provided `extension`.
             :rtype: Choice
             """
@@ -48,7 +49,6 @@ class ExtensionCog(Cog, name="Extensions", description="Extensions managing cog"
 
         :param ctx: The context in which the command was called.
         :type ctx: Context
-        :return: None
         """
         if ctx.invoked_subcommand is None:
             await CommandErrorHandler.send_command_help(ctx)
@@ -60,7 +60,6 @@ class ExtensionCog(Cog, name="Extensions", description="Extensions managing cog"
         
         :param ctx: The context in which the command was called.
         :type ctx: Context.
-        :return: None
         """
         extensions = Extension.all()
 
@@ -93,7 +92,6 @@ class ExtensionCog(Cog, name="Extensions", description="Extensions managing cog"
         :type ctx: Context.
         :param extension_name: The module name of the extension to enable.
         :type extension_name: str
-        :return: None
         """
         extension = Extension.get_by(module_name=extension_name)
 
@@ -119,7 +117,6 @@ class ExtensionCog(Cog, name="Extensions", description="Extensions managing cog"
         :type ctx: Context.
         :param extension_name: The module name of the extension to disable.
         :type extension_name: str
-        :return: None
         """
         extension = Extension.get_by(module_name=extension_name)
 

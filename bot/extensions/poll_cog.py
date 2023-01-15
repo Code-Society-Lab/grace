@@ -11,24 +11,25 @@ from bot.classes.poll import Poll, Option
 
 
 async def create_poll_embed(poll: Poll) -> Embed:
-	"""Returns a newly created poll embed
+    """Returns a newly created poll embed
 
-	:param poll: A Poll
-	:type poll: Poll
+    :param poll: The poll to create the embed for
+    :type poll: Poll
 
-	:returns: The created embed for the poll
-	:rtype: Embed
-	"""
-	description: str = "{header}\n\n"
+    :returns: A newly created poll embed
+    :rtype: Embed
+    """
+    description: str = "{header}\n\n"
 
-	for option in poll.options:
-		description += f"{option.emoji} **{option.title}**: {poll.counter[option]}\n\n"
+    for option in poll.options:
+        description += f"{option.emoji} **{option.title}**: {poll.counter[option]}\n\n"
 
-	return Embed(title=poll.title, description=description)
+    return Embed(title=poll.title, description=description)
 
 
 class PollView(TimedView):
     """A view for displaying a poll and calling a callback function when the poll is over."""
+
     def __init__(self, poll: Poll, embed: Embed, winner_callback: Callable, seconds: int):
         super().__init__(seconds=seconds)
 
@@ -83,6 +84,7 @@ class PollView(TimedView):
 
 class OptionButton(Button):
     """A button for selecting an option in a poll."""
+
     def __init__(self, option):
         super().__init__(style=ButtonStyle.gray, emoji=option.emoji)
         self.__option: Option = option
@@ -106,7 +108,7 @@ class PollCog(Cog):
     """A Discord cog for creating and managing polls.
     
     Current discord's view limitation is 25 buttons
-	An extra 7 more buttons/options still can be added
+    An extra 7 more buttons/options still can be added
     """
     MAX_OPTIONS: int = 18
 
@@ -126,9 +128,9 @@ class PollCog(Cog):
             return ['👍', '👎']
 
         return [
-			'🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬛', '⬜', '🟫',
-			'🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫', '⚪', '🟤',
-		][:options_count]
+                   '🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬛', '⬜', '🟫',
+                   '🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫', '⚪', '🟤',
+               ][:options_count]
 
     async def get_options(self, ctx: Context, options_count: int = 2) -> Optional[List[Option]]:
         def check(m: Message) -> bool:
@@ -138,10 +140,10 @@ class PollCog(Cog):
         emojis: List[str] = self.get_emojis(options_count)
 
         options_embed = Embed(
-			color=self.bot.default_color,
-			title='POLL CREATION INFO',
-			description=f'**Input {options_count} poll options.**\n To abort the poll type: **!abort**'
-		)
+            color=self.bot.default_color,
+            title='POLL CREATION INFO',
+            description=f'**Input {options_count} poll options.**\n To abort the poll type: **!abort**'
+        )
 
         await ctx.author.send(embed=options_embed)
 
@@ -179,7 +181,7 @@ class PollCog(Cog):
             return await ctx.reply("Aborted!")
 
         await ctx.author.send(
-			f'Great! The poll: {title} with {options_count} options created! On channel: {ctx.channel.name}')
+            f'Great! The poll: {title} with {options_count} options created! On channel: {ctx.channel.name}')
 
         poll: Poll = Poll(options=options, title=title)
         poll_embed: Embed = await create_poll_embed(poll)
@@ -192,4 +194,4 @@ class PollCog(Cog):
 
 
 async def setup(bot):
-	await bot.add_cog(PollCog(bot))
+    await bot.add_cog(PollCog(bot))

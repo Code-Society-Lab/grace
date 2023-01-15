@@ -24,7 +24,6 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
         
         :param ctx: The context in which the command was called.
         :type ctx: Context
-        :return: None
         """
         if ctx.invoked_subcommand is None:
             await CommandErrorHandler.send_command_help(ctx)
@@ -38,7 +37,6 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
         :type ctx: Context
         :param question: The question asked by the user.
         :type question: str
-        :return: None
         """
         if question:
             answer = random_choice(Answer.all())
@@ -59,7 +57,6 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
         
         :param ctx: The context in which the command was called.
         :type ctx: Context
-        :return: None
         """
         goosed_embed = Embed(
             color=self.bot.default_color,
@@ -74,7 +71,6 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
         
         :param ctx: The context in which the command was called.
         :type ctx: Context
-        :return: None
         """
         response = get('https://api.forismatic.com/api/1.0/?method=getQuote&format=json&lang=en')
 
@@ -96,7 +92,6 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
         
         :param ctx: The context in which the command was called.
         :type ctx: Context
-        :return: None
         """
         response = get('https://quotes.needell.co/quote', timeout=1)
 

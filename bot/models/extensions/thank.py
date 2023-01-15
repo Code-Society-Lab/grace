@@ -19,6 +19,7 @@ class Thank(app.base, Model):
         have been thanked.
         
         :return: The rank of the member.
+        :rtype: Optional[str]
         """
         if self.count in range(1, 11):
             return 'Intern'
@@ -37,5 +38,6 @@ class Thank(app.base, Model):
         the `count` attribute in descending order.
 
         :return: A list of `Thank` objects.
+        :rtype: List[Thank]
         """
         return cls.query().order_by(desc(cls.count)).all()
