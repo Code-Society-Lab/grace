@@ -1,14 +1,14 @@
 from typing import Optional
-
 from bot import app
 from logging import info
 from discord import Member
-from discord.ext.commands import Cog, has_permissions, hybrid_command
+from discord.ext.commands import Cog, has_permissions, hybrid_command, Context
 from bot.helpers.log_helper import danger
 from datetime import datetime
 
 
 class ModerationCog(Cog, name="Moderation", description="Collection of administrative commands."):
+    """A class representing a collection of administrative commands for moderation purposes."""
     def __init__(self, bot):
         self.bot = bot
 
@@ -18,7 +18,16 @@ class ModerationCog(Cog, name="Moderation", description="Collection of administr
 
     @hybrid_command(name='kick', help="Allows a staff member to kick a user based on their behaviour.")
     @has_permissions(kick_members=True)
-    async def kick(self, ctx, member: Member, reason="No reason given"):
+    async def kick(self, ctx, member: Member, reason="No reason given") -> None:
+        """Kick a member from the community.
+        
+        :param ctx: The context in which the command was called.
+        :type ctx: Context
+        :param member: The member to be kick.
+        :type member: discord.Member
+        :param reason: The reason for the kick ("No reason given" by default).
+        :type reason: str, optional
+        """
         await ctx.defer()
 
         log = danger("KICK", f"{member.mention} has been kicked.")
@@ -30,7 +39,16 @@ class ModerationCog(Cog, name="Moderation", description="Collection of administr
 
     @hybrid_command(name='ban', help="Allows a staff member to ban a user based on their behaviour.")
     @has_permissions(ban_members=True)
-    async def ban(self, ctx, member: Member, reason="No reason"):
+    async def ban(self, ctx, member: Member, reason="No reason") -> None:
+        """Ban a member from the community.
+        
+        :param ctx: The context in which the command was called.
+        :type ctx: Context
+        :param member: The member to be banned.
+        :type member: discord.Member
+        :param reason: The reason for the kick ("No reason" by default).
+        :type reason: str, optional
+        """
         await ctx.defer()
 
         log = danger("BAN", f"{member.mention} has been banned.")
@@ -42,7 +60,14 @@ class ModerationCog(Cog, name="Moderation", description="Collection of administr
 
     @hybrid_command(name='unban', help="Allows a staff member to unban a user.")
     @has_permissions(ban_members=True)
-    async def unban(self, ctx, user_id: int):
+    async def unban(self, ctx, user_id: int) -> None:
+        """Unban a member from the community.
+        
+        :param ctx: The context in which the command was called.
+        :type ctx: Context
+        :param user_id: The user_id of the member to unban
+        :type user_id: discord.Member
+        """
         await ctx.defer()
 
         user = await self.bot.fetch_user(user_id)
@@ -53,7 +78,16 @@ class ModerationCog(Cog, name="Moderation", description="Collection of administr
 
     @hybrid_command(name='purge', help="Deletes n amount of messages.")
     @has_permissions(manage_messages=True)
-    async def purge(self, ctx, limit: int, reason: Optional[str] = "No reason given"):
+    async def purge(self, ctx: Context, limit: int, reason: Optional[str] = "No reason given") -> None:
+        """Purge a specified number of messages from the channel.
+        
+        :param ctx: The context in which the command was called.
+        :type ctx: Context
+        :param limit: The number of messages to be purged.
+        :type limit: int
+        :param reason: The reason for the purge
+        :type reason: Optional[str]
+        """
         await ctx.defer()
 
         log = danger("PURGE", f"{limit} message(s) purged by {ctx.author.mention} in {ctx.channel.mention}")
@@ -63,7 +97,13 @@ class ModerationCog(Cog, name="Moderation", description="Collection of administr
         await log.send(ctx.channel)
 
     @Cog.listener()
-    async def on_member_join(self, member):
+    async def on_member_join(self, member) -> None:
+        """A listener function that checks if a member's account age meets the minimum required age to join the server. 
+        If it doesn't, the member is kicked.
+
+        :param member: The member who has just joined the server.
+        :type member: discord.Member
+        """
         minimum_account_age = app.config.get("moderation", "minimum_account_age")
         account_age_in_days = (datetime.now().replace(tzinfo=None) - member.created_at.replace(tzinfo=None)).days
 

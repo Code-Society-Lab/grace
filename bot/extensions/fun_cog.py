@@ -1,6 +1,6 @@
 from json import loads
 from discord.ext.commands.cooldowns import BucketType
-from discord.ext.commands import Cog, cooldown, hybrid_group
+from discord.ext.commands import Cog, cooldown, hybrid_group, Context
 from discord import Embed, Colour
 from requests import get
 from random import choice as random_choice
@@ -9,6 +9,7 @@ from bot.models.extensions.fun.answer import Answer
 
 
 class FunCog(Cog, name="Fun", description="Collection of fun commands"):
+    """A cog containing fun commands."""
     def __init__(self, bot):
         self.bot = bot
         self.goosed_gif_links = [
@@ -18,13 +19,25 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
         ]
 
     @hybrid_group(name="fun", help="Fun commands")
-    async def fun_group(self, ctx):
+    async def fun_group(self, ctx: Context) -> None:
+        """Group of fun commands.
+        
+        :param ctx: The context in which the command was called.
+        :type ctx: Context
+        """
         if ctx.invoked_subcommand is None:
             await CommandErrorHandler.send_command_help(ctx)
 
     @fun_group.command(name='eightball', aliases=['8ball'], help="Ask a question and be answered.", usage="{question}")
     @cooldown(4, 30, BucketType.user)
-    async def eightball_command(self, ctx, question):
+    async def eightball_command(self, ctx: Context, question: str) -> None:
+        """Ask a question and get an answer.
+        
+        :param ctx: The context in which the command was called.
+        :type ctx: Context
+        :param question: The question asked by the user.
+        :type question: str
+        """
         if question:
             answer = random_choice(Answer.all())
         else:
@@ -39,7 +52,12 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
         await ctx.send(embed=answer_embed)
 
     @fun_group.command(name='goosed', help='Go goose yourself')
-    async def goose_command(self, ctx):
+    async def goose_command(self, ctx: Context) -> None:
+        """Send a Goose image.
+        
+        :param ctx: The context in which the command was called.
+        :type ctx: Context
+        """
         goosed_embed = Embed(
             color=self.bot.default_color,
             title='**GET GOOSED**',
@@ -48,7 +66,12 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
         await ctx.send(embed=goosed_embed)
 
     @fun_group.command(name='quote', help='Sends an inspirational quote')
-    async def quote_command(self, ctx):
+    async def quote_command(self, ctx: Context) -> None:
+        """Generate a random inspirational quote.
+        
+        :param ctx: The context in which the command was called.
+        :type ctx: Context
+        """
         response = get('https://api.forismatic.com/api/1.0/?method=getQuote&format=json&lang=en')
 
         if response.ok:
@@ -64,7 +87,12 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
             await ctx.send("Unable to fetch a quote! Try again later.")
 
     @fun_group.command(name='bisonquote', help='Sends a quote from SoyBison\'s quote server.')
-    async def bisonquote_command(self, ctx):
+    async def bisonquote_command(self, ctx: Context) -> None:
+        """Generate a random inspirational quote fron bison.
+        
+        :param ctx: The context in which the command was called.
+        :type ctx: Context
+        """
         response = get('https://quotes.needell.co/quote', timeout=1)
 
         if response.ok:
