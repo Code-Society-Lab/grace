@@ -66,13 +66,13 @@ class codeGenerator(
         :type sentence: str
         :return: Embed with code generated
         """
-        openai.api_key = # ---- Add you KEY API here link[https://beta.openai.com/account/api-keys] ---- #
+        openai.api_key = " " # ---- Add you KEY API here link[https://beta.openai.com/account/api-keys] ---- #
 
         embed = Embed(
                     color=self.bot.default_color
                 )
 
-        if openai.api_key:
+        if openai.api_key != " ":
             response = Completion.create(
                 model="text-davinci-003",
                 prompt=f"{comment} in {language}",
