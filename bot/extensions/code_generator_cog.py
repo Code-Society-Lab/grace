@@ -3,9 +3,10 @@ from discord.app_commands import Choice, autocomplete
 from discord import Embed, Interaction
 from openai.api_resources.completion import Completion
 import openai
+from lib.config_required import cog_config_required
 
 
-def get_languages_available() -> list[str]:
+def get_available_languages() -> list[str]:
     """Return a list of all available programming languages.
 
     :return: A list of programming languages name.
@@ -18,13 +19,14 @@ def get_languages_available() -> list[str]:
     ]
     return [item for item in languages]
 
-
-class codeGenerator(
+@cog_config_required("openai", "openai_api_key")
+class CodeGenerator(
     Cog, name="OpenAI", 
     description="Generate code using OpenAI API by providing a coment and language."):
     """A Cog that generate code using text."""
     def __init__(self, bot):
         self.bot = bot
+        self.api_key = self.required_config
 
     async def language_autocomplete(self, interaction: Interaction, current: str) -> list[Choice[str]]:
         """Provide autocomplete suggestions for programming languages name.
@@ -37,7 +39,7 @@ class codeGenerator(
         :rtype: list[Choice[str]]
         """
 
-        LANGUAGES = get_languages_available()
+        LANGUAGES = get_available_languages()
         if not current:
             return [
                 Choice(name=lang.capitalize(), value=lang.capitalize())
@@ -55,7 +57,7 @@ class codeGenerator(
         usage="language={programming_language} comment={sentence}"
         )
     @autocomplete(language=language_autocomplete)
-    async def code_generator(self, ctx, *, language: str, comment: str) -> None:
+    async def code_generator(self, ctx, *, language: str, comment: str) -> Embed:
         """Generate code using OpenAI API by providing a comment and language.
 
         :param ctx: The context object.
@@ -66,13 +68,13 @@ class codeGenerator(
         :type sentence: str
         :return: Embed with code generated
         """
-        openai.api_key = " " # ---- Add you KEY API here link[https://beta.openai.com/account/api-keys] ---- #
+        openai.api_key = self.api_key # ---- Get you KEY API here link[https://beta.openai.com/account/api-keys] ---- #
 
         embed = Embed(
                     color=self.bot.default_color
                 )
 
-        if openai.api_key != " ":
+        if openai.api_key:
             response = Completion.create(
                 model="text-davinci-003",
                 prompt=f"{comment} in {language}",
@@ -103,4 +105,4 @@ class codeGenerator(
 
 
 async def setup(bot):
-    await bot.add_cog(codeGenerator(bot))
+    await bot.add_cog(CodeGenerator(bot))
