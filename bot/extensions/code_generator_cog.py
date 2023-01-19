@@ -6,23 +6,16 @@ import openai
 from lib.config_required import cog_config_required
 
 
-def get_available_languages() -> list[str]:
-    """Return a list of all available programming languages.
+LANGUAGES = [
+    "Python", "C", "C++", "Java", "Csharp", "R", "Ruby", "JavaScript", "Swift",
+    "Go", "Kotlin", "Rust", "PHP", "ObjectiveC", "SQL", "Lisp", "Perl",
+    "Haskell", "Erlang", "Scala", "Clojure", "Julia", "Elixir", "F#", "Bash"
+]
 
-    :return: A list of programming languages name.
-    :rtype: list
-    """
-    languages = [
-        "Python", "C", "C++", "Java", "Csharp", "R", "Ruby", "JavaScript", "Swift",
-        "Go", "Kotlin", "Rust", "PHP", "ObjectiveC", "SQL", "Lisp", "Perl",
-        "Haskell", "Erlang", "Scala", "Clojure", "Julia", "Elixir", "F#", "Bash"
-    ]
-    return [item for item in languages]
-
-@cog_config_required("openai", "openai_api_key")
+@cog_config_required("openai", "api_key", "Generate yours [here](https://beta.openai.com/account/api-keys)")
 class CodeGenerator(
     Cog, name="OpenAI", 
-    description="Generate code using OpenAI API by providing a coment and language."):
+    description="Generate code using OpenAI API by providing a comment and language."):
     """A Cog that generate code using text."""
     def __init__(self, bot):
         self.bot = bot
@@ -38,8 +31,6 @@ class CodeGenerator(
         :return: A list of `Choice` objects containing languages name.
         :rtype: list[Choice[str]]
         """
-
-        LANGUAGES = get_available_languages()
         if not current:
             return [
                 Choice(name=lang.capitalize(), value=lang.capitalize())
@@ -57,7 +48,7 @@ class CodeGenerator(
         usage="language={programming_language} comment={sentence}"
         )
     @autocomplete(language=language_autocomplete)
-    async def code_generator(self, ctx, *, language: str, comment: str) -> Embed:
+    async def code_generator(self, ctx, *, language: str, comment: str) -> None:
         """Generate code using OpenAI API by providing a comment and language.
 
         :param ctx: The context object.
@@ -66,7 +57,7 @@ class CodeGenerator(
         :type language: str
         :param sentence: The comment to generate code.
         :type sentence: str
-        :return: Embed with code generated
+        :return: None
         """
         openai.api_key = self.api_key # ---- Get you KEY API here link[https://beta.openai.com/account/api-keys] ---- #
 
