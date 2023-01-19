@@ -9,6 +9,7 @@ from discord.ext.commands import Cog, \
 from bot.helpers.error_helper import send_error
 from typing import Any, Coroutine, Optional
 from discord import Interaction
+from lib.config_required import MissingRequiredConfigError
 
 
 class CommandErrorHandler(Cog):
@@ -29,6 +30,8 @@ class CommandErrorHandler(Cog):
 
         if isinstance(error, CommandNotFound):
             await send_command_help(ctx)
+        elif isinstance(error, MissingRequiredConfigError):
+            await send_error(ctx, error)
         elif isinstance(error, MissingPermissions):
             await send_error(ctx, "You don't have the authorization to use that command.")
         elif isinstance(error, CommandOnCooldown):

@@ -9,7 +9,7 @@ from string import capwords
 from lib.config_required import cog_config_required
 
 
-@cog_config_required("openweather", "api_key")
+@cog_config_required("openweather", "api_key", "Generate yours [here](https://openweathermap.org/api)")
 class WeatherCog(Cog, name="Weather", description="get current weather information from a city"):
     """A cog that retrieves current weather information for a given city."""
     OPENWEATHER_BASE_URL = "https://api.openweathermap.org/data/2.5/"
