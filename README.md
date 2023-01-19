@@ -1,9 +1,11 @@
 
 # Grace
+[![Join on Discord](https://discordapp.com/api/guilds/823178343943897088/widget.png?style=shield)](https://discord.gg/code-society-823178343943897088)
+[![Grace tests](https://github.com/Code-Society-Lab/grace/actions/workflows/grace.yml/badge.svg?branch=main)](https://github.com/Code-Society-Lab/grace/actions/workflows/grace.yml)
+[![Last Updated](https://img.shields.io/github/last-commit/code-society-lab/grace.svg)](https://github.com/code-society-lab/grace/commits/main)
+
 Grace is the official Code Society discord bot. The goal is to give our members the opportunity to participate in the
 development of the server's bot and contribute to a team project while also improving it.
-
-[![Grace tests](https://github.com/Code-Society-Lab/grace/actions/workflows/grace.yml/badge.svg?branch=main)](https://github.com/Code-Society-Lab/grace/actions/workflows/grace.yml)
 
 ---
 
