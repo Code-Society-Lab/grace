@@ -19,17 +19,20 @@ class MissingRequiredConfigError(ConfigRequiredError):
     Inherit from `ConfigRequiredError`
     """
 
-    def __init__(self, section_key: str, value_key: str):
-        super().__init__(f"Missing config '{value_key}' in section '{section_key}'")
+    def __init__(self, section_key: str, value_key: str, message: str | None = None):
+        base_error_message = f"Missing config '{value_key}' in section '{section_key}'"
+        super().__init__(f"{base_error_message}\n{message}" if message else base_error_message)
 
 
-def cog_config_required(section_key: str, value_key: str) -> Callable:
+def cog_config_required(section_key: str, value_key: str, message: str | None = None) -> Callable:
     """Validates the presences of a given configuration before each
     invocation of a `discord.ext.commands.Cog` commands
     :param section_key:
         The required section key
     :param value_key:
         The required value key
+    :param instruction:
+        The required instruction if error is raised
     :raises TypeError:
         If the class is not a Cog
     """
@@ -37,7 +40,7 @@ def cog_config_required(section_key: str, value_key: str) -> Callable:
     def wrapper(cls: CogMeta) -> CogMeta:
         async def _cog_before_invoke(self, _: Context):
             if not self.required_config:
-                raise MissingRequiredConfigError(section_key, value_key)
+                raise MissingRequiredConfigError(section_key, value_key, message)
 
         setattr(cls, "required_config", app.config.get(section_key, value_key))
         setattr(cls, "cog_before_invoke", _cog_before_invoke)
