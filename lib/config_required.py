@@ -49,7 +49,7 @@ def cog_config_required(section_key: str, value_key: str, message: str | None = 
     return wrapper
 
 
-def command_config_required(section_key: str, value_key: str) -> Callable[[Context], bool]:
+def command_config_required(section_key: str, value_key: str, message: str | None = None) -> Callable[[Context], bool]:
     """Validates the presences of a given configuration before running
     the `discord.ext.commands.Command`
 
@@ -57,10 +57,14 @@ def command_config_required(section_key: str, value_key: str) -> Callable[[Conte
         The required section key
     :param value_key:
         The required value key
+    :param message:
+        The optional message/instruction if missing required config
+    :raises TypeError:
+        If the class is not a Cog
     """
 
     async def predicate(_: Context) -> bool:
         if not app.config.get(section_key, value_key):
-            raise MissingRequiredConfigError(section_key, value_key)
+            raise MissingRequiredConfigError(section_key, value_key, message)
         return True
     return commands.check(predicate)
