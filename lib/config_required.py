@@ -31,8 +31,8 @@ def cog_config_required(section_key: str, value_key: str, message: str | None = 
         The required section key
     :param value_key:
         The required value key
-    :param instruction:
-        The required instruction if error is raised
+    :param message:
+        The optional message/instruction if missing required config
     :raises TypeError:
         If the class is not a Cog
     """
