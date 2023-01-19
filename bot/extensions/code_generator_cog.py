@@ -61,7 +61,7 @@ class CodeGenerator(
         openai.api_key = self.api_key
 
         embed = Embed(color=self.bot.default_color)
-        await ctx.interaction.response.defer()
+        await ctx.defer()
 
         response = Completion.create(
             model="text-davinci-003",
@@ -71,7 +71,6 @@ class CodeGenerator(
             top_p=1,
             frequency_penalty=0,
             presence_penalty=0,
-            timeout=0
         )
 
         code_generated = response["choices"][0]["text"]
@@ -81,7 +80,7 @@ class CodeGenerator(
             inline=False
         )
 
-        await ctx.interaction.followup.send(embed=embed)
+        await ctx.send(embed=embed, ephemeral=True)
 
 
 async def setup(bot):
