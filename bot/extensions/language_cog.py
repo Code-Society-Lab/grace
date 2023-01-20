@@ -1,5 +1,6 @@
 from discord.ext.commands import Cog, has_permissions, hybrid_group, Context
 from discord import Message, Embed
+from logging import warning
 from nltk.tokenize import TweetTokenizer
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from bot.models.extensions.language.trigger import Trigger
@@ -37,8 +38,6 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
         # negatively about something. We run the while message through vader and if the aggregated
         # score is ultimately negative, neutral, or positive
         sv = self.sid.polarity_scores(message.content)
-        message_tokens = self.tokenizer.tokenize(message.content)
-        tokenlist = list(map(lambda s: s.lower(), message_tokens))
         if sv['neu'] + sv['pos'] < sv['neg'] or sv['pos'] == 0.0:
             if sv['neg'] > sv['pos']:
                 return -1
@@ -51,7 +50,12 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
         react with a positive_emoji, otherwise react with negative_emoji
         """
         grace_trigger = Trigger.get_by(name="Grace")
+        if grace_trigger is None:
+            warning("Missing trigger entry for \"Grace\"")
+            return
+
         if self.bot.user.mentioned_in(message) and not message.content.startswith('<@!'):
+            # Note: the trigger needs to have a None-condition now that it's generic
             if self.get_message_sentiment_polarity(message) >= 0:
                 await message.add_reaction(grace_trigger.positive_emoji)
                 return
@@ -67,6 +71,9 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
         :type message: discord.Message
         """
         linus_trigger = Trigger.get_by(name="Linus")
+        if linus_trigger is None:
+            warning("Missing trigger entry for \"Linus\"")
+            return
 
         message_tokens = self.tokenizer.tokenize(message.content)
         tokenlist = list(map(lambda s: s.lower(), message_tokens))
@@ -151,6 +158,9 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
         """
         if ctx.invoked_subcommand is None:
             trigger = Trigger.get_by(name="Linus")
+            if trigger is None:
+                warning("Missing trigger entry for \"Linus\"")
+                return
 
             embed = Embed(
                 color=self.bot.default_color,
