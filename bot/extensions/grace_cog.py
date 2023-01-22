@@ -79,13 +79,13 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
 
         embed = Embed(
             color=self.bot.default_color,
-            title="Cursif's contributors",
+            title="Cursif's Contributors",
         )
 
         for contributor in cursif_repo.get_contributors():
             embed.add_field(
                 name=contributor.login,
-                value=f"{contributor.contributions} contributions",
+                value=f"{contributor.contributions} Contributions",
                 inline=True
             )
 
