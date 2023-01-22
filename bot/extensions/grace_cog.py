@@ -171,6 +171,8 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
         
         :param ctx: The context in which the command was called.
         :type ctx: Context
+        :param project: The project's name to get contributors.
+        :type project: str
         """
         view = View()
 
