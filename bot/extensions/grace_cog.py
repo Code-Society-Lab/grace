@@ -5,7 +5,25 @@ from emoji import emojize
 from bot.services.github_service import GithubService
 from lib.config_required import command_config_required
 from lib.paged_embeds import PagedEmbedView
+from discord.app_commands import Choice, autocomplete
+from discord import Embed, Interaction
 
+
+async def project_autocomplete(_: Interaction, current: str) -> list[Choice[str]]:
+    """Provide autocomplete suggestions for the Code Society Lab Projects.
+
+    :param _: The interaction object.
+    :type _: Interaction
+    :param current: The current value of the input field.
+    :type current: str
+    :return: A list of `Choice` objects containing project name.
+    :rtype: list[Choice[str]]
+    """
+    projects = {"Grace", "Cursif"}
+    return [
+        Choice(name=project.capitalize(), value=project.capitalize())
+        for project in projects if current.lower() in project.lower()
+    ]
 
 class GraceCog(Cog, name="Grace", description="Default grace commands"):
     """A cog that contains default commands for the Grace bot."""
@@ -17,15 +35,20 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
         ),
         Button(
             emoji=emojize(":file_folder:"),
-            label="Repository",
+            label="Grace Repository",
             url="https://github.com/Code-Society-Lab/grace"
+        ),
+        Button(
+            emoji=emojize(":file_folder:"),
+            label="Cursif Repository",
+            url="https://github.com/Code-Society-Lab/cursif"
         )
     )
 
     def __init__(self, bot):
         self.bot = bot
 
-    async def get_contributors_embed(self) -> Embed:
+    async def get_contributors_embed_grace(self) -> Embed:
         """Get an embed with a list of contributors for the Grace repository.
 
         :return: An embed with a list of contributors.
@@ -37,8 +60,29 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
             color=self.bot.default_color,
             title="Grace's contributors",
         )
-
         for contributor in grace_repo.get_contributors():
+            embed.add_field(
+                name=contributor.login,
+                value=f"{contributor.contributions} contributions",
+                inline=True
+            )
+
+        return embed
+
+    async def get_contributors_embed_cursif(self) -> Embed:
+        """Get an embed with a list of contributors for the Cursif repository.
+
+        :return: An embed with a list of contributors.
+        :rtype: Embed
+        """
+        cursif_repo = GithubService().get_cursif()
+
+        embed = Embed(
+            color=self.bot.default_color,
+            title="Cursif's contributors",
+        )
+
+        for contributor in cursif_repo.get_contributors():
             embed.add_field(
                 name=contributor.login,
                 value=f"{contributor.contributions} contributions",
@@ -120,18 +164,25 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
         await ctx.send("https://www.smbc-comics.com/?id=2516")
 
     @command_config_required("github", "api_key")
-    @hybrid_command(name="contributors", description="Show a list of Grace's contributors")
-    async def contributors(self, ctx: Context) -> None:
-        """Show a list of contributors for the Grace repository.
+    @hybrid_command(name="contributors", description="Show a list of Code Society Lab's contributors")
+    @autocomplete(project=project_autocomplete)
+    async def contributors(self, ctx: Context, project: str) -> None:
+        """Show a list of contributors for the Code Society Lab repositories.
         
         :param ctx: The context in which the command was called.
         :type ctx: Context
         """
-        embed = await self.get_contributors_embed()
         view = View()
 
-        for button in self.__DEFAULT_INFO_BUTTONS:
-            view.add_item(button)
+        if project == "Grace":
+            embed = await self.get_contributors_embed_grace()
+            view.add_item(self.__DEFAULT_INFO_BUTTONS[0])
+            view.add_item(self.__DEFAULT_INFO_BUTTONS[1])
+        
+        elif project == "Cursif":
+            embed = await self.get_contributors_embed_cursif()
+            view.add_item(self.__DEFAULT_INFO_BUTTONS[0])
+            view.add_item(self.__DEFAULT_INFO_BUTTONS[2])
 
         await ctx.send(embed=embed, view=view)
 
