@@ -1,5 +1,6 @@
 from discord.ext.commands import Cog, has_permissions, hybrid_group, Context
 from discord import Message, Embed
+from logging import warning
 from nltk.tokenize import TweetTokenizer
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from bot.models.extensions.language.trigger import Trigger
@@ -23,10 +24,42 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
         self.tokenizer = TweetTokenizer()
         self.sid = SentimentIntensityAnalyzer()
 
+    def get_message_sentiment_polarity(self, message: Message) -> int:
+        """
+        Checks sentiment of a given message
+        :param message: A discord message to anlyze the sentiment of
+        :type message: discord.Message
+        :returns:
+            -1 iff the message is more negative than positive
+             0 iff the message is neutral
+             1 iff the message is more positive than negative
+        """
+        # Here we're using the VADER algorithm to determine if the message sentiment is speaking
+        # negatively about something. We run the while message through vader and if the aggregated
+        # score is ultimately negative, neutral, or positive
+        sv = self.sid.polarity_scores(message.content)
+        if sv['neu'] + sv['pos'] < sv['neg'] or sv['pos'] == 0.0:
+            if sv['neg'] > sv['pos']:
+                return -1
+            return 0
+        return 1;
+
     async def name_react(self, message: Message) -> None:
+        """
+        Checks message sentiment and if the sentiment is neutral or positive,
+        react with a positive_emoji, otherwise react with negative_emoji
+        """
         grace_trigger = Trigger.get_by(name="Grace")
+        if grace_trigger is None:
+            warning("Missing trigger entry for \"Grace\"")
+            return
+
         if self.bot.user.mentioned_in(message) and not message.content.startswith('<@!'):
-            await message.add_reaction(grace_trigger.positive_emoji)
+            # Note: the trigger needs to have a None-condition now that it's generic
+            if self.get_message_sentiment_polarity(message) >= 0:
+                await message.add_reaction(grace_trigger.positive_emoji)
+                return
+            await message.add_reaction(grace_trigger.negative_emoji)
 
     async def penguin_react(self, message: Message) -> None:
         """Checks to see if a message contains a reference to Linus (torvalds only), will be made more complicated
@@ -38,6 +71,9 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
         :type message: discord.Message
         """
         linus_trigger = Trigger.get_by(name="Linus")
+        if linus_trigger is None:
+            warning("Missing trigger entry for \"Linus\"")
+            return
 
         message_tokens = self.tokenizer.tokenize(message.content)
         tokenlist = list(map(lambda s: s.lower(), message_tokens))
@@ -56,19 +92,13 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
                 except IndexError:
                     pass
 
-                # Here we're using the VADER algorithm to prevent Grace from reacting to messages that
-                # speak negatively about linus. We run whole message through vader and if the aggregated
-                # score is less than 0, then we throw it out.
+                determined_sentiment_polarity = self.get_message_sentiment_polarity(message)
 
-                sv = self.sid.polarity_scores(message.content)
-                if sv['neu'] + sv['pos'] < sv['neg'] or sv['pos'] == 0.0:
-                    fail = True
-                    if sv['neg'] > sv['pos']:
-                        await message.add_reaction(linus_trigger.negative_emoji)
-                        return
-                overrideset = linus_trigger.words
-                if set(overrideset) & set(tokenlist):
-                    fail = False
+                if not fail and determined_sentiment_polarity < 0:
+                    await message.add_reaction(linus_trigger.negative_emoji)
+                    return
+
+                fail = (determined_sentiment_polarity < 1)
 
             if not fail:
                 await message.add_reaction(linus_trigger.positive_emoji)
@@ -128,6 +158,9 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
         """
         if ctx.invoked_subcommand is None:
             trigger = Trigger.get_by(name="Linus")
+            if trigger is None:
+                warning("Missing trigger entry for \"Linus\"")
+                return
 
             embed = Embed(
                 color=self.bot.default_color,

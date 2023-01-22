@@ -16,3 +16,4 @@ lib64
 .mypy_cache/
 .pytest_cache
 tmp
+.coverage
