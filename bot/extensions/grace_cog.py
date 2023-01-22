@@ -48,7 +48,7 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
     def __init__(self, bot):
         self.bot = bot
 
-    async def get_contributors_embed_grace(self) -> Embed:
+    async def get_grace_contributors_embed(self) -> Embed:
         """Get an embed with a list of contributors for the Grace repository.
 
         :return: An embed with a list of contributors.
@@ -69,7 +69,7 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
 
         return embed
 
-    async def get_contributors_embed_cursif(self) -> Embed:
+    async def get_cursif_contributors_embed(self) -> Embed:
         """Get an embed with a list of contributors for the Cursif repository.
 
         :return: An embed with a list of contributors.
@@ -177,12 +177,12 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
         view = View()
 
         if project == "Grace":
-            embed = await self.get_contributors_embed_grace()
+            embed = await self.get_grace_contributors_embed()
             view.add_item(self.__DEFAULT_INFO_BUTTONS[0])
             view.add_item(self.__DEFAULT_INFO_BUTTONS[1])
         
         elif project == "Cursif":
-            embed = await self.get_contributors_embed_cursif()
+            embed = await self.get_cursif_contributors_embed()
             view.add_item(self.__DEFAULT_INFO_BUTTONS[0])
             view.add_item(self.__DEFAULT_INFO_BUTTONS[2])
 
