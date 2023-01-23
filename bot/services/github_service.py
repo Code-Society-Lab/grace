@@ -17,3 +17,6 @@ class GithubService(Github):
 
     def get_grace(self) -> Repository:
         return self.get_repo("code-society-lab/grace", lazy=True)
+
+    def get_cursif(self) -> Repository:
+        return self.get_repo("code-society-lab/cursif", lazy=True)
