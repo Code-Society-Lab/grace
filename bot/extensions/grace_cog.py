@@ -93,14 +93,14 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
 
     @hybrid_command(name='info', help='Show information about the bot')
     async def info_command(self, ctx: Context, ephemeral=True) -> None:
-        """Show informations about the bot.
+        """Show information about the bot.
         
         :param ctx: The context in which the command was called.
         :type ctx: Context
         :param ephemeral: A flag indicating whether the message should be sent as an ephemeral message. Default is True.
         :type ephemeral: bool, optional
         """
-        contributors_embed = await self.get_contributors_embed()
+        contributors_embed = await self.get_grace_contributors_embed()
 
         info_embed = Embed(
             color=self.bot.default_color,
