@@ -171,6 +171,7 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
             await ctx.send(embed=embed)
 
     @triggers_group.command(name="add", help="Add a trigger word", usage="{new_word}")
+    @has_permissions(administrator=True)
     async def add_trigger_word(self, ctx: Context, new_word: str) -> None:
         """Add a new trigger word.
 
@@ -192,6 +193,7 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
             await ctx.send(f"Unable to add **{new_word}**")
 
     @triggers_group.command(name="remove", help="Remove a trigger word", usage="{old_word}")
+    @has_permissions(administrator=True)
     async def remove_trigger_word(self, ctx: Context, old_word: str) -> None:
         """Remove an existing trigger word.
 
@@ -233,6 +235,7 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
             await ctx.send(embed=embed)
 
     @puns_group.command(name="add", help="Add a pun", usage="{pun_text}")
+    @has_permissions(administrator=True)
     async def add_pun(self, ctx: Context, pun_text: str) -> None:
         """Add a new pun word.
 
@@ -246,6 +249,7 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
         await ctx.send("Pun added.")
 
     @puns_group.command(name="remove", help="Remove a pun", usage="{pun_id}")
+    @has_permissions(administrator=True)
     async def remove_pun(self, ctx: Context, pun_id: int) -> None:
         """Remove an old pun word.
 
@@ -262,6 +266,7 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
             await ctx.send(f"Pun with id **{pun.id}** does not exist.")
 
     @puns_group.command(name="add-word", help="Add a pun word to a pun")
+    @has_permissions(administrator=True)
     async def add_pun_word(self, ctx: Context, pun_id: int, pun_word: str, emoji: str) -> None:
         """Add a new pun word.
 
@@ -286,6 +291,7 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
             await ctx.send(f"Pun with id {pun.id} does not exist.")
 
     @puns_group.command(name="remove-word", help="Remove a pun from a pun word")
+    @has_permissions(administrator=True)
     async def remove_pun_word(self, ctx: Context, id: int, pun_word: str) -> None:
         """Remove a new pun word.
 
