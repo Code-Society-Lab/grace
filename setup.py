@@ -45,7 +45,7 @@ setup(
         'configparser',
         'pygithub',
         'googletrans==4.0.0-rc1',
-        'openai',
+        'openai==0.26.1',
         'coverage',
     ],
     scripts=['bin/grace']
