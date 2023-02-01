@@ -1,2 +1,3 @@
-[coverage:report]
+[report]
+omit = ./tests/*,./bin/*
 skip_empty = true
