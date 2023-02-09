@@ -1,14 +1,5 @@
 from setuptools import setup, find_packages
 
-
-def after_install():
-    try:
-        import nltk
-        nltk.download('vader_lexicon')
-    except ModuleNotFoundError:
-        print("nltk module not properly installed")
-
-
 setup(
     name='Grace',
     version='1.20.0',
@@ -50,5 +41,3 @@ setup(
     ],
     scripts=['bin/grace']
 )
-
-after_install()
