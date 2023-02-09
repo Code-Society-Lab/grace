@@ -1,5 +1,5 @@
 from bot import app
-from typing import Callable
+from typing import Callable, Optional
 from discord.ext import commands
 from discord.ext.commands import CogMeta, Context, DisabledCommand
 
@@ -19,12 +19,12 @@ class MissingRequiredConfigError(ConfigRequiredError):
     Inherit from `ConfigRequiredError`
     """
 
-    def __init__(self, section_key: str, value_key: str, message: str | None = None):
+    def __init__(self, section_key: str, value_key: str, message: Optional[str] = None):
         base_error_message = f"Missing config '{value_key}' in section '{section_key}'"
         super().__init__(f"{base_error_message}\n{message}" if message else base_error_message)
 
 
-def cog_config_required(section_key: str, value_key: str, message: str | None = None) -> Callable:
+def cog_config_required(section_key: str, value_key: str, message: Optional[str] = None) -> Callable:
     """Validates the presences of a given configuration before each
     invocation of a `discord.ext.commands.Cog` commands
     :param section_key:
@@ -49,7 +49,7 @@ def cog_config_required(section_key: str, value_key: str, message: str | None = 
     return wrapper
 
 
-def command_config_required(section_key: str, value_key: str, message: str | None = None) -> Callable[[Context], bool]:
+def command_config_required(section_key: str, value_key: str, message: Optional[str] = None) -> Callable[[Context], bool]:
     """Validates the presences of a given configuration before running
     the `discord.ext.commands.Command`
 
