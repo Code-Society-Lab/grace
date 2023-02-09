@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from discord import Member, Embed, Message
 from discord.ext.commands import Cog, Context, cooldown, BucketType, hybrid_group, has_permissions
 from bot.extensions.command_error_handler import send_command_help
@@ -24,7 +24,7 @@ class ThankCog(Cog):
 
     @thank_group.command(name='send', description='Send a thank you to a person')
     @cooldown(1, 3600, BucketType.user)
-    async def thank(self, ctx: Context, *, member: Member) -> Message | None:
+    async def thank(self, ctx: Context, *, member: Member) -> Optional[Message]:
         """Send a "thank you" message to a member and increase their thank count by 1.
 
         :param ctx: The context of the command invocation.
@@ -58,7 +58,7 @@ class ThankCog(Cog):
         await ctx.interaction.response.send_message(f'Successfully thanked **@{member.display_name}**', ephemeral=True)
 
     @thank_group.command(name='leaderboard', description='Shows top n helpers.')
-    async def thank_leaderboard(self, ctx: Context, *, top: int = 10) -> Message | None:
+    async def thank_leaderboard(self, ctx: Context, *, top: int = 10) -> Optional[Message]:
         """Display the top n helpers, sorted by their thank count.
         
         :param ctx: The context of the command invocation.
@@ -95,7 +95,7 @@ class ThankCog(Cog):
         await ctx.reply(embed=leaderboard_embed, ephemeral=True)
 
     @thank_group.command(name='rank', description='Shows your current thank rank.')
-    async def thank_rank(self, ctx: Context, *, member: Member = None) -> None:
+    async def thank_rank(self, ctx: Context, *, member: Optional[Member] = None) -> None:
         """Show the current rank of the member who issue this command.
         
         :param ctx: The context of the command invocation.
