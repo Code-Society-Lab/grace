@@ -17,28 +17,22 @@ class TranslatorCog(Cog, name="Translator", description="Translate a sentence/wo
     def __init__(self, bot):
         self.bot = bot
 
-    async def language_autocomplete(self, interaction: Interaction, current: str) -> list[Choice[str]]:
+    async def language_autocomplete(self, _: Interaction, current: str) -> list[Choice[str]]:
         """Provide autocomplete suggestions for language names.
 
-        :param interaction: The interaction object.
-        :type interaction: Interaction
+        :param _: The interaction object.
+        :type _: Interaction
         :param current: The current value of the input field.
         :type current: str
         :return: A list of `Choice` objects containing language names.
         :rtype: list[Choice[str]]
         """
-
         LANGUAGES = get_languages_available()
-        if not current:
-            return [
-                Choice(name=lang.capitalize(), value=lang.capitalize())
-                for lang in LANGUAGES[:25] if current.lower() in lang.lower()
-            ]
-        else:
-            return [
-                Choice(name=lang.capitalize(), value=lang.capitalize())
-                for lang in LANGUAGES if current.lower() in lang.lower()
-            ]
+
+        return [
+            Choice(name=lang.capitalize(), value=lang.capitalize())
+            for lang in LANGUAGES[:25] if current.lower() in lang.lower()
+        ]
 
     @hybrid_command(
         name='translator',
@@ -54,28 +48,28 @@ class TranslatorCog(Cog, name="Translator", description="Translate a sentence/wo
         :param sentence: The sentence or word to be translated.
         :type sentence: str
         :param translate_into: The language code for the target language.
-        :type tramslate_into: str
+        :type translate_into: str
         :return: Embed with original input and its translation
         """
-        
+        if ctx.interaction:
+            await ctx.interaction.response.defer()
+
         text_translator = Translator()
         translated_text = text_translator.translate(sentence, dest=translate_into)
-        
-        embed = Embed(
-                    color=self.bot.default_color
-                )
+
+        embed = Embed(color=self.bot.default_color)
 
         embed.add_field(
-                name=f"{language_code[translated_text.src].capitalize()} Original",
-                value=sentence.capitalize(),
-                inline=False
+            name=f"{language_code[translated_text.src].capitalize()} Original",
+            value=sentence.capitalize(),
+            inline=False
         )
         embed.add_field(
-                name=f"{translate_into} Translation",
-                value=translated_text.text,
-                inline=False
+            name=f"{translate_into} Translation",
+            value=translated_text.text,
+            inline=False
         )
-        
+
         await ctx.send(embed=embed)
 
 
