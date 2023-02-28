@@ -85,6 +85,9 @@ class WeatherCog(Cog, name="Weather", description="get current weather informati
         :type city_input: str
         :return: This function sends an embed message to the Discord channel
         """
+        if ctx.interaction:
+            await ctx.interaction.response.defer()
+
         city = capwords(city_input)
         timezone_city = self.get_timezone(city)
         data_weather = await self.get_weather(city)
