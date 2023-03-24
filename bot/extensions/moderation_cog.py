@@ -8,7 +8,6 @@ from datetime import datetime
 
 
 class ModerationCog(Cog, name="Moderation", description="Collection of administrative commands."):
-    """A class representing a collection of administrative commands for moderation purposes."""
     def __init__(self, bot):
         self.bot = bot
 
@@ -35,7 +34,7 @@ class ModerationCog(Cog, name="Moderation", description="Collection of administr
         log.add_field("Reason: ", reason)
 
         await ctx.guild.kick(user=member, reason=reason)
-        await log.send(self.moderation_channel)
+        await log.send(self.moderation_channel or ctx.channel)
 
     @hybrid_command(name='ban', help="Allows a staff member to ban a user based on their behaviour.")
     @has_permissions(ban_members=True)
@@ -56,7 +55,7 @@ class ModerationCog(Cog, name="Moderation", description="Collection of administr
         log.add_field("Reason: ", reason)
 
         await ctx.guild.ban(user=member, reason=reason)
-        await log.send(self.moderation_channel)
+        await log.send(self.moderation_channel or ctx.channel)
 
     @hybrid_command(name='unban', help="Allows a staff member to unban a user.")
     @has_permissions(ban_members=True)
@@ -74,7 +73,7 @@ class ModerationCog(Cog, name="Moderation", description="Collection of administr
         log = danger("UNBAN", f"{user.name} has been unbanned.")
 
         await ctx.guild.unban(user)
-        await log.send(self.moderation_channel)
+        await log.send(self.moderation_channel or ctx.channel)
 
     @hybrid_command(name='purge', help="Deletes n amount of messages.")
     @has_permissions(manage_messages=True)
@@ -94,7 +93,7 @@ class ModerationCog(Cog, name="Moderation", description="Collection of administr
         log.add_field("Reason", reason)
 
         await ctx.channel.purge(limit=int(limit) + 1, bulk=True, reason=reason)
-        await log.send(ctx.channel)
+        await log.send(self.moderation_channel or ctx.channel)
 
     @Cog.listener()
     async def on_member_join(self, member) -> None:
@@ -115,7 +114,9 @@ class ModerationCog(Cog, name="Moderation", description="Collection of administr
 
             await member.send(f"Your account needs to be {minimum_account_age} days old or more to join the server.")
             await member.guild.kick(user=member, reason="Account age restriction")
-            await log.send(self.moderation_channel)
+
+            if self.moderation_channel:
+                await log.send(self.moderation_channel)
 
 
 async def setup(bot):

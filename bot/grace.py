@@ -21,7 +21,16 @@ class Grace(Bot):
         )
 
     def get_channel_by_name(self, name):
-        return self.get_channel(Channel.get_by(channel_name=name).channel_id)
+        """Gets the channel from the database and returns the discord channel with the associated id.
+
+        :param name: The name of the channel.
+        :return: The discord channel.
+        """
+        channel = Channel.get_by(channel_name=name)
+
+        if channel:
+            return self.get_channel(channel.channel_id)
+        return None
 
     async def load_extensions(self):
         for module in app.extension_modules:
