@@ -53,7 +53,7 @@ class CommandErrorHandler(Cog):
         :param _ : The error that was raised during command execution.
         :type _: Exception
         """
-        if interaction:
+        if interaction and interaction.is_expired():
             await interaction.response.send_message("Interaction failed, please try again later!", ephemeral=True)
 
 
