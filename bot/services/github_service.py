@@ -9,7 +9,7 @@ class GithubService(Github):
 
     def __init__(self):
         if self.__token:
-            super().__init__(self.__token)
+            super().__init__(self.__token, per_page=25)
 
     @classmethod
     def can_connect(cls):

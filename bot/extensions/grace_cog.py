@@ -2,7 +2,7 @@ from discord.ext.commands import Cog, hybrid_command, Context
 from discord.ui import Button, View
 from emoji import emojize
 from bot.helpers import send_error
-from bot.helpers.github_helper import create_contributors_embed, create_repository_button, available_project_names
+from bot.helpers.github_helper import create_contributors_embeds, create_repository_button, available_project_names
 from bot.services.github_service import GithubService
 from lib.config_required import command_config_required
 from lib.paged_embeds import PagedEmbedView
@@ -84,9 +84,10 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
 
         if GithubService.can_connect():
             repository = GithubService().get_code_society_lab_repo("grace")
-
-            view.add_embed(create_contributors_embed(repository))
             view.add_item(create_repository_button(repository))
+
+            for embed in create_contributors_embeds(repository):
+                view.add_embed(embed)
 
         await view.send(ctx, ephemeral=ephemeral)
 
@@ -128,18 +129,17 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
         if ctx.interaction:
             await ctx.interaction.response.defer()
 
-        view = View()
-
         if project not in available_project_names():
             return await send_error(ctx, f"Project '_{project}_' not found.")
 
         repository = GithubService().get_code_society_lab_repo(project)
-        embed = create_contributors_embed(repository)
+        embeds = create_contributors_embeds(repository)
+        view = PagedEmbedView(embeds)
 
         view.add_item(self.__CODE_SOCIETY_WEBSITE_BUTTON)
         view.add_item(create_repository_button(repository))
 
-        await ctx.send(embed=embed, view=view)
+        await view.send(ctx)
 
 
 async def setup(bot):
