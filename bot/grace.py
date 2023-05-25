@@ -3,6 +3,7 @@ from discord import Intents, LoginFailure, ActivityType, Activity
 from discord.ext.commands import Bot, when_mentioned_or
 from pretty_help import PrettyHelp
 from bot import app
+from bot.helpers.bot_helper import default_color
 from bot.models.channel import Channel
 from bot.models.extension import Extension
 
@@ -10,7 +11,7 @@ from bot.models.extension import Extension
 class Grace(Bot):
     def __init__(self):
         self.config = app.bot
-        self.default_color = int(self.config.get("default_color"), 16)
+        self.default_color = default_color()
 
         super().__init__(
             command_prefix=when_mentioned_or(self.config.get("prefix")),

@@ -1,5 +1,5 @@
 from typing import Union, Optional
-from github import Github
+from github import Github, Organization
 from github.Repository import Repository
 from bot import app
 
@@ -13,10 +13,10 @@ class GithubService(Github):
 
     @classmethod
     def can_connect(cls):
-        return cls.__token is not None
+        return cls.__token is not None and cls.__token != "".strip()
 
-    def get_grace(self) -> Repository:
-        return self.get_repo("code-society-lab/grace", lazy=True)
+    def get_code_society_lab(self) -> Organization:
+        return self.get_organization("code-society-lab")
 
-    def get_cursif(self) -> Repository:
-        return self.get_repo("code-society-lab/cursif", lazy=True)
+    def get_code_society_lab_repo(self, name: str) -> Repository:
+        return self.get_repo(f"code-society-lab/{name}", lazy=True)

@@ -1,11 +1,13 @@
 from discord.ext.commands import Cog, hybrid_command, Context
 from discord.ui import Button, View
 from emoji import emojize
+from bot.helpers import send_error
+from bot.helpers.github_helper import create_contributors_embed, create_repository_button, available_project_names
 from bot.services.github_service import GithubService
 from lib.config_required import command_config_required
 from lib.paged_embeds import PagedEmbedView
 from discord.app_commands import Choice, autocomplete
-from discord import Embed, Interaction, Color
+from discord import Embed, Interaction
 
 
 async def project_autocomplete(_: Interaction, current: str) -> list[Choice[str]]:
@@ -18,78 +20,22 @@ async def project_autocomplete(_: Interaction, current: str) -> list[Choice[str]
     :return: A list of `Choice` objects containing project name.
     :rtype: list[Choice[str]]
     """
-    projects = {"Grace", "Cursif"}
     return [
-        Choice(name=project.capitalize(), value=project.capitalize())
-        for project in projects if current.lower() in project.lower()
+        Choice(name=project, value=project)
+        for project in available_project_names() if current.lower() in project.lower()
     ]
 
 
 class GraceCog(Cog, name="Grace", description="Default grace commands"):
     """A cog that contains default commands for the Grace bot."""
-    __DEFAULT_INFO_BUTTONS = (
-        Button(
-            emoji=emojize(":globe_with_meridians:"),
-            label="Website",
-            url="https://codesociety.xyz"
-        ),
-        Button(
-            emoji=emojize(":file_folder:"),
-            label="Grace Repository",
-            url="https://github.com/Code-Society-Lab/grace"
-        ),
-        Button(
-            emoji=emojize(":file_folder:"),
-            label="Cursif Repository",
-            url="https://github.com/Code-Society-Lab/cursif"
-        )
+    __CODE_SOCIETY_WEBSITE_BUTTON = Button(
+        emoji=emojize(":globe_with_meridians:"),
+        label="Website",
+        url="https://codesociety.xyz"
     )
 
     def __init__(self, bot):
         self.bot = bot
-
-    async def get_grace_contributors_embed(self) -> Embed:
-        """Get an embed with a list of contributors for the Grace repository.
-
-        :return: An embed with a list of contributors.
-        :rtype: Embed
-        """
-        grace_repo = GithubService().get_grace()
-
-        embed = Embed(
-            color=self.bot.default_color,
-            title="Grace's contributors",
-        )
-        for contributor in grace_repo.get_contributors():
-            embed.add_field(
-                name=contributor.login,
-                value=f"{contributor.contributions} contributions",
-                inline=True
-            )
-
-        return embed
-
-    async def get_cursif_contributors_embed(self) -> Embed:
-        """Get an embed with a list of contributors for the Cursif repository.
-
-        :return: An embed with a list of contributors.
-        :rtype: Embed
-        """
-        cursif_repo = GithubService().get_cursif()
-
-        embed = Embed(
-            color=self.bot.default_color,
-            title="Cursif's Contributors",
-        )
-
-        for contributor in cursif_repo.get_contributors():
-            embed.add_field(
-                name=contributor.login,
-                value=f"{contributor.contributions} Contributions",
-                inline=True
-            )
-
-        return embed
 
     @hybrid_command(name='info', help='Show information about the bot')
     async def info_command(self, ctx: Context, ephemeral=True) -> None:
@@ -100,7 +46,8 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
         :param ephemeral: A flag indicating whether the message should be sent as an ephemeral message. Default is True.
         :type ephemeral: bool, optional
         """
-        contributors_embed = await self.get_grace_contributors_embed()
+        if ctx.interaction:
+            await ctx.interaction.response.defer()
 
         info_embed = Embed(
             color=self.bot.default_color,
@@ -132,10 +79,14 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
             inline=False
         )
 
-        view = PagedEmbedView([info_embed, contributors_embed])
+        view = PagedEmbedView([info_embed])
+        view.add_item(self.__CODE_SOCIETY_WEBSITE_BUTTON)
 
-        for button in self.__DEFAULT_INFO_BUTTONS:
-            view.add_item(button)
+        if GithubService.can_connect():
+            repository = GithubService().get_code_society_lab_repo("grace")
+
+            view.add_embed(create_contributors_embed(repository))
+            view.add_item(create_repository_button(repository))
 
         await view.send(ctx, ephemeral=ephemeral)
 
@@ -174,28 +125,21 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
         :param project: The project's name to get contributors.
         :type project: str
         """
+        if ctx.interaction:
+            await ctx.interaction.response.defer()
+
         view = View()
-        ephemeral = False
 
-        # Eventually that should be done differently so that we can add more project
-        # easily and without duplicating code
-        if project == "Grace":
-            embed = await self.get_grace_contributors_embed()
-            view.add_item(self.__DEFAULT_INFO_BUTTONS[0])
-            view.add_item(self.__DEFAULT_INFO_BUTTONS[1])
-        elif project == "Cursif":
-            embed = await self.get_cursif_contributors_embed()
-            view.add_item(self.__DEFAULT_INFO_BUTTONS[0])
-            view.add_item(self.__DEFAULT_INFO_BUTTONS[2])
-        else:
-            embed = Embed(
-                color=Color.red(),
-                title=f"Project not found",
-                description=f"Project '_{project}_' does not exist.",
-            )
-            ephemeral = True
+        if project not in available_project_names():
+            return await send_error(ctx, f"Project '_{project}_' not found.")
 
-        await ctx.send(embed=embed, view=view, ephemeral=ephemeral)
+        repository = GithubService().get_code_society_lab_repo(project)
+        embed = create_contributors_embed(repository)
+
+        view.add_item(self.__CODE_SOCIETY_WEBSITE_BUTTON)
+        view.add_item(create_repository_button(repository))
+
+        await ctx.send(embed=embed, view=view)
 
 
 async def setup(bot):
