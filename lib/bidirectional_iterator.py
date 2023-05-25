@@ -93,5 +93,8 @@ class BidirectionalIterator(Generic[T]):
         """
         return self.__position > 0
 
+    def __len__(self) -> int:
+        return len(self.__collection)
+
     def __iter__(self) -> Iterator[T]:
         return iter(self.__collection)
