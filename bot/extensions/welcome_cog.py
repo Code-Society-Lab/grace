@@ -1,6 +1,5 @@
 from discord.ext.commands import Cog, hybrid_command
 from logging import info
-from discord import Member
 from bot.models.channel import Channel
 from discord import Embed
 
@@ -8,9 +7,9 @@ from discord import Embed
 class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
     """A cog that sends a welcome message to new members when they join the server."""
 
-    WELCOME_MESSAGE = "Hi **{member_name}!** Welcome to the **Code Society**.\n\nBefore posting please:\n    - Take a " \
-                      "moment to read the <#{info_id}> and the <#{rules_id}>.\n    - Choose some <#{roles_id}>.\n" \
-                      "- Feel free to introduce yourself in <#{intro_id}>."
+    WELCOME_MESSAGE = "Hi **{member_name}!** Welcome to the **Code Society**.\n\nBefore posting please:\n- Take a " \
+                      "moment to read the <#{info_id}> and the <#{rules_id}>.\n- Choose some <#{roles_id}>.\n" \
+                      "- Introduce yourself in <#{intro_id}>."
 
     def __init__(self, bot):
         self.bot = bot
