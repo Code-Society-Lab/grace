@@ -25,7 +25,7 @@ setup(
         'pytest',
         'emoji>=2.1.0',
         'nltk',
-        'discord-pretty-help==1.3.4',
+        'discord-pretty-help==2.0.4',
         'requests',
         'pillow',
         'geopy',
