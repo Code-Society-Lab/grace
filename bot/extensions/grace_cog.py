@@ -1,4 +1,3 @@
-from discord import Embed
 from discord.ext.commands import Cog, hybrid_command, Context
 from discord.ui import Button, View
 from emoji import emojize
@@ -6,7 +5,7 @@ from bot.services.github_service import GithubService
 from lib.config_required import command_config_required
 from lib.paged_embeds import PagedEmbedView
 from discord.app_commands import Choice, autocomplete
-from discord import Embed, Interaction
+from discord import Embed, Interaction, Color
 
 
 async def project_autocomplete(_: Interaction, current: str) -> list[Choice[str]]:
@@ -24,6 +23,7 @@ async def project_autocomplete(_: Interaction, current: str) -> list[Choice[str]
         Choice(name=project.capitalize(), value=project.capitalize())
         for project in projects if current.lower() in project.lower()
     ]
+
 
 class GraceCog(Cog, name="Grace", description="Default grace commands"):
     """A cog that contains default commands for the Grace bot."""
@@ -175,18 +175,27 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
         :type project: str
         """
         view = View()
+        ephemeral = False
 
+        # Eventually that should be done differently so that we can add more project
+        # easily and without duplicating code
         if project == "Grace":
             embed = await self.get_grace_contributors_embed()
             view.add_item(self.__DEFAULT_INFO_BUTTONS[0])
             view.add_item(self.__DEFAULT_INFO_BUTTONS[1])
-        
         elif project == "Cursif":
             embed = await self.get_cursif_contributors_embed()
             view.add_item(self.__DEFAULT_INFO_BUTTONS[0])
             view.add_item(self.__DEFAULT_INFO_BUTTONS[2])
+        else:
+            embed = Embed(
+                color=Color.red(),
+                title=f"Project not found",
+                description=f"Project '_{project}_' does not exist.",
+            )
+            ephemeral = True
 
-        await ctx.send(embed=embed, view=view)
+        await ctx.send(embed=embed, view=view, ephemeral=ephemeral)
 
 
 async def setup(bot):
