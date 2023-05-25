@@ -26,7 +26,7 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
         """
         
         return self.WELCOME_MESSAGE.format(
-            member_name=member.display_name,
+            member_name=member.mention,
             info_id=Channel.get_by(channel_name="info").channel_id,
             rules_id=Channel.get_by(channel_name="rules").channel_id,
             roles_id=Channel.get_by(channel_name="roles").channel_id,
