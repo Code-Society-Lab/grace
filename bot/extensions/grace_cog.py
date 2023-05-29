@@ -3,6 +3,7 @@ from discord.ui import Button, View
 from emoji import emojize
 from bot.helpers import send_error
 from bot.helpers.github_helper import create_contributors_embeds, create_repository_button, available_project_names
+from bot.models.bot import BotSettings
 from bot.services.github_service import GithubService
 from lib.config_required import command_config_required
 from lib.paged_embeds import PagedEmbedView
@@ -140,6 +141,14 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
         view.add_item(create_repository_button(repository))
 
         await view.send(ctx)
+
+    @hybrid_command(name="cool_puns", help="Set cooldown for puns feature in minutes.")
+    async def set_puns_cooldown_command(self, ctx: Context, cooldown_minutes: int) -> None:
+        settings = BotSettings.settings()
+        settings.puns_cooldown = cooldown_minutes
+        settings.save()
+
+        await ctx.send(f"Updated cooldown to {cooldown_minutes} minutes.")
 
 
 async def setup(bot):

@@ -119,10 +119,13 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
         word_set = set(map(lambda pun_word: pun_word.word, pun_words))
 
         matches = tokenlist.intersection(word_set)
+        invoked_at = message.created_at.replace(tzinfo=None)
 
         if len(matches) > 0:
             matched_pun_words = set(filter(lambda pun_word: pun_word.word in matches, pun_words))
-            puns = set(map(lambda pun_word: Pun.get(pun_word.pun_id), matched_pun_words))
+            puns = map(lambda pun_word: Pun.get(pun_word.pun_id), matched_pun_words)
+            puns = filter(lambda pun: pun.can_invoke_at_time(invoked_at), puns)
+            puns = set(puns) # remove duplicate puns
 
             for pun_word in matched_pun_words:
                 await message.add_reaction(pun_word.emoji())
@@ -135,6 +138,7 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
                 )
 
                 await message.channel.send(embed=embed)
+                pun.save_last_invoked(invoked_at)
 
     @Cog.listener()
     async def on_message(self, message: Message) -> None:
