@@ -67,6 +67,10 @@ class PunCog(Cog, name="Puns", description="Automatically intrude with puns when
         :param ctx: The context in which the command was called.
         :type ctx: discord.ext.commands.Context
         """
+
+    @puns_group.command(name="list", help="List all puns")
+    @has_permissions(administrator=True)
+    async def list_puns(self, ctx: Context) -> None:
         if ctx.invoked_subcommand is None:
             pun_texts_with_ids = map(lambda pun: '{}.\t{}'.format(
                 pun.id, pun.text), Pun.all())
