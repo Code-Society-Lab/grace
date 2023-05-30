@@ -40,7 +40,7 @@ class PunCog(Cog, name="Puns", description="Automatically intrude with puns when
         matches = tokenlist.intersection(word_set)
         invoked_at = message.created_at.replace(tzinfo=None)
 
-        if len(matches) > 0:
+        if matches:
             matched_pun_words = set(filter(lambda pun_word: pun_word.word in matches, pun_words))
             puns = map(lambda pun_word: Pun.get(pun_word.pun_id), matched_pun_words)
             puns = filter(lambda pun: pun.can_invoke_at_time(invoked_at), puns)
