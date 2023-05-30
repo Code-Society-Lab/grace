@@ -24,7 +24,7 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.add_column('puns', sa.Column('last_invoked', sa.DateTime(), nullable=True))
-    op.execute("INSERT INTO bot_settings (id) VALUES (1)");
+    op.execute("INSERT INTO bot_settings (id) VALUES (1)")
     # ### end Alembic commands ###
 
 
