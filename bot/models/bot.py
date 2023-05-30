@@ -4,7 +4,7 @@ from db.model import Model
 
 class BotSettings(app.base, Model):
     """Configurable settings for each server"""
-    __tablename__ = 'server_settings'
+    __tablename__ = 'bot_settings'
 
     id = Column(Integer, primary_key=True)
     puns_cooldown = Column(BigInteger, default=60)
