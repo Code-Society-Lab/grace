@@ -21,9 +21,9 @@ class WeatherCog(Cog, name="Weather", description="get current weather informati
     def get_timezone(data: any) -> datetime:
         """Get the timezone for the given city.
 
-        :param city: The city to get the timezone for.
-        :type city: str
-        :return: The timezone for the given city.
+        :param data: The weather data to get the timezone for.
+        :type data: Any | None
+        :return: The timezone based on Longitude and Latitude.
         :rtype: datetime.tzinfo
         """
         longitude       = float(data["coord"]['lon'])
