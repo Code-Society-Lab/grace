@@ -1,11 +1,5 @@
-from json import loads
-from discord.ext.commands.cooldowns import BucketType
-from discord.ext.commands import Cog, cooldown, hybrid_group, Context
-from discord import Embed, Colour
-from requests import get
-from random import choice as random_choice
+from discord.ext.commands import Cog, hybrid_group, Context
 from bot.extensions.command_error_handler import CommandErrorHandler
-from bot.models.extensions.fun.answer import Answer
         
 # A cog for creating full truth tables from a given expression
 class TruthTableCog(Cog):
