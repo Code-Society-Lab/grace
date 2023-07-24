@@ -22,10 +22,9 @@ class TruthTableCog(Cog, name="Truth Table", description="Create truth tables fr
             return
         
         # Create a truth table
-
+        truth_table = self.create_truth_table(proposition)
         
-        
-        await ctx.send(f"Valid proposition: `{proposition}`")
+        await ctx.send(f"Truth table: ```{truth_table}```")
     
     # Check if a proposition is valid
     def is_valid_proposition(self, proposition: str) -> bool:
@@ -78,12 +77,31 @@ class TruthTableCog(Cog, name="Truth Table", description="Create truth tables fr
             
         # Return true if the proposition is well-formed
         return True
+
+    def negation(p): # Not
+        return not p
     
-    # Check if a character is a proposition
-    def is_proposition(self, char: str) -> bool:
-        # Check if the character is a proposition
-        return char.isalpha() or char.isdigit()
+    def conjunction(p, q): # And
+        return p and q
+    
+    def disjunction(p, q): # Or
+        return p or q
+    
+    def conditional(p, q): # Implies
+        return not p or q
+    
+    def biconditional(p, q): # Iff
+        return p == q
+
+    # Create a truth table from a proposition
+    def create_truth_table(self, proposition: str) -> str:
+        # TODO: Create a truth table from a proposition
+        return "Truth table"
 
 
+
+
+    
+# Setup the cog
 async def setup(bot):
     await bot.add_cog(TruthTableCog(bot))
