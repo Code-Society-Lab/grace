@@ -1,39 +1,12 @@
-# Truth table generator for Grace
-# Author: Parker Cranfield
-
-from discord.ext.commands import Cog, hybrid_group, Context
-from bot.extensions.command_error_handler import CommandErrorHandler
-        
 # Operator Precedence Dictionary
 OP_PRECIDENCE = {"=": 2, ">": 3, "v": 4, "^": 5, "~": 6}
 
-# A cog for creating full truth tables from a given expression
-class TruthTableCog(Cog, name="Truth Table", description="Create truth tables from expressions"):
+class DiscreteMaths():
     # Constructor
-    def __init__(self, bot):
-        self.bot = bot
-    
-    # Create a group of commands
-    @hybrid_group(name="ttc", help="Truth Table commands")
-    async def truth_table_group(self, ctx: Context) -> None:
-        if ctx.invoked_subcommand is None:
-            await CommandErrorHandler.send_command_help(ctx)
-    
-    # Main command
-    @truth_table_group.command(name="evaluate", aliases=['eval'], help="Input a proposition and get a truth table.", usage="\"{proposition}\"")
-    async def truth_table_command(self, ctx: Context, proposition: str) -> None:
-        # Check if the proposition is valid
-        if not self.is_valid_proposition(proposition):
-            await ctx.send("Invalid proposition.")
-            return
-        
-        # Create a truth table
-        truth_table = self.create_truth_table(proposition)
-        
-        await ctx.send(f"Truth table: ```{truth_table}```")
-    
+    def __init__(self):
+        pass
     # Check if a proposition is valid
-    def is_valid_proposition(self, proposition: str) -> bool:
+    def __is_valid_proposition(self, proposition: str) -> bool:
         # Check if the proposition is empty
         if not proposition:
             print("Failed: Empty proposition")
@@ -47,12 +20,12 @@ class TruthTableCog(Cog, name="Truth Table", description="Create truth tables fr
                     return False
         
         # Check if the proposition is balanced
-        if not self.is_balanced_proposition(proposition):
+        if not self.__is_balanced_proposition(proposition):
             print("Failed: Unbalanced proposition")
             return False
         
         # Check if the proposition is well-formed
-        if not self.is_well_formed_proposition(proposition):
+        if not self.__is_well_formed_proposition(proposition):
             print("Failed: Proposition is not well-formed")
             return False
         
@@ -60,7 +33,7 @@ class TruthTableCog(Cog, name="Truth Table", description="Create truth tables fr
         return True
 
     # Check if a proposition is balanced
-    def is_balanced_proposition(self, proposition: str) -> bool:
+    def __is_balanced_proposition(self, proposition: str) -> bool:
         # Check if the proposition is balanced
         balance = 0
         for char in proposition:
@@ -75,7 +48,7 @@ class TruthTableCog(Cog, name="Truth Table", description="Create truth tables fr
         return balance == 0
     
     # Check if a proposition is well-formed - Might need to be extended
-    def is_well_formed_proposition(self, proposition: str) -> bool:
+    def __is_well_formed_proposition(self, proposition: str) -> bool:
         # Check if the proposition is well-formed (i.e. there are no 2 consecutive operators)
         for i in range(len(proposition) - 1):
             if proposition[i] in ['v', '^', '>', '='] and proposition[i + 1] in ['v', '^', '>', '=']:
@@ -84,23 +57,28 @@ class TruthTableCog(Cog, name="Truth Table", description="Create truth tables fr
         # Return true if the proposition is well-formed
         return True
 
-    def negation(self, p): # Not
+    # ~ == not
+    def __negation(self, p): # Not
         return not p
     
-    def conjunction(self, p, q): # And
+    # v == or
+    def __conjunction(self, p, q): # And
         return p and q
     
-    def disjunction(self, p, q): # Or
+    # ^ == and
+    def __disjunction(self, p, q): # Or
         return p or q
     
-    def conditional(self, p, q): # Implies
+    # > == implies
+    def __conditional(self, p, q): # Implies
         return not p or q
     
-    def biconditional(self, p, q): # Iff
+    # = == iff
+    def __biconditional(self, p, q): # Iff
         return p == q
 
     # Shunting Yard Algorithm - https://en.wikipedia.org/wiki/Shunting_yard_algorithm
-    def ShuntingYard(self, prop: str) -> str:
+    def __ShuntingYard(self, prop: str) -> str:
         output_queue = []
         operator_stack = []
 
@@ -131,7 +109,7 @@ class TruthTableCog(Cog, name="Truth Table", description="Create truth tables fr
         return output_queue
 
     # Calculate the result of a proposition given a set of variable values and an RPN version of the proposition
-    def calculate_RPN(self, RPN: list, variable_values: dict) -> bool:
+    def __calculate_RPN(self, RPN: list, variable_values: dict) -> bool:
         # Temporary stack
         stack = []
 
@@ -142,28 +120,31 @@ class TruthTableCog(Cog, name="Truth Table", description="Create truth tables fr
                 stack.append(variable_values[token])
             # If the token is an operator, calculate the result of the operation using the values in the stack and add it to the stack
             elif token == "~":
-                stack.append(self.negation(stack.pop()))
+                stack.append(self.__negation(stack.pop()))
             elif token == "^":
-                stack.append(self.conjunction(stack.pop(), stack.pop()))
+                stack.append(self.__conjunction(stack.pop(), stack.pop()))
             elif token == "v":
-                stack.append(self.disjunction(stack.pop(), stack.pop()))
+                stack.append(self.__disjunction(stack.pop(), stack.pop()))
             elif token == ">":
-                stack.append(self.conditional(stack.pop(), stack.pop()))
+                stack.append(self.__conditional(stack.pop(), stack.pop()))
             elif token == "=":
-                stack.append(self.biconditional(stack.pop(), stack.pop()))
+                stack.append(self.__biconditional(stack.pop(), stack.pop()))
         
         # return the result of the proposition
         return stack.pop()
 
     # Create a truth table from a proposition
     def create_truth_table(self, proposition: str) -> str:
+         # Check if the proposition is valid
+        if not self.__is_valid_proposition(proposition):
+            return "Invalid proposition."
         # truth table text
         truth_table = ""
         initial_proposition = proposition
         # remove spaces from the proposition
         proposition = proposition.replace(" ", "")
         # Run it through the shunting yard algorithm
-        RPN = self.ShuntingYard(proposition)
+        RPN = self.__ShuntingYard(proposition)
 
         # Get all the variables in the proposition + add to truth table text
         variables = []
@@ -197,7 +178,7 @@ class TruthTableCog(Cog, name="Truth Table", description="Create truth tables fr
 
             
             # Calculate the result of the proposition
-            result = self.calculate_RPN(RPN, variable_values)
+            result = self.__calculate_RPN(RPN, variable_values)
 
             # Add the result to the truth table text
             for i in range(len(variables)):
@@ -215,7 +196,3 @@ class TruthTableCog(Cog, name="Truth Table", description="Create truth tables fr
 
 
         return truth_table
-    
-# Setup the cog
-async def setup(bot):
-    await bot.add_cog(TruthTableCog(bot))
