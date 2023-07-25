@@ -35,7 +35,7 @@ class TruthTableCog(Cog, name="Truth Table", description="Create truth tables fr
         if not proposition:
             print("Failed: Empty proposition")
             return False
-        
+
         # Check if the proposition is valid - ~ == not, v == or, ^ == and, > == implies, = == iff
         for char in proposition:
             if char not in ['~', '(', ')', 'v', '^', '>', '=', ' ']:
@@ -81,33 +81,26 @@ class TruthTableCog(Cog, name="Truth Table", description="Create truth tables fr
         # Return true if the proposition is well-formed
         return True
 
-    def negation(p): # Not
+    def negation(self, p): # Not
         return not p
     
-    def conjunction(p, q): # And
+    def conjunction(self, p, q): # And
         return p and q
     
-    def disjunction(p, q): # Or
+    def disjunction(self, p, q): # Or
         return p or q
     
-    def conditional(p, q): # Implies
+    def conditional(self, p, q): # Implies
         return not p or q
     
-    def biconditional(p, q): # Iff
+    def biconditional(self, p, q): # Iff
         return p == q
 
-    # Create a truth table from a proposition
-    def create_truth_table(self, proposition: str) -> str:
-        # TODO: Create a truth table from a proposition
-        return "Truth table"
-
-
-    # Shunting Yard Algorithm
-    def ShuntingYard(prop: str) -> str:
+    # Shunting Yard Algorithm - https://en.wikipedia.org/wiki/Shunting_yard_algorithm
+    def ShuntingYard(self, prop: str) -> str:
         output_queue = []
         operator_stack = []
 
-        # Go through each element (token) in the proposition
         for token in prop:
             if token in OP_PRECIDENCE.keys():
                 if operator_stack and operator_stack[-1] != "(" and OP_PRECIDENCE[operator_stack[-1]] == OP_PRECIDENCE[token]:
@@ -133,6 +126,71 @@ class TruthTableCog(Cog, name="Truth Table", description="Create truth tables fr
             output_queue.append(operator_stack.pop())
 
         return output_queue
+
+    # Calculate the result of a proposition given a set of variable values and an RPN version of the proposition
+    def calculate_RPN(self, RPN: list, variable_values: dict) -> bool:
+        # Temporary stack
+        stack = []
+
+        # Go through each token in the RPN proposition
+        for token in RPN:
+            # If the token is a variable, add it to the stack
+            if token in variable_values.keys():
+                stack.append(variable_values[token])
+            # If the token is an operator, calculate the result of the operation using the values in the stack and add it to the stack
+            elif token == "~":
+                stack.append(self.negation(stack.pop()))
+            elif token == "^":
+                stack.append(self.conjunction(stack.pop(), stack.pop()))
+            elif token == "v":
+                stack.append(self.disjunction(stack.pop(), stack.pop()))
+            elif token == ">":
+                stack.append(self.conditional(stack.pop(), stack.pop()))
+            elif token == "=":
+                stack.append(self.biconditional(stack.pop(), stack.pop()))
+        
+        # return the result of the proposition
+        return stack.pop()
+
+    # Create a truth table from a proposition
+    def create_truth_table(self, proposition: str) -> str:
+        # remove spaces from the proposition
+        proposition = proposition.replace(" ", "")
+        print(proposition)
+        # Run it through the shunting yard algorithm
+        RPN = self.ShuntingYard(proposition)
+        print(RPN)
+
+        # Get all the variables in the proposition
+        variables = []
+        for char in proposition:
+            if char.isalpha() and char not in variables and char not in ['v', '^', '>', '=', '~']:
+                variables.append(char)
+        
+        # Get all combinations of true and false for the variables and have them be true or false
+        combinations = []
+        for i in range(2 ** len(variables)):
+            combination = []
+            for j in range(len(variables)):
+                combination.append(bool(i & (1 << j)))
+            combinations.append(combination)
+
+        # Create a list of all the possible values for the proposition and calculate the result of the proposition for each combination
+        results = []
+        for value in combinations:
+            # Create a dictionary of the variables and their values
+            variable_values = {}
+            for i in range(len(variables)):
+                variable_values[variables[i]] = value[i]
+
+            
+            # Calculate the result of the proposition
+            result = self.calculate_RPN(RPN, variable_values)
+            print("Current variable values: ", variable_values, " - ", result) 
+            results.append(result)
+
+
+        return "Truth table"
     
 # Setup the cog
 async def setup(bot):
