@@ -154,18 +154,27 @@ class TruthTableCog(Cog, name="Truth Table", description="Create truth tables fr
 
     # Create a truth table from a proposition
     def create_truth_table(self, proposition: str) -> str:
+        # truth table text
+        truth_table = ""
+        initial_proposition = proposition
         # remove spaces from the proposition
         proposition = proposition.replace(" ", "")
-        print(proposition)
         # Run it through the shunting yard algorithm
         RPN = self.ShuntingYard(proposition)
-        print(RPN)
 
-        # Get all the variables in the proposition
+        # Get all the variables in the proposition + add to truth table text
         variables = []
         for char in proposition:
             if char.isalpha() and char not in variables and char not in ['v', '^', '>', '=', '~']:
+                truth_table += " " + char + " |"
                 variables.append(char)
+
+        # Add the proposition to the truth table text
+        truth_table += " " + initial_proposition + "\n"
+        # Add the line under the variables
+        for i in range(len(variables)):
+            truth_table += "----"
+        truth_table += "----\n"
         
         # Get all combinations of true and false for the variables and have them be true or false
         combinations = []
@@ -186,11 +195,23 @@ class TruthTableCog(Cog, name="Truth Table", description="Create truth tables fr
             
             # Calculate the result of the proposition
             result = self.calculate_RPN(RPN, variable_values)
-            print("Current variable values: ", variable_values, " - ", result) 
+
+            # Add the result to the truth table text
+            for i in range(len(variables)):
+                truth_table += " "
+                if variable_values[variables[i]]:
+                    truth_table += "1 |"
+                else:
+                    truth_table += "0 |"
+            if result:
+                truth_table += " 1\n"
+            else:
+                truth_table += " 0\n"
+
             results.append(result)
 
 
-        return "Truth table"
+        return truth_table
     
 # Setup the cog
 async def setup(bot):
