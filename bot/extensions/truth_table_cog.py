@@ -1,6 +1,9 @@
 from discord.ext.commands import Cog, hybrid_group, Context
 from bot.extensions.command_error_handler import CommandErrorHandler
         
+# Operator Precedence Dictionary
+OP_PRECIDENCE = {"=": 2, ">": 3, "v": 4, "^": 5, "~": 6}
+
 # A cog for creating full truth tables from a given expression
 class TruthTableCog(Cog, name="Truth Table", description="Create truth tables from expressions"):
     # Constructor
@@ -99,8 +102,37 @@ class TruthTableCog(Cog, name="Truth Table", description="Create truth tables fr
         return "Truth table"
 
 
+    # Shunting Yard Algorithm
+    def ShuntingYard(prop: str) -> str:
+        output_queue = []
+        operator_stack = []
 
+        # Go through each element (token) in the proposition
+        for token in prop:
+            if token in OP_PRECIDENCE.keys():
+                if operator_stack and operator_stack[-1] != "(" and OP_PRECIDENCE[operator_stack[-1]] == OP_PRECIDENCE[token]:
+                    output_queue.append(operator_stack.pop())
+                    operator_stack.append(token)
+                    continue
+                while operator_stack and operator_stack[-1] != "(" and OP_PRECIDENCE[operator_stack[-1]] > OP_PRECIDENCE[token]:
+                    output_queue.append(operator_stack.pop())
+                operator_stack.append(token)
 
+            elif token == "(":
+                operator_stack.append(token)
+
+            elif token == ")":
+                while operator_stack[-1] != "(":
+                    output_queue.append(operator_stack.pop())
+                operator_stack.pop()
+
+            else:
+                output_queue.append(token)
+
+        while operator_stack:
+            output_queue.append(operator_stack.pop())
+
+        return output_queue
     
 # Setup the cog
 async def setup(bot):
