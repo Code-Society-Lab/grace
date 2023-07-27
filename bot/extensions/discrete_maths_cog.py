@@ -37,7 +37,7 @@ class DiscreteMathsCog(Cog, name="Discrete Maths", description="Run discrete mat
     @tautology_checker_command.error
     async def discrete_maths_command_error(self, ctx: Context, error) -> None:
         error = get_original_exception(error)
-        await ctx.send(f"Error: {error}")
+        await ctx.send(f"Error: {error}", ephemeral=True)
     
     
 # Setup the cog
