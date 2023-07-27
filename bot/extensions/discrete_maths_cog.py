@@ -1,5 +1,4 @@
 # Discrete maths cog for Grace
-# Author: Parker Cranfield
 
 from discord.ext.commands import Cog, hybrid_group, Context
 from bot.extensions.command_error_handler import CommandErrorHandler
