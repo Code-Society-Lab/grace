@@ -1,9 +1,11 @@
-# Classical logic operations library
+"""
+This module contains functions for working with logic operations and propositions
+"""
 
-from lib.parsers import shunting_yard
+from lib.discrete_maths.parsers import shunting_yard
 
-# Operator Precedence Dictionary - = == iff, > == implies, v == or, ^ == and, ~ == not
-OP_PRECIDENCE = {"=": 2, ">": 3, "v": 4, "^": 5, "~": 6}
+OPERATION_BY_PRECEDENCES = {"=": 2, ">": 3, "v": 4, "^": 5, "~": 6}
+"""= == iff, > == implies, v == or, ^ == and, ~ == not"""
 
 def negation(a):
     return not a
@@ -32,8 +34,12 @@ def nor(a, b):
 def xnor(a, b):
     return (not a and not b) or (a and b)
 
-# Check if a proposition is balanced
 def is_balanced_proposition(proposition: str) -> bool:
+    """Check if a proposition is balanced
+    
+    :param proposition: A proposition
+    :type proposition: str
+    """
     balance = 0
     for char in proposition:
         if char == '(':
@@ -45,8 +51,12 @@ def is_balanced_proposition(proposition: str) -> bool:
     
     return balance == 0
 
-# Check if a proposition is well-formed - no 2 consecutive operators or variables
 def is_well_formed_proposition(proposition: str) -> bool:
+    """Check if a proposition is well-formed
+
+    :param proposition: A proposition
+    :type proposition: str
+    """
     for i in range(len(proposition) - 1):
         if proposition[i] in ['v', '^', '>', '='] and proposition[i + 1] in ['v', '^', '>', '=']:
             return False
@@ -55,8 +65,12 @@ def is_well_formed_proposition(proposition: str) -> bool:
         
     return True
 
-# Check if a proposition is valid
 def is_valid_proposition(proposition: str) -> bool:
+    """Check if a proposition is valid
+
+    :param proposition: A proposition
+    :type proposition: str
+    """
     if not proposition:
         raise SyntaxError("Empty proposition")
 
@@ -73,11 +87,16 @@ def is_valid_proposition(proposition: str) -> bool:
     
     return True
     
-# Calculate the result of a proposition given a set of variable values and an RPN version of the proposition
-def calculate_rpn_prop(rpn: list, variable_values: dict) -> bool:
+def calculate_rpn_prop(reverse_polish_prop: list, variable_values: dict) -> bool:
+    """Calculate the result of a proposition when in Reverse Polish Notation
+
+    :param reverse_polish_prop: A proposition in rpn form
+    :type reverse_polish_prop: list
+    """
+    
     stack = []
 
-    for token in rpn:
+    for token in reverse_polish_prop:
         if token in variable_values.keys():
             stack.append(variable_values[token])
         elif token == "~":
@@ -93,12 +112,16 @@ def calculate_rpn_prop(rpn: list, variable_values: dict) -> bool:
     
     return stack.pop()
 
-# Create a list of lists of all the possible values for the variables in the rpn proposition
-def create_variable_values(rpn: list) -> list:
+def create_variable_values(reverse_polish_prop: list) -> list:
+    """Create a list of all the possible values for the proposition and calculate the result of the proposition for each combination
+    
+    :param reverse_polish_prop: A proposition in Reverse Polish Notation
+    :type reverse_polish_prop: list
+    """
     variable_list = []
     variable_count = 0
-    for token in rpn:
-        if token.isalpha() and token not in variable_list and token not in OP_PRECIDENCE.keys():
+    for token in reverse_polish_prop:
+        if token.isalpha() and token not in variable_list and token not in OPERATION_BY_PRECEDENCES.keys():
             variable_list.append(token)
             variable_count += 1
 
@@ -118,7 +141,7 @@ def is_prop_tautolgy(proposition: str) -> bool:
         raise SyntaxError("Invalid proposition")
 
     proposition = proposition.replace(" ", "")
-    rpn_tokenization = shunting_yard(proposition, OP_PRECIDENCE)
+    rpn_tokenization = shunting_yard(proposition, OPERATION_BY_PRECEDENCES)
 
     combinations_list, variable_list = create_variable_values(rpn_tokenization)
 
@@ -144,7 +167,7 @@ def create_truth_table(proposition: str) -> str:
 
     # Prepare the proposition
     proposition = proposition.replace(" ", "")
-    rpn_tokenization = shunting_yard(proposition, OP_PRECIDENCE)
+    rpn_tokenization = shunting_yard(proposition, OPERATION_BY_PRECEDENCES)
     
     combination_list, variable_list = create_variable_values(rpn_tokenization)
 
