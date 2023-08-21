@@ -1,11 +1,21 @@
-# Parsing library
+"""
+Parser library
 
- # Shunting Yard Algorithm - https://en.wikipedia.org/wiki/Shunting_yard_algorithm
-def shunting_yard(prop: str, precidence_dict: dict) -> str:
+Used to parse a given input string into different data structures or formats
+"""
+
+def shunting_yard(input_string: str, precidence_dict: dict) -> str:
+    """Convert an infix string to a postfix string using the shunting yard algorithm
+    
+    :param input_string: The infix string to convert
+    :type input_string: str
+    :param precidence_dict: A dictionary containing the precidence of each operator
+    :type precidence_dict: dict
+    """
     output_queue = []
     operator_stack = []
 
-    for token in prop:
+    for token in input_string:
         if token in precidence_dict.keys():
             if operator_stack and operator_stack[-1] != "(" and precidence_dict[operator_stack[-1]] == precidence_dict[token]:
                 output_queue.append(operator_stack.pop())
