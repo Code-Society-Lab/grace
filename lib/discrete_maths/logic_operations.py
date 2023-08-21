@@ -112,7 +112,7 @@ def calculate_rpn_prop(reverse_polish_prop: list, variable_values: dict) -> bool
     
     return stack.pop()
 
-def create_variable_values(reverse_polish_prop: list) -> list:
+def generate_values_for_variables(reverse_polish_prop: list) -> list:
     """Create a list of all the possible values for the proposition and calculate the result of the proposition for each combination
     
     :param reverse_polish_prop: A proposition in Reverse Polish Notation
@@ -143,7 +143,7 @@ def is_prop_tautolgy(proposition: str) -> bool:
     proposition = proposition.replace(" ", "")
     rpn_tokenization = shunting_yard(proposition, OPERATION_BY_PRECEDENCES)
 
-    combinations_list, variable_list = create_variable_values(rpn_tokenization)
+    combinations_list, variable_list = generate_values_for_variables(rpn_tokenization)
 
     # Calculate the result of the proposition for each combination and add the result to the list
     results = []
@@ -169,7 +169,7 @@ def create_truth_table(proposition: str) -> str:
     proposition = proposition.replace(" ", "")
     rpn_tokenization = shunting_yard(proposition, OPERATION_BY_PRECEDENCES)
     
-    combination_list, variable_list = create_variable_values(rpn_tokenization)
+    combination_list, variable_list = generate_values_for_variables(rpn_tokenization)
 
     # Prepare the table
     for char in variable_list:
