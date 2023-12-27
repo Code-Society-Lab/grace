@@ -15,66 +15,6 @@ class ModerationCog(Cog, name="Moderation", description="Collection of administr
     def moderation_channel(self):
         return self.bot.get_channel_by_name("moderation_logs")
 
-    @hybrid_command(name='kick', help="Allows a staff member to kick a user based on their behaviour.")
-    @has_permissions(kick_members=True)
-    async def kick(self, ctx, member: Member, reason="No reason given") -> None:
-        """Kick a member from the community.
-        
-        :param ctx: The context in which the command was called.
-        :type ctx: Context
-        :param member: The member to be kick.
-        :type member: discord.Member
-        :param reason: The reason for the kick ("No reason given" by default).
-        :type reason: str, optional
-        """
-        await ctx.defer()
-
-        log = danger("KICK", f"{member.mention} has been kicked.")
-        log.add_field("Issuer: ", ctx.author)
-        log.add_field("Reason: ", reason)
-
-        await ctx.guild.kick(user=member, reason=reason)
-        await log.send(self.moderation_channel or ctx.channel)
-
-    @hybrid_command(name='ban', help="Allows a staff member to ban a user based on their behaviour.")
-    @has_permissions(ban_members=True)
-    async def ban(self, ctx, member: Member, reason="No reason") -> None:
-        """Ban a member from the community.
-        
-        :param ctx: The context in which the command was called.
-        :type ctx: Context
-        :param member: The member to be banned.
-        :type member: discord.Member
-        :param reason: The reason for the kick ("No reason" by default).
-        :type reason: str, optional
-        """
-        await ctx.defer()
-
-        log = danger("BAN", f"{member.mention} has been banned.")
-        log.add_field("Issuer: ", ctx.author.mention)
-        log.add_field("Reason: ", reason)
-
-        await ctx.guild.ban(user=member, reason=reason)
-        await log.send(self.moderation_channel or ctx.channel)
-
-    @hybrid_command(name='unban', help="Allows a staff member to unban a user.")
-    @has_permissions(ban_members=True)
-    async def unban(self, ctx, user_id: int) -> None:
-        """Unban a member from the community.
-        
-        :param ctx: The context in which the command was called.
-        :type ctx: Context
-        :param user_id: The user_id of the member to unban
-        :type user_id: discord.Member
-        """
-        await ctx.defer()
-
-        user = await self.bot.fetch_user(user_id)
-        log = danger("UNBAN", f"{user.name} has been unbanned.")
-
-        await ctx.guild.unban(user)
-        await log.send(self.moderation_channel or ctx.channel)
-
     @hybrid_command(name='purge', help="Deletes n amount of messages.")
     @has_permissions(manage_messages=True)
     async def purge(self, ctx: Context, limit: int, reason: Optional[str] = "No reason given") -> None:
