@@ -9,7 +9,9 @@ def seed_database():
         "info": 825404191492276225,
         "rules": 823183118902362132,
         "welcome": 823178343943897091,
-        "moderation_logs": 876592591657918514
+        "moderation_logs": 876592591657918514,
+        "help": 1019793296740073614,
+        "posting-guidelines": 1068966762730750105
     }
 
     for channel_name in initial_channels:
