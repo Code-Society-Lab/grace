@@ -15,7 +15,7 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
     @property
     def help_section(self):
         return self.__build_section(
-            ["help", "posting_guidelines"],
+            ["posting_guidelines", "help"],
             "If you need help, read the <#{}> and open a post in <#{}>"
         )
 
@@ -45,15 +45,21 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
         ])).strip().format(member=member.mention)
 
     def __build_section(self, channel_names, message):
-        """Build a section of the welcome message.
+        """Builds a section of the welcome message by replacing placeholders with corresponding channel IDs.
+
+        The message needs to contain empty ({}) or numbered ({index}) placeholders to indicate 
+        where the channel IDs will be inserted.
+
+        IMPORTANT: The section will return an empty unless all the channels are found.
 
         :param channel_names: The names of the channels to include in the section.
         :type channel_names: List[str]
 
-        :param message: The message to include in the section.
+        :param message: A string containing placeholders ({}) or {index} 
+                        indicating where the channel IDs will be inserted.
         :type channel_names: str
 
-        :return: The section of the welcome message.
+        :return: The constructed section of the welcome message with channel IDs inserted.
         :rtype: str
         """
         channel_ids = [getattr(Channel.get_by(channel_name=n), "channel_id", "") for n in channel_names]
