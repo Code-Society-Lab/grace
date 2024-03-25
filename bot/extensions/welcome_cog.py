@@ -12,6 +12,23 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
     def __init__(self, bot):
         self.bot = bot
 
+    @property
+    def help_section(self):
+        return self.__build_section(
+            ["help", "posting_guidelines"],
+            "If you need help, read the <#{}> and open a post in <#{}>"
+        )
+
+    @property
+    def info_section(self):
+        return self.__build_section(
+            ["info", "rules", "roles", "introductions"],
+            "Before posting please:\n"
+            "- Take a moment to read the <#{}> and the <#{}>.\n"
+            "- Choose some <#{}>.\n"
+            "- Introduce yourself in <#{}>."
+        )
+
     def get_welcome_message(self, member):
         """Return the welcome message for the given member.
 
@@ -21,48 +38,26 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
         :return: The welcome message for the given member.
         :rtype: str
         """
-        return "\n\n".join([
-            self.BASE_WELCOME_MESSAGE.format(member=member.mention), 
-            self.__get_help_section(),
-            self.__get_posting_section()
-        ]).strip()
+        return "\n\n".join(filter(None, [
+            self.BASE_WELCOME_MESSAGE, 
+            self.help_section,
+            self.info_section,
+        ])).strip().format(member=member.mention)
 
-    def __get_help_section(self):
-        """Return the help section of the welcome message.
+    def __build_section(self, channel_names, message):
+        """Build a section of the welcome message.
 
-        :return: The help section of the welcome message.
+        :param channel_names: The names of the channels to include in the section.
+        :type channel_names: List[str]
+
+        :param message: The message to include in the section.
+        :type channel_names: str
+
+        :return: The section of the welcome message.
         :rtype: str
         """
-        help_channel = Channel.get_by(channel_name="help")
-        guidelines_channel = Channel.get_by(channel_name="posting_guidelines")
-
-        help_id = getattr(help_channel, "channel_id", "")
-        guidelines_id = getattr(guidelines_channel, "channel_id", "")
-
-        if help_id and guidelines_channel:
-            return f"If you need help, read the <#{guidelines_id}> and open a post in <#{help_id}>"
-        return ""
-
-    def __get_posting_section(self):
-        """Return the posting section of the welcome message.
-
-        :return: The posting section of the welcome message.
-        :rtype: str
-        """
-        channels = ["info", "rules", "roles", "introductions"]
-        channel_ids = [getattr(Channel.get_by(channel_name=n), "channel_id", "") for n in channels]
-
-        print(channel_ids)
-        print(all(channel_ids))
-
-        if all(channel_ids):
-            return "\n".join([
-                f"Before posting please:",
-                f"- Take a moment to read the <#{channel_ids[0]}> and the <#{channel_ids[1]}>.",
-                f"- Choose some <#{channel_ids[2]}>.",
-                f"- Introduce yourself in <#{channel_ids[3]}>.",
-             ])
-        return ""
+        channel_ids = [getattr(Channel.get_by(channel_name=n), "channel_id", "") for n in channel_names]
+        return message.format(*channel_ids) if all(channel_ids) else ""
 
     @Cog.listener()
     async def on_member_update(self, before, after):
