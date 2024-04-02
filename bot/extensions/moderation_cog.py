@@ -1,10 +1,12 @@
 from typing import Optional
 from bot import app
 from logging import info
-from discord import Member
+from discord import Message, Member, Reaction
 from discord.ext.commands import Cog, has_permissions, hybrid_command, Context
 from bot.helpers.log_helper import danger
 from datetime import datetime
+from emoji import demojize
+from bot.models.channel import Channel
 
 
 class ModerationCog(Cog, name="Moderation", description="Collection of administrative commands."):
@@ -19,7 +21,7 @@ class ModerationCog(Cog, name="Moderation", description="Collection of administr
     @has_permissions(manage_messages=True)
     async def purge(self, ctx: Context, limit: int, reason: Optional[str] = "No reason given") -> None:
         """Purge a specified number of messages from the channel.
-        
+
         :param ctx: The context in which the command was called.
         :type ctx: Context
         :param limit: The number of messages to be purged.
@@ -34,6 +36,29 @@ class ModerationCog(Cog, name="Moderation", description="Collection of administr
 
         await ctx.channel.purge(limit=int(limit) + 1, bulk=True, reason=reason)
         await log.send(self.moderation_channel or ctx.channel)
+
+    @Cog.listener()
+    async def on_reaction_add(self, reaction: Reaction, member: Member) -> None:
+        message: Message = reaction.message
+        author: Member = message.author
+
+        emojis = [":SOS_button:", ":red_question_mark:"]
+        is_already_reacted = any(filter(lambda r: demojize(r.emoji) in emojis and r.count > 1, message.reactions))
+
+        if author.bot or is_already_reacted:
+            return None
+
+        match demojize(reaction.emoji):
+            case ":SOS_button:":
+                await message.reply("[Don't ask to ask, just ask](<https://dontasktoask.com/>)")
+            case ":red_question_mark:":
+                guidelines: Channel = Channel.get_by(channel_name="posting_guidelines")
+                help: Channel = Channel.get_by(channel_name="help")
+
+                if guidelines and help:
+                    await message.reply(f"If you need some help, read the <#{guidelines.channel_id}> and open a post in <#{help.channel_id}>!")
+            case _:
+                return None
 
     @Cog.listener()
     async def on_member_join(self, member) -> None:
