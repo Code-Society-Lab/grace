@@ -12,7 +12,7 @@ setup(
         "Discord server": "https://discord.gg/code-society-823178343943897088",
     },
     license="GNU General Public License v3.0",
-    python_requires='>=3.9.0',
+    python_requires='>=3.10.0',
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
