@@ -63,7 +63,7 @@ class ModerationCog(Cog, name="Moderation", description="Collection of administr
         # Grace also reacts and log the reaction because some people remove their reaction afterward
         await message.add_reaction(reaction)
 
-        log = info("SPECIAL REACTION", f"{member.mention} reacted to {message.jump_url} with {reaction.emoji}")
+        log = info("HELP REACTION", f"{member.mention} reacted to {message.jump_url} with {reaction.emoji}")
         await log.send(self.moderation_channel or message.channel)
 
     @Cog.listener()
