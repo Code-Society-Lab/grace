@@ -43,7 +43,7 @@ class ModerationCog(Cog, name="Moderation", description="Collection of administr
         author: Member = message.author
 
         emojis = [":SOS_button:", ":red_question_mark:"]
-        is_already_reacted = any(filter(lambda r: demojize(r.emoji) in emojis and r.count > 1, message.reactions))
+        is_already_reacted = any(filter(lambda r: r.me and demojize(r.emoji) in emojis and r.count > 0, message.reactions))
 
         if author.bot or is_already_reacted:
             return None
