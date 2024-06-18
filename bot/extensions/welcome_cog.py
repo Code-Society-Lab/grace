@@ -7,7 +7,7 @@ from discord import Embed
 class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
     """A cog that sends a welcome message to new members when they join the server."""
 
-    BASE_WELCOME_MESSAGE = "Hi **{member}!** Welcome to the **Code Society**."
+    BASE_WELCOME_MESSAGE = "Hi <@{member_id}> ({member_name})! Welcome to the **Code Society**."
 
     def __init__(self, bot):
         self.bot = bot
@@ -39,15 +39,15 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
         :rtype: str
         """
         return "\n\n".join(filter(None, [
-            self.BASE_WELCOME_MESSAGE, 
+            self.BASE_WELCOME_MESSAGE,
             self.help_section,
             self.info_section,
-        ])).strip().format(member=member.mention)
+        ])).strip().format(member_id=member.id, member_name=member.name)
 
     def __build_section(self, channel_names, message):
         """Builds a section of the welcome message by replacing placeholders with corresponding channel IDs.
 
-        The message needs to contain empty ({}) or numbered ({index}) placeholders to indicate 
+        The message needs to contain empty ({}) or numbered ({index}) placeholders to indicate
         where the channel IDs will be inserted.
 
         IMPORTANT: The section will return an empty unless all the channels are found.
@@ -55,7 +55,7 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
         :param channel_names: The names of the channels to include in the section.
         :type channel_names: List[str]
 
-        :param message: A string containing placeholders ({}) or {index} 
+        :param message: A string containing placeholders ({}) or {index}
                         indicating where the channel IDs will be inserted.
         :type channel_names: str
 
