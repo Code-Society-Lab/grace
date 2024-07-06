@@ -86,36 +86,6 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
         else:
             await ctx.send("Unable to fetch a quote! Try again later.")
 
-    @fun_group.command(name='bisonquote', help='Sends a quote from SoyBison\'s quote server.')
-    async def bisonquote_command(self, ctx: Context) -> None:
-        """Generate a random inspirational quote fron bison.
-        
-        :param ctx: The context in which the command was called.
-        :type ctx: Context
-        """
-        response = get('https://quotes.needell.co/quote', timeout=1)
-
-        if response.ok:
-            quote = response.text[1:-2].replace("\\n", "\n").replace("\\t", "    ").split('~')
-            name = quote[1].strip().split('(')[0].strip()
-            urlname = name.replace(" ", "_")
-
-            true_author = None
-            if '(' in quote[1]:
-                true_author = quote[1].strip().split('(')[-1][:-1]
-
-            embed = Embed(
-                color=Colour.random(),
-                description=quote[0],
-            )
-            embed.set_author(name=name, icon_url=f'https://quotes.needell.co/get_image?name={urlname}')
-            if true_author:
-                embed.set_footer(text=true_author)
-
-            await ctx.send(embed=embed)
-        else:
-            await ctx.send("Unable to fetch a quote! Try again later.")
-
 
 async def setup(bot):
     await bot.add_cog(FunCog(bot))
