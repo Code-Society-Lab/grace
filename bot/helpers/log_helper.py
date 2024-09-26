@@ -3,7 +3,12 @@ from datetime import datetime
 
 
 def info(title, description):
+	# Will be deprected in favor of notice
     return LogHelper(title, description, "info")
+
+
+def notice(title, description):
+	return LogHelper(title, description, "info")
 
 
 def warning(title, description):

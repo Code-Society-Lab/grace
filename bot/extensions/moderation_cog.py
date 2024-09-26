@@ -3,7 +3,7 @@ from bot import app
 from logging import info
 from discord import Message, Member, Reaction
 from discord.ext.commands import Cog, has_permissions, hybrid_command, Context
-from bot.helpers.log_helper import danger, info
+from bot.helpers.log_helper import danger, notice
 from datetime import datetime
 from emoji import demojize
 from bot.models.channel import Channel
@@ -63,7 +63,7 @@ class ModerationCog(Cog, name="Moderation", description="Collection of administr
         # Grace also reacts and log the reaction because some people remove their reaction afterward
         await message.add_reaction(reaction)
 
-        log = info("HELP REACTION", f"{member.mention} reacted to {message.jump_url} with {reaction.emoji}")
+        log = notice("HELP REACTION", f"{member.mention} reacted to {message.jump_url} with {reaction.emoji}")
         await log.send(self.moderation_channel or message.channel)
 
     @Cog.listener()
