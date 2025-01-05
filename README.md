@@ -17,7 +17,7 @@ Installing Grace is fairly simple. You can do it in three short step.
 2. [Start the bot](#2-start-the-bot)
 
 ### 0. Python and Dependencies
-Install [Python](https://www.python.org/downloads/). Python 3.9 or higher is required.
+Install [Python](https://www.python.org/downloads/). Python 3.10 or higher is required.
 
 > We highly recommend that you set up a virtual environment to work on Grace.
 > https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/
