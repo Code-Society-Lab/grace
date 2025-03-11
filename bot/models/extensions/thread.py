@@ -1,4 +1,3 @@
-from typing import Self
 from sqlalchemy import Column, Integer, String, Text
 from bot import app
 from db.model import Model
@@ -22,5 +21,5 @@ class Thread(app.base, Model):
         self._recurrence = new_recurrence.value
 
     @classmethod
-    def find_by_recurrence(cls, recurrence: Recurrence) -> Self:
+    def find_by_recurrence(cls, recurrence: Recurrence) -> 'Recurrence':
         return cls.where(_recurrence=recurrence.value)
