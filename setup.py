@@ -32,12 +32,13 @@ setup(
         'pytz',
         'timezonefinder',
         'mypy',
-        'alembic==1.8.1',
+        'alembic==1.13.3',
         'configparser',
         'pygithub',
         'googletrans==4.0.0-rc1',
         'openai==0.26.1',
         'coverage',
+        'apscheduler'
     ],
     scripts=['bin/grace']
 )

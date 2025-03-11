@@ -22,7 +22,8 @@ def upgrade() -> None:
         'bot_settings',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('puns_cooldown', sa.BigInteger(), nullable=False, server_default="60"),
-        sa.PrimaryKeyConstraint('id')
+        sa.PrimaryKeyConstraint('id'),
+        if_not_exists=True
     )
     op.add_column('puns', sa.Column('last_invoked', sa.DateTime(), nullable=True))
     op.execute("INSERT INTO bot_settings (id) VALUES (1)")
