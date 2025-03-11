@@ -1,11 +1,12 @@
 from logging import info, warning, critical
-from discord import Intents, LoginFailure, ActivityType, Activity
+from discord import Intents, LoginFailure, ActivityType, Activity, Object as DiscordObject
 from discord.ext.commands import Bot, when_mentioned_or
 from pretty_help import PrettyHelp
 from bot import app
 from bot.helpers.bot_helper import default_color
 from bot.models.channel import Channel
 from bot.models.extension import Extension
+from bot import scheduler
 
 
 class Grace(Bot):
@@ -49,6 +50,8 @@ class Grace(Bot):
 
     async def on_ready(self):
         info(f"{self.user.name}#{self.user.id} is online and ready to use!")
+        scheduler.start()
+
 
     async def invoke(self, ctx):
         if ctx.command:
@@ -60,8 +63,9 @@ class Grace(Bot):
 
         if app.command_sync:
             warning("Syncing application commands. This may take some time.")
-            guild = self.get_guild(app.config.get("client", "guild"))
+            guild = DiscordObject(id=app.config.get("client", "guild_id"))
 
+            self.tree.copy_global_to(guild=guild)
             await self.tree.sync(guild=guild)
 
 
