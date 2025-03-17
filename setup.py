@@ -30,6 +30,7 @@ setup(
         'pillow',
         'geopy',
         'pytz',
+        'tzdata',
         'timezonefinder',
         'mypy',
         'alembic==1.13.3',

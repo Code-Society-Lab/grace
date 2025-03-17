@@ -1,11 +1,12 @@
 import traceback
 from typing import Optional
 from logging import info
+from pytz import timezone
 from discord import Interaction, Embed, TextStyle
 from discord.app_commands import Choice, autocomplete
 from discord.ui import Modal, TextInput
-from discord.ext.commands import Cog, has_permissions, hybrid_command, hybrid_group, Context
-from bot import scheduler
+from discord.ext.commands import Cog, has_permissions, hybrid_command, hybrid_group, Context 
+from bot import app, scheduler
 from bot.models.extensions.thread import Thread
 from bot.classes.recurrence import Recurrence
 from bot.extensions.command_error_handler import CommandErrorHandler
@@ -84,24 +85,37 @@ class ThreadsCog(Cog, name="Threads"):
         self.bot = bot
         self.jobs = []
         self.threads_channel_id = self.required_config
+        self.timezone = timezone("US/Eastern")
+
 
     def cog_load(self):
+        # Runs everyday at 18:30
         self.jobs.append(scheduler.add_job(
             self.daily_post,
-            'interval',
-            days=1
+            'cron',
+            hour=18,
+            minute=30,
+            timezone=self.timezone
         ))
 
+        # Runs every monday at 18:30
         self.jobs.append(scheduler.add_job(
             self.weekly_post,
-            'interval',
-            weeks=1
+            'cron',
+            day_of_week='mon',
+            hour=18,
+            minute=30,
+            timezone=self.timezone
         ))
 
+        # Runs on the 1st of every month at 18:30
         self.jobs.append(scheduler.add_job(
             self.monthly_post,
-            'interval',
-            weeks=4
+            'cron',
+            day=1,
+            hour=18,
+            minute=30,
+            timezone=self.timezone
         ))
 
     def cog_unload(self):
