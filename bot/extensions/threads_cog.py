@@ -142,6 +142,8 @@ class ThreadsCog(Cog, name="Threads"):
 
     async def post_thread(self, thread: Thread):
         channel = self.bot.get_channel(self.threads_channel_id)
+        role_id = app.config.get("threads", "role_id")
+        content = f"<@&{role_id}>" if role_id else None
 
         embed = Embed(
             color=self.bot.default_color,
@@ -150,7 +152,7 @@ class ThreadsCog(Cog, name="Threads"):
         )
 
         if channel:
-            message = await channel.send(embed=embed)
+            message = await channel.send(content=content, embed=embed)
             await message.create_thread(name=thread.title)
 
     @hybrid_group(name="threads", help="Commands to manage threads")
