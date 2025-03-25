@@ -7,7 +7,7 @@ from discord import Embed
 class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
     """A cog that sends a welcome message to new members when they join the server."""
 
-    BASE_WELCOME_MESSAGE = "Hi <@{member_id}> ({member_name})! Welcome to the **Code Society**."
+    BASE_WELCOME_MESSAGE = "Hi {member_name}! Welcome to the **Code Society**."
 
     def __init__(self, bot):
         self.bot = bot
@@ -42,7 +42,7 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
             self.BASE_WELCOME_MESSAGE,
             self.help_section,
             self.info_section,
-        ])).strip().format(member_id=member.id, member_name=member.name)
+        ])).strip().format(member_name=member.display_name)
 
     def __build_section(self, channel_names, message):
         """Builds a section of the welcome message by replacing placeholders with corresponding channel IDs.
@@ -77,18 +77,19 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
         if not before.bot and (before.pending and not after.pending):
             info(f"{after.display_name} accepted the rules!")
 
-            welcome_channel = self.bot.get_channel_by_name("welcome")
-            if not welcome_channel:
-                welcome_channel = before.bot.system_channel
-
             embed = Embed(color=self.bot.default_color)
+            welcome_channel = self.bot.get_channel_by_name("welcome")
+
+            if not welcome_channel:
+                welcome_channel = before.guild.system_channel
+
             embed.add_field(
                 name="The Code Society Server",
                 value=self.get_welcome_message(after),
                 inline=False
             )
 
-            await welcome_channel.send(embed=embed)
+            await welcome_channel.send(f"<@{after.id}>", embed=embed)
 
     @Cog.listener()
     async def on_member_join(self, member):
