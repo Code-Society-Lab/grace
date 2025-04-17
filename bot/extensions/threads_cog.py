@@ -6,7 +6,6 @@ from discord import Interaction, Embed, TextStyle
 from discord.app_commands import Choice, autocomplete
 from discord.ui import Modal, TextInput
 from discord.ext.commands import Cog, has_permissions, hybrid_command, hybrid_group, Context 
-from bot import app, scheduler
 from bot.models.extensions.thread import Thread
 from bot.classes.recurrence import Recurrence
 from bot.extensions.command_error_handler import CommandErrorHandler
@@ -90,7 +89,7 @@ class ThreadsCog(Cog, name="Threads"):
 
     def cog_load(self):
         # Runs everyday at 18:30
-        self.jobs.append(scheduler.add_job(
+        self.jobs.append(self.bot.scheduler.add_job(
             self.daily_post,
             'cron',
             hour=18,
@@ -99,7 +98,7 @@ class ThreadsCog(Cog, name="Threads"):
         ))
 
         # Runs every monday at 18:30
-        self.jobs.append(scheduler.add_job(
+        self.jobs.append(self.bot.scheduler.add_job(
             self.weekly_post,
             'cron',
             day_of_week='mon',
@@ -109,7 +108,7 @@ class ThreadsCog(Cog, name="Threads"):
         ))
 
         # Runs on the 1st of every month at 18:30
-        self.jobs.append(scheduler.add_job(
+        self.jobs.append(self.bot.scheduler.add_job(
             self.monthly_post,
             'cron',
             day=1,
@@ -120,7 +119,7 @@ class ThreadsCog(Cog, name="Threads"):
 
     def cog_unload(self):
         for job in self.jobs:
-            scheduler.remove_job(job.id)
+            self.bot.scheduler.remove_job(job.id)
 
     async def daily_post(self):
         info("Posting daily threads")
@@ -142,7 +141,7 @@ class ThreadsCog(Cog, name="Threads"):
 
     async def post_thread(self, thread: Thread):
         channel = self.bot.get_channel(self.threads_channel_id)
-        role_id = app.config.get("threads", "role_id")
+        role_id = self.bot.app.config.get("threads", "role_id")
         content = f"<@&{role_id}>" if role_id else None
 
         embed = Embed(

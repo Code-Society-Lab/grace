@@ -3,7 +3,6 @@ from discord import Embed
 from discord.ui import Button
 from emoji import emojize
 from github import Repository, Organization
-from bot.helpers.bot_helper import default_color
 from bot.services.github_service import GithubService
 from math import ceil
 
@@ -26,7 +25,7 @@ def create_contributors_embeds(repository: Repository) -> List[Embed]:
 
     for i in range(page_count):
         embed: Embed = Embed(
-            color=default_color(),
+            color="#171515", # github color
             title=f"{repository.name.capitalize()}'s Contributors",
         )
 

@@ -1,33 +1,29 @@
+from grace.bot import Bot
 from logging import info, warning, critical
-from discord import Intents, LoginFailure, ActivityType, Activity, Object as DiscordObject
-from discord.ext.commands import Bot, when_mentioned_or
+from discord import Intents, Object as DiscordObject
 from pretty_help import PrettyHelp
-from bot import app
-from bot.helpers.bot_helper import default_color
 from bot.models.channel import Channel
 from bot.models.extension import Extension
-from bot import scheduler
 
 
 class Grace(Bot):
-    def __init__(self):
-        self.config = app.bot
-        self.default_color = default_color()
+    def __init__(self, app, scheduler):
+        self.scheduler = scheduler
 
-        super().__init__(
-            command_prefix=when_mentioned_or(self.config.get("prefix")),
-            description=self.config.get("description"),
-            help_command=PrettyHelp(color=self.default_color),
-            intents=Intents.all(),
-            activity=Activity(type=ActivityType.playing, name="::help")
-        )
+        super().__init__(app, intents=Intents.all())
+        # super().__init__(
+        #     command_prefix=when_mentioned_or(self.config.get("prefix")),
+        #     description=self.config.get("description"),
+        #     help_command=PrettyHelp(color=self.default_color),
+        #     intents=Intents.all(),
+        #     activity=Activity(type=ActivityType.playing, name="::help")
+        # )
+
+    @property
+    def default_color(self):
+        return Colour.from_str(self.config.get("default_color"))
 
     def get_channel_by_name(self, name):
-        """Gets the channel from the database and returns the discord channel with the associated id.
-
-        :param name: The name of the channel.
-        :return: The discord channel.
-        """
         channel = Channel.get_by(channel_name=name)
 
         if channel:
@@ -35,7 +31,7 @@ class Grace(Bot):
         return None
 
     async def load_extensions(self):
-        for module in app.extension_modules:
+        for module in self.app.extension_modules:
             extension = Extension.get_by(module_name=module)
 
             if not extension:
@@ -49,8 +45,10 @@ class Grace(Bot):
                 info(f"{module} is disabled, it will not be loaded.")
 
     async def on_ready(self):
+        from bot import scheduler
+
         info(f"{self.user.name}#{self.user.id} is online and ready to use!")
-        scheduler.start()
+        self.scheduler.start()
 
 
     async def invoke(self, ctx):
@@ -61,22 +59,9 @@ class Grace(Bot):
     async def setup_hook(self):
         await self.load_extensions()
 
-        if app.command_sync:
+        if self.app.command_sync:
             warning("Syncing application commands. This may take some time.")
-            guild = DiscordObject(id=app.config.get("client", "guild_id"))
+            guild = DiscordObject(id=self.app.config.get("client", "guild_id"))
 
             self.tree.copy_global_to(guild=guild)
             await self.tree.sync(guild=guild)
-
-
-def start():
-    """Starts the bot"""
-    try:
-        if app.token:
-            grace_bot = Grace()
-            grace_bot.run(app.token)
-        else:
-            critical("Unable to find the token. Make sure your current directory contains an '.env' and that "
-                     "'DISCORD_TOKEN' is defined")
-    except LoginFailure as e:
-        critical(f"Authentication failed : {e}")
