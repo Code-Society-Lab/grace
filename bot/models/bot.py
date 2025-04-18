@@ -1,6 +1,6 @@
 from sqlalchemy import Integer, Column, BigInteger
+from grace.model import Model
 from bot import app
-from db.model import Model
 
 class BotSettings(app.base, Model):
     """Configurable settings for each server"""

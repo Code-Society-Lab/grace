@@ -1,10 +1,10 @@
 from datetime import timedelta
 from sqlalchemy import Text, Column, Integer, DateTime
 from sqlalchemy.orm import relationship
+from grace.model import Model
 from bot import app
 from bot.models.extensions.language.pun_word import PunWord
 from bot.models.bot import BotSettings
-from db.model import Model
 
 
 class Pun(app.base, Model):

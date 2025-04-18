@@ -1,7 +1,7 @@
 from emoji import emojize
 from sqlalchemy import Integer, String, Column, ForeignKey
+from grace.model import Model
 from bot import app
-from db.model import Model
 
 
 class PunWord(app.base, Model):

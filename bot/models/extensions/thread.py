@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Text
+from grace.model import Model
 from bot import app
-from db.model import Model
 from bot.classes.recurrence import Recurrence
 
 

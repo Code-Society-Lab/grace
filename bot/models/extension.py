@@ -1,7 +1,7 @@
 from sqlalchemy import Integer, Column, String
+from grace.model import Model
 from bot import app
 from bot.classes.state import State
-from db.model import Model
 
 
 class Extension(app.base, Model):
