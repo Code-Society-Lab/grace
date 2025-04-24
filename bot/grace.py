@@ -1,6 +1,6 @@
 from grace.bot import Bot
 from logging import info, warning, critical
-from discord import Intents, Colour, Object as DiscordObject
+from discord import Intents, Colour, Activity, ActivityType, Object as DiscordObject
 from pretty_help import PrettyHelp
 from bot.models.channel import Channel
 from bot.models.extension import Extension
@@ -10,17 +10,12 @@ class Grace(Bot):
     def __init__(self, app, scheduler):
         self.scheduler = scheduler
 
-        # currently grace-framework only allows intent to be passed. This will
-        # be changed soon.
-        #
-        # Missing kwargs:
-        # - command_prefix=when_mentioned_or(self.config.get("prefix")),
-        # - description=self.config.get("description"),
-        # - help_command=PrettyHelp(color=self.default_color),
-        # - intents=Intents.all(),
-        # - activity=Activity(type=ActivityType.playing, name="::help")
+        super().__init__(app,
+            intents=Intents.all(),
+            activity=Activity(type=ActivityType.playing, name="::help")
+        )
 
-        super().__init__(app, intents=Intents.all())
+        self.help_command = PrettyHelp(color=self.default_color)
 
     @property
     def default_color(self):
