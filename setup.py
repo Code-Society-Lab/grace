@@ -18,7 +18,8 @@ setup(
 
     include_package_data=True,
     install_requires=[
-        'grace-framework',
+        # For now we always want the latest version on github
+        'grace-framework @ git+https://github.com/Code-Society-Lab/grace-framework.git@main',
         'emoji>=2.1.0',
         'nltk',
         'discord-pretty-help==2.0.4',
