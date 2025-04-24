@@ -1,5 +1,5 @@
 from typing import Iterable, List
-from discord import Embed
+from discord import Embed, Color
 from discord.ui import Button
 from emoji import emojize
 from github import Repository, Organization
@@ -25,7 +25,7 @@ def create_contributors_embeds(repository: Repository) -> List[Embed]:
 
     for i in range(page_count):
         embed: Embed = Embed(
-            color="#171515", # github color
+            color=Color.from_str("#171515"), # github color
             title=f"{repository.name.capitalize()}'s Contributors",
         )
 
