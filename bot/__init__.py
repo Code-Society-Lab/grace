@@ -11,16 +11,15 @@ except ModuleNotFoundError:
     print("nltk module not properly installed")
 
 
-def _create_bot(app, scheduler):
+def _create_bot(app):
     """Factory to create the Grace bot instance.
 
     Import is deferred to avoid circular dependency.
     """
     from bot.grace import Grace
-    return Grace(app, scheduler)
+    return Grace(app)
 
 
 app = Application()
-scheduler = AsyncIOScheduler()
-bot = _create_bot(app, scheduler)
+bot = _create_bot(app)
 

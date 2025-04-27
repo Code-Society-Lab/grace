@@ -7,9 +7,7 @@ from bot.models.extension import Extension
 
 
 class Grace(Bot):
-    def __init__(self, app, scheduler):
-        self.scheduler = scheduler
-
+    def __init__(self, app):
         super().__init__(app,
             intents=Intents.all(),
             activity=Activity(type=ActivityType.playing, name="::help")
@@ -28,7 +26,7 @@ class Grace(Bot):
             return self.get_channel(channel.channel_id)
         return None
 
-    async def load_extensions(self):
+    async def _load_extensions(self):
         for module in self.app.extension_modules:
             extension = Extension.get_by(module_name=module)
 
@@ -44,20 +42,3 @@ class Grace(Bot):
 
     async def on_ready(self):
         info(f"{self.user.name}#{self.user.id} is online and ready to use!")
-        self.scheduler.start()
-
-
-    async def invoke(self, ctx):
-        if ctx.command:
-            info(f"'{ctx.command}' has been invoked by {ctx.author} ({ctx.author.display_name})") 
-        await super().invoke(ctx)
-
-    async def setup_hook(self):
-        await self.load_extensions()
-
-        if self.app.command_sync:
-            warning("Syncing application commands. This may take some time.")
-            guild = DiscordObject(id=self.app.config.get("client", "guild_id"))
-
-            self.tree.copy_global_to(guild=guild)
-            await self.tree.sync(guild=guild)
