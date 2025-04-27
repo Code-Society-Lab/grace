@@ -3,7 +3,10 @@ from logging import info, error
 from db.seed import get_seeds
 
 
-app.load("test", command_sync=False)
+app.load("test")
+
+app.command_sync = False
+app.watch = False
 
 app.drop_tables()
 app.drop_database()
