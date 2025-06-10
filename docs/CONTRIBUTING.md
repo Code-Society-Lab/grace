@@ -46,7 +46,7 @@ bot with Discord. Then, create a file called `.env` in the project directory. Op
 
 ### Database
 When Grace is started, a database configuration file will automatically be generated. SQLite is the default database
-used in development. If you wish to change it, you can follow the instruction bellow. 
+used in development. If you wish to change it, you can follow the instruction below.
 
 ### Changing database
 In order for the bot to work, you need to connect it to a database. Supported databases are SQLite, MySQL/MariaDB, 
