@@ -1,9 +1,9 @@
 from emoji import emojize
 from sqlalchemy import String, Column, Integer
 from sqlalchemy.orm import relationship
+from grace.model import Model
 from bot import app
 from bot.models.extensions.language.trigger_word import TriggerWord
-from db.model import Model
 
 
 class Trigger(app.base, Model):

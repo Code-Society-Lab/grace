@@ -7,8 +7,6 @@ venv
 channel_store
 build/
 *.db
-config/database.cfg
-config/settings.cfg
 *.log
 *.log.*
 env/
