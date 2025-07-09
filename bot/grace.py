@@ -26,7 +26,7 @@ class Grace(Bot):
             return self.get_channel(channel.channel_id)
         return None
 
-    async def _load_extensions(self):
+    async def load_extensions(self):
         for module in self.app.extension_modules:
             extension = Extension.get_by(module_name=module)
 
