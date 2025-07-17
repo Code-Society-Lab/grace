@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String
+from grace.model import Model
 from bot import app
-from db.model import Model
 
 
 class Answer(app.base, Model):

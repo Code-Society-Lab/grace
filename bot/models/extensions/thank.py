@@ -1,8 +1,7 @@
 from typing import Optional, List
-from sqlalchemy import Column, Integer, BigInteger
+from sqlalchemy import desc, Column, Integer, BigInteger
+from grace.model import Model
 from bot import app
-from db.model import Model
-from sqlalchemy import desc
 
 
 class Thank(app.base, Model):

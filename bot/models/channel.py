@@ -1,6 +1,6 @@
 from sqlalchemy import String, Column, UniqueConstraint, BigInteger
+from grace.model import Model
 from bot import app
-from db.model import Model
 
 
 class Channel(app.base, Model):

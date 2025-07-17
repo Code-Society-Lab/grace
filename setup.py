@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='Grace',
-    version='1.20.0',
+    version='2.0.0',
     author='Code Society Lab',
     description='The Code Society community Bot',
     url="https://github.com/Code-Society-Lab/grace",
@@ -13,16 +13,13 @@ setup(
     },
     license="GNU General Public License v3.0",
     python_requires='>=3.10.0',
+
     packages=find_packages(),
+
     include_package_data=True,
     install_requires=[
-        'python-dotenv',
-        'coloredlogs',
-        'logger',
-        'sqlalchemy',
-        'sqlalchemy-utils',
-        'discord>=2.1',
-        'pytest',
+        # For now we always want the latest version on github
+        'grace-framework @ git+https://github.com/Code-Society-Lab/grace-framework.git@main',
         'emoji>=2.1.0',
         'nltk',
         'discord-pretty-help==2.0.4',
@@ -32,14 +29,9 @@ setup(
         'pytz',
         'tzdata',
         'timezonefinder',
-        'mypy',
-        'alembic==1.13.3',
-        'configparser',
         'pygithub',
         'googletrans==4.0.0-rc1',
         'openai==0.26.1',
-        'coverage',
         'apscheduler'
-    ],
-    scripts=['bin/grace']
+    ]
 )

@@ -1,6 +1,6 @@
 from sqlalchemy import String, Column, ForeignKey
+from grace.model import Model
 from bot import app
-from db.model import Model
 
 
 class TriggerWord(app.base, Model):
