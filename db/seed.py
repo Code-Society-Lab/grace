@@ -21,9 +21,14 @@ import pkgutil
 from db import seeds
 
 
-def get_seeds():
+def get_seed_modules():
     """Generate all seed modules"""
 
     for module in pkgutil.walk_packages(seeds.__path__, f"{seeds.__name__}."):
         if not module.ispkg:
             yield importlib.import_module(module.name)
+
+
+def seed_database():
+    for module in get_seed_modules():
+        module.seed_database()
