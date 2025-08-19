@@ -19,6 +19,7 @@ Installing Grace is fairly simple. You can do it in three short step.
 ### 0. Python and Dependencies
 Install [Python](https://www.python.org/downloads/). Python 3.10 or higher is required.
 
+> [!NOTE]
 > We highly recommend that you set up a virtual environment to work on Grace.
 > https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/
 
@@ -30,27 +31,27 @@ If you did not already do it, [create](https://discord.com/developers/docs/getti
 bot. Then, create a file called `.env` in the project directory, open it and add 
 `DISCORD_TOKEN=<Your token>`. (Replace <Your token> by your discord token).
 
+> [!CAUTION]
 > Do not share that file nor the information inside with anyone.
 
-### 2. Start the Bot
-The last part is to execute the bot. Execute `grace start -e development` to start Grace in development mode. The rest
+### 2. Run the Bot
+The last part is to execute the bot. Execute `grace run` to run Grace in development mode. The rest
 of the installation should complete itself and start the bot.
 
-> If the grace command is unrecognized, be sure that you installed the bot properly. 
+> [!NOTE]
+> If the grace command is unrecognized, be sure that you installed the bot properly.
 
 ## Script Usage
 - **Bot Command(s)**:
-  - `grace start` : Starts the bot (`ctrl+c` to stop the bot)
+  - `grace run` : Starts the bot (`ctrl+c` to stop)
 - **Database Command(s)**:
-    - `grace db create` : Creates the database and the tables
-    - `grace db drop`   : Deletes the tables and the database
-    - `grace db seed`   : Seeds the tables (Initialize the default values)
-    - `grace db reset`  : Drop, recreate and seeds the database.
-  
-All commands can take the optional `-e` argument with a string to define the environment.<br>
-Available environment: (production [default], development, test)
+    - `grace db create` : Creates the database
+    - `grace db drop`   : Deletes the database
+    - `grace db up`     : Upgrade to latest migration
+    - `grace db down`   : Downgrade to previous migration
+    - `grace db seed`   : Seeds the tables
 
-> We recommend using "development" (ex. grace start -e development)
+Run `grace --help` for more information.
 ---
 
 ## Advance configurations
