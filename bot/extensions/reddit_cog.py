@@ -17,7 +17,7 @@ class RedditCog(Cog, name="Reddit", description="Reddit related stuff"):
     @property
     def blacklisted_keywords(self):
         """ Parses blacklisted keywords from config """
-        blacklist = app.config.get('reddit', 'blacklist', [])
+        blacklist = app.config.get("reddit", "blacklist", [])
 
         if isinstance(blacklist, str):
             return blacklist.split(';')
@@ -55,12 +55,12 @@ class RedditCog(Cog, name="Reddit", description="Reddit related stuff"):
         subreddits = await self.extract_subreddits(message)
         if len(subreddits) > 0:
             ctx = await self.bot.get_context(message)
-            subreddit_links = [f'https://www.reddit.com/r/{subreddit}' for subreddit in subreddits]
+            subreddit_links = [f"https://www.reddit.com/r/{subreddit}" for subreddit in subreddits]
 
             answer_embed = Embed(
-                title='Here\'re the subreddits you mentioned',
+                title="Here're the subreddits you mentioned",
                 color=self.bot.default_color,
-                description='\n'.join(subreddit_links),
+                description="\n".join(subreddit_links),
             )
 
             await ctx.reply(embed=answer_embed)
