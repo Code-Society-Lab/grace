@@ -13,7 +13,7 @@ class RedditCog(Cog, name="Reddit", description="Reddit related stuff"):
     @property
     def moderation_channel(self):
         """ Returns the moderation channel """
-        return self.bot.get_channel_by_name("test_moderation")
+        return self.bot.get_channel_by_name("moderation_logs")
 
     @property
     def blacklisted_keywords(self) -> List:
