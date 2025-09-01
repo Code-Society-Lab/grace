@@ -9,21 +9,12 @@ import re
 class RedditCog(Cog, name="Reddit", description="Reddit related stuff"):
     def __init__(self, bot):
         self.bot = bot
+        self.blacklisted_subreddits = app.config.get("reddit", "blacklist", "");
 
     @property
     def moderation_channel(self):
         """ Returns the moderation channel """
         return self.bot.get_channel_by_name("moderation_logs")
-
-    @property
-    def blacklisted_keywords(self) -> List:
-        """ Parses blacklisted keywords from config 
-
-            :returns: List of blacklisted keywords
-            :rtype: List
-        """
-        blacklist = app.config.get("reddit", "blacklist", [])
-        return [] if not blacklist else blacklist.split(";")
 
     async def notify_moderation(self, message: Message):
         """ Notifies moderators about a blacklisted subreddit mention
@@ -47,8 +38,14 @@ class RedditCog(Cog, name="Reddit", description="Reddit related stuff"):
         subreddit_matches = re.findall(r"\br/([A-Za-z0-9_]+)", message.content)
         subreddit_matches = list(filter(lambda subreddit: len(subreddit) <= 40, subreddit_matches))
 
-        blacklisted = [subreddit for subreddit in subreddit_matches for keyword in self.blacklisted_keywords if keyword in subreddit.lower()]
-        subreddits = [subreddit for subreddit in subreddit_matches if subreddit not in blacklisted]
+        subreddits = []
+        blacklisted = []
+
+        for subreddit in subreddit_matches:
+            if subreddit in self.blacklisted_subreddits:
+                blacklisted.append(subreddit)
+            else:
+                subreddits.append(subreddit)
 
         return [subreddits, blacklisted]
 
