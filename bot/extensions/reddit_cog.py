@@ -47,7 +47,7 @@ class RedditCog(Cog, name="Reddit", description="Reddit related stuff"):
         subreddit_matches = re.findall(r"\br/([A-Za-z0-9_]+)", message.content)
         subreddit_matches = list(filter(lambda subreddit: len(subreddit) <= 40, subreddit_matches))
 
-        blacklisted = [subreddit for subreddit in subreddit_matches for keyword in self.blacklisted_keywords if keyword in subreddit]
+        blacklisted = [subreddit for subreddit in subreddit_matches for keyword in self.blacklisted_keywords if keyword in subreddit.lower()]
         subreddits = [subreddit for subreddit in subreddit_matches if subreddit not in blacklisted]
 
         return [subreddits, blacklisted]
