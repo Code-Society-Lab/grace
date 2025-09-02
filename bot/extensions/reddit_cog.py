@@ -37,12 +37,15 @@ class RedditCog(Cog, name="Reddit", description="Reddit utilities"):
             :returns: List containing both valid and blacklisted subreddits 
             :rtype: List[List]
         """
-        subreddit_matches = re.findall(r"\br/([A-Za-z0-9_]{3,21})", message.content)
+        subreddit_matches = re.findall(
+            r"\br/([A-Za-z0-9_]{3,21})",
+            message.content
+        )
 
         subreddits = []
         blacklisted = []
 
-        for subreddit in subreddit_matches:
+        for subreddit in set(subreddit_matches):
             if subreddit in self.blacklisted_subreddits:
                 blacklisted.append(subreddit)
             else:
