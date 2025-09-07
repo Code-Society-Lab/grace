@@ -8,7 +8,7 @@ from discord.ui import Modal, TextInput
 from discord.ext.commands import Cog, has_permissions, hybrid_command, hybrid_group, Context 
 from bot.models.extensions.thread import Thread
 from bot.classes.recurrence import Recurrence
-from bot.extensions.command_error_handler import CommandErrorHandler
+from bot.extensions.command_error_handler import send_command_help
 from lib.config_required import cog_config_required
 
 
@@ -158,7 +158,7 @@ class ThreadsCog(Cog, name="Threads"):
     @has_permissions(administrator=True)
     async def threads_group(self, ctx: Context):
         if ctx.invoked_subcommand is None:
-            await CommandErrorHandler.send_command_help(ctx)
+            await send_command_help(ctx)
 
     @threads_group.command(help="List all threads")
     @has_permissions(administrator=True)
