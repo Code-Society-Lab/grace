@@ -19,8 +19,8 @@ class MermaidCog(Cog, name="Mermaid", description="Generates mermaid diagrams"):
         If OK, we return an embed with the image that'll be fetched from the API url
         If not OK, we return an embed with the error code
         
-        :param script: Mermaid script
-        :type script: str
+        :param diagram: Mermaid script
+        :type diagram: str
         :rtype: Embed
         """
         embed = Embed()
@@ -55,8 +55,8 @@ class MermaidCog(Cog, name="Mermaid", description="Generates mermaid diagrams"):
         
         :param content: String from which the code block will be extracted
         :type content: str
-        :param from_start: True to match the code block from the start of the string, False to match it in the whole string
-        :type from_start: bool
+        :param require_mermaid_tag: Whether mermaid tag is required in a code block or not
+        :type require_mermaid_tag: bool
 
         :returns: Matched code block value
         :rtype: str
