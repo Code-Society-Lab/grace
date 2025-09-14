@@ -1,5 +1,6 @@
-from typing import Optional
 import re
+
+from typing import Optional
 
 from discord.ext.commands import Cog, command, Context
 from discord import Embed, Message
@@ -12,7 +13,7 @@ class MermaidCog(Cog, name="Mermaid", description="Generates mermaid diagrams"):
     def __init__(self, bot):
         self.bot = bot
         self.mermaid_codeblock_pattern = r"```mermaid\n(.*?)```"
-        self.codeblock_pattern = r"```\n(.*?)```"
+        self.codeblock_pattern = r"```(?:\w+)?\n(.*?)```"
         
     def generate_diagram_embed(self, diagram: str) -> Embed:
         """ First, we make sure that the API url returns OK (200) response code
