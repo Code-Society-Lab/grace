@@ -4,6 +4,7 @@ import requests
 
 MERMAID_API = "https://mermaid.ink/img/"
 
+
 def _encode_diagram(diagram: str) -> str:
     """ Converts script string to base64 encoding 
     
@@ -17,6 +18,7 @@ def _encode_diagram(diagram: str) -> str:
     base64_bytes = base64.urlsafe_b64encode(diagram_bytes)
     return base64_bytes.decode("ascii")
 
+
 def _build_url(diagram: str) -> str:
     """ Constructs mermaid ink API url to generate mermaid diagram image
     
@@ -28,6 +30,7 @@ def _build_url(diagram: str) -> str:
     """
     encoded_diagram = _encode_diagram(diagram)
     return f"{MERMAID_API}{encoded_diagram}"
+
 
 def _is_valid_diagram(url: str) -> bool:
     """ Validates Mermaid API url
@@ -43,6 +46,7 @@ def _is_valid_diagram(url: str) -> bool:
         return response.status_code == 200
     except requests.RequestException:
         return False
+
 
 def generate_mermaid_diagram(diagram: str) -> str | None:
     """ Constructs API url and validates it
