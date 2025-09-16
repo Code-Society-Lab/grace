@@ -7,6 +7,7 @@ Create Date: 2023-05-29 20:55:26.456843
 """
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy.engine.reflection import Inspector
 
 
 # revision identifiers, used by Alembic.
@@ -21,13 +22,33 @@ def upgrade() -> None:
     op.create_table(
         'bot_settings',
         sa.Column('id', sa.Integer(), nullable=False),
-        sa.Column('puns_cooldown', sa.BigInteger(), nullable=False, server_default="60"),
+        sa.Column(
+            'puns_cooldown',
+            sa.BigInteger(),
+            nullable=False,
+            server_default="60"
+        ),
         sa.PrimaryKeyConstraint('id'),
         if_not_exists=True
     )
-    op.add_column('puns', sa.Column('last_invoked', sa.DateTime(), nullable=True))
-    op.execute("INSERT INTO bot_settings (id) VALUES (1)")
-    # ### end Alembic commands ###
+
+    # check if column exists before adding
+    bind = op.get_bind()
+    inspector = Inspector.from_engine(bind)
+
+    columns = [col['name'] for col in inspector.get_columns('puns')]
+    if 'last_invoked' not in columns:
+        op.add_column(
+            'puns',
+            sa.Column('last_invoked', sa.DateTime(), nullable=True)
+        )
+
+    result = bind.execute(
+        sa.text("SELECT id FROM bot_settings WHERE id = 1")
+    ).fetchone()
+    
+    if not result:
+        op.execute("INSERT INTO bot_settings (id) VALUES (1)")
 
 
 def downgrade() -> None:

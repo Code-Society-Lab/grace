@@ -9,4 +9,3 @@ class Answer(app.base, Model):
 
     id = Column(Integer, primary_key=True)
     answer = Column(String(255), nullable=False)
-
