@@ -1,4 +1,4 @@
-"""missing_pre_migrations_tables
+"""Missing Pre-migrations Tables
 
 Revision ID: cc8da39749e7
 Revises: f8ac0bbc34ac
@@ -29,15 +29,28 @@ def upgrade() -> None:
     # --- channels table ---
     op.create_table(
         "channels",
-        sa.Column("channel_name", sa.String(255), primary_key=True, nullable=False),
-        sa.Column("channel_id", sa.BigInteger(), primary_key=True, nullable=False),
+        sa.Column(
+            "channel_name",
+            sa.String(255),
+            primary_key=True,
+            nullable=False
+        ),
+        sa.Column(
+            "channel_id",
+            sa.BigInteger(),
+            primary_key=True,
+            nullable=False
+        ),
         sa.UniqueConstraint("channel_name", "channel_id", name="uq_id_cn_cid"),
         if_not_exists=True,
     )
 
     # ensure there’s always a single settings row
     conn = op.get_bind()
-    result = conn.execute(sa.text("SELECT id FROM bot_settings WHERE id = 1")).fetchone()
+    result = conn.execute(
+        sa.text("SELECT id FROM bot_settings WHERE id = 1")
+    ).fetchone()
+
     if not result:
         conn.execute(sa.text("INSERT INTO bot_settings (id) VALUES (1)"))
 
@@ -62,7 +75,13 @@ def upgrade() -> None:
     # --- trigger_words table ---
     op.create_table(
         "trigger_words",
-        sa.Column("trigger_id", sa.Integer(), sa.ForeignKey("triggers.id"), primary_key=True, nullable=False),
+        sa.Column(
+            "trigger_id",
+            sa.Integer(),
+            sa.ForeignKey("triggers.id"),
+            primary_key=True,
+            nullable=False
+        ),
         sa.Column("word", sa.String(255), primary_key=True, nullable=False),
         if_not_exists=True,
     )
