@@ -7,12 +7,27 @@ on:
         description: 'Pull Request Number'
         required: true
         type: string
+      force_redeploy:
+        description: 'Force redeploy even if already deployed'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   deploy:
     environment: staging
     runs-on: ubuntu-latest
+    outputs:
+      deployment_url: ${{ steps.deploy.outputs.deployment_url }}
+      pr_url: ${{ steps.pr.outputs.pr_url }}
     steps:
+      - name: Validate PR number
+        run: |
+          if ! [[ "${{ inputs.pr_number }}" =~ ^[0-9]+$ ]]; then
+            echo "Error: PR number must be a valid integer"
+            exit 1
+          fi
+
       - name: Get PR info
         id: pr
         uses: octokit/request-action@v2.x
@@ -21,17 +36,129 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Validate PR state
+        run: |
+          PR_STATE="${{ fromJson(steps.pr.outputs.data).state }}"
+          PR_DRAFT="${{ fromJson(steps.pr.outputs.data).draft }}"
+          
+          if [[ "$PR_STATE" != "open" ]]; then
+            echo "Error: PR #${{ inputs.pr_number }} is not open (state: $PR_STATE)"
+            exit 1
+          fi
+          
+          if [[ "$PR_DRAFT" == "true" ]]; then
+            echo "Warning: PR #${{ inputs.pr_number }} is a draft PR"
+          fi
+
+          # Store PR info for later steps
+          echo "PR_TITLE=${{ fromJson(steps.pr.outputs.data).title }}" >> $GITHUB_ENV
+          echo "PR_AUTHOR=${{ fromJson(steps.pr.outputs.data).user.login }}" >> $GITHUB_ENV
+          echo "PR_URL=${{ fromJson(steps.pr.outputs.data).html_url }}" >> $GITHUB_ENV
+          echo "pr_url=${{ fromJson(steps.pr.outputs.data).html_url }}" >> $GITHUB_OUTPUT
+
+      - name: Check if deployment already exists
+        id: check_deployment
+        if: ${{ !inputs.force_redeploy }}
+        continue-on-error: true
+        run: |
+          # Add logic here to check if pr-${{ inputs.pr_number }} environment already exists
+          # This depends on your Railway setup - you might want to call Railway API
+          echo "Checking for existing deployment..."
+          # Set deployment_exists=true if found
+          echo "deployment_exists=false" >> $GITHUB_OUTPUT
+
+      - name: Post deployment start comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: ${{ inputs.pr_number }},
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🚀 **Staging Deployment Started**
+              
+              **PR:** #${{ inputs.pr_number }} - ${{ env.PR_TITLE }}
+              **Author:** @${{ env.PR_AUTHOR }}
+              **Triggered by:** @${{ github.actor }}
+              **Workflow:** [View run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+              
+              ⏳ Deploying to staging environment...`
+            });
+
       - name: Checkout PR branch
         uses: actions/checkout@v4
         with:
           repository: ${{ fromJson(steps.pr.outputs.data).head.repo.full_name }}
-          ref: ${{ fromJson(steps.pr.outputs.data).head.ref }}
+          ref: ${{ fromJson(steps.pr.outputs.data).head.sha }}  # Use SHA for consistency
+          fetch-depth: 0  # Full history for better deployment context
+
+      - name: Setup deployment environment
+        run: |
+          echo "DEPLOYMENT_ENV=pr-${{ inputs.pr_number }}" >> $GITHUB_ENV
+          echo "BRANCH_NAME=${{ fromJson(steps.pr.outputs.data).head.ref }}" >> $GITHUB_ENV
+          echo "COMMIT_SHA=${{ fromJson(steps.pr.outputs.data).head.sha }}" >> $GITHUB_ENV
 
       - name: Deploy to Railway
+        id: deploy
         uses: ayungavis/railway-preview-deploy@v1.0.2
         with:
           railway_api_token: ${{ secrets.RAILWAY_API_TOKEN }}
           project_id: ${{ secrets.RAILWAY_PROJECT_ID }}
           environment_name: "staging"
-          preview_environment_name: "pr-${{ inputs.pr_number }}"
-          branch_name: ${{ fromJson(steps.pr.outputs.data).head.ref }}
+          preview_environment_name: ${{ env.DEPLOYMENT_ENV }}
+          branch_name: ${{ env.BRANCH_NAME }}
+
+      - name: Wait for deployment to be ready
+        timeout-minutes: 10
+        run: |
+          echo "Waiting for deployment to be ready..."
+          # Add health check logic here if available
+          sleep 30  # Basic wait - replace with actual health check
+
+      - name: Post success comment
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: ${{ inputs.pr_number }},
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `✅ **Staging Deployment Successful**
+              
+              **Environment:** \`${{ env.DEPLOYMENT_ENV }}\`
+              **Branch:** \`${{ env.BRANCH_NAME }}\`
+              **Commit:** \`${{ env.COMMIT_SHA }}\`
+              
+              🔗 **Deployment URL:** ${{ steps.deploy.outputs.deployment_url || 'Check Railway dashboard' }}
+              
+              📝 **Test your changes and provide feedback!**`
+            });
+
+      - name: Post failure comment
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: ${{ inputs.pr_number }},
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `❌ **Staging Deployment Failed**
+              
+              **Environment:** \`${{ env.DEPLOYMENT_ENV }}\`
+              **Branch:** \`${{ env.BRANCH_NAME }}\`
+              **Error:** Check the [workflow logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
+              
+              Please fix the issues and try again.`
+            });
+
+  cleanup-on-failure:
+    if: failure()
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cleanup failed deployment
+        run: |
+          echo "Cleaning up failed deployment pr-${{ inputs.pr_number }}"
+          # Add cleanup logic here if needed
