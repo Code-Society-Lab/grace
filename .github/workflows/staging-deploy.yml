@@ -8,19 +8,15 @@ on:
         required: true
         type: string
 
-permissions:
-  organization-administration: read
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
   deploy:
-    needs: check-membership
-    if: needs.check-membership.outputs.is-member == 'true'
     environment: staging
     runs-on: ubuntu-latest
+    if: ${{ github.event.action != 'closed' }}
 
     steps:
       - name: Checkout repository
