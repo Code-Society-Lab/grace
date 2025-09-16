@@ -1,8 +1,20 @@
 name: Railway Preview Deployment
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened, closed]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'Pull Request Number'
+        required: true
+        type: string
+      action:
+        description: 'Action to perform'
+        required: true
+        default: 'deploy'
+        type: choice
+        options:
+        - deploy
+        - cleanup
 
 permissions:
   contents: read
@@ -30,10 +42,6 @@ jobs:
           project_id: ${{ secrets.RAILWAY_PROJECT_ID }}
           environment_name: 'staging'
           preview_environment_name: 'pr-${{ github.event.pull_request.number }}'
-          environment_variables: |
-            {
-              "DATABASE_URL": "postgres://username:password@hostname/db"
-            }
           branch_name: ${{ github.head_ref }}
 
       - name: Post deployment info
