@@ -6,14 +6,11 @@ on:
 
 jobs:
   deploy:
-    environment: staging
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Deploy to Railway
-        uses: ayungavis/railway-preview-deploy@v1.0.2
+      - name: Get PR info
+        id: pr
+        uses: octokit/request-action@v2.x
         with:
           railway_api_token: ${{ secrets.RAILWAY_API_TOKEN }}
           project_id: ${{ secrets.RAILWAY_PROJECT_ID }}
