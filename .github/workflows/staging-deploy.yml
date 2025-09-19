@@ -2,7 +2,7 @@ name: Staging Deployment
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, closed]
+    types: [opened, synchronize, reopened]
 
 concurrency:
   group: pr-${{ github.event.pull_request.number }}
@@ -27,4 +27,3 @@ jobs:
           preview_environment_name: 'pr-${{ github.event.pull_request.number }}'
           branch_name: ${{ github.head_ref }}
           reuse_preview_environment: 'false'
-          cleanup: 'true'
