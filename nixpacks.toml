@@ -5,4 +5,4 @@ aptPkgs = ["python3", "python3-pip", "python-is-python3", "libpq-dev", "python3-
 cmds = ["pip3 install --upgrade build setuptools", "pip3 install psycopg2-binary nltk", "pip3 install ."]
 
 [start]
-cmd = "python3 -m alembic upgrade head && grace --environment production run --sync"
+cmd = "grace db up && grace --environment production run --sync"

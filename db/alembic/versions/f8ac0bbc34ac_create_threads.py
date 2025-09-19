@@ -17,7 +17,8 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.create_table('threads',
+    op.create_table(
+        'threads',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('title', sa.String(255), nullable=False),
         sa.Column('content', sa.Text(), nullable=False),

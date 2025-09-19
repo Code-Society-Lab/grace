@@ -2,6 +2,7 @@ from sqlalchemy import Integer, Column, BigInteger
 from grace.model import Model
 from bot import app
 
+
 class BotSettings(app.base, Model):
     """Configurable settings for each server"""
     __tablename__ = 'bot_settings'
