@@ -2,12 +2,18 @@ name: Staging Deployment
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened, closed]
+
+concurrency:
+  group: pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   deploy:
     environment: staging
     runs-on: ubuntu-latest
+    if: ${{ github.event.action != 'closed' }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -20,4 +26,5 @@ jobs:
           environment_name: 'staging'
           preview_environment_name: 'pr-${{ github.event.pull_request.number }}'
           branch_name: ${{ github.head_ref }}
+          reuse_preview_environment: 'false'
           cleanup: 'true'
