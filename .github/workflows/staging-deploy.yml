@@ -9,10 +9,13 @@ jobs:
     runs-on: ubuntu-latest
     environment: staging
     steps:
-      - name: Checkout repository
+      - name: Checkout target branch
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Fetch PR branch
+        run: |
+          git fetch origin pull/${{ github.event.pull_request.number }}/head:pr-${{ github.event.pull_request.number }}
+          git checkout pr-${{ github.event.pull_request.number }}
 
       - name: Install Railway CLI
         run: curl -fsSL https://railway.app/install.sh | sh
