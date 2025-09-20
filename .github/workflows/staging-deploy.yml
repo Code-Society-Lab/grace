@@ -1,7 +1,7 @@
 name: Staging Deployment
 
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, synchronize, reopened]
 
 permissions:
@@ -17,11 +17,18 @@ jobs:
   deploy:
     environment: staging
     runs-on: ubuntu-latest
-    if: ${{ github.event.action != 'closed' }}
 
     steps:
-      - name: Checkout repository
+      - name: Log PR info
+        run: |
+          echo "Preparing deployment for PR #${{ github.event.pull_request.number }}"
+          echo "Branch: ${{ github.event.pull_request.head.ref }}"
+          echo "Author: ${{ github.event.pull_request.user.login }}"
+
+      - name: Checkout PR branch
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Deploy to Railway
         uses: ayungavis/railway-preview-deploy@v1.0.2
