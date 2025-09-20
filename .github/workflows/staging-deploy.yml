@@ -1,41 +1,23 @@
 name: Staging Deployment
 
 on:
-  pull_request_target:
-    types: [opened, synchronize, reopened]
-
-permissions:
-  contents: read
-  pull-requests: write
-  issues: write
-
-concurrency:
-  group: pr-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
+  pull_request:
+    types: [opened, reopened, synchronize]
 
 jobs:
   deploy:
-    environment: staging
     runs-on: ubuntu-latest
-
+    environment: staging
     steps:
-      - name: Log PR info
-        run: |
-          echo "Preparing deployment for PR #${{ github.event.pull_request.number }}"
-          echo "Branch: ${{ github.event.pull_request.head.ref }}"
-          echo "Author: ${{ github.event.pull_request.user.login }}"
-
-      - name: Checkout PR branch
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.ref }}
 
-      - name: Deploy to Railway
-        uses: ayungavis/railway-preview-deploy@v1.0.2
-        with:
-          railway_api_token: ${{ secrets.RAILWAY_API_TOKEN }}
-          project_id: ${{ secrets.RAILWAY_PROJECT_ID }}
-          environment_name: 'staging'
-          preview_environment_name: 'pr-${{ github.event.pull_request.number }}'
-          branch_name: ${{ github.event.pull_request.head.ref }}
-          reuse_preview_environment: 'false'
+      - name: Install Railway CLI
+        run: curl -fsSL https://railway.app/install.sh | sh
+
+      - name: Deploy to Staging
+        run: railway up --environment staging --service Grace
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
