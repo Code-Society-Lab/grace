@@ -41,5 +41,5 @@ jobs:
           project_id: ${{ secrets.RAILWAY_PROJECT_ID }}
           environment_name: 'staging'
           preview_environment_name: 'pr-staging'
-          branch_name: ${{ github.event.pull_request.head.ref }}
+          branch_name: ${{ github.event.pull_request.head.sha }}
           reuse_preview_environment: 'true'
