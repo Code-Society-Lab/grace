@@ -18,6 +18,6 @@ jobs:
         run: curl -fsSL https://railway.app/install.sh | sh
 
       - name: Deploy to Staging
-        run: railway up --environment staging --service Grace
+        run: railway up --detach --environment staging --service Grace
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
