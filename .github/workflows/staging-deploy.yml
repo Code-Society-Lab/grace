@@ -43,4 +43,3 @@ jobs:
           preview_environment_name: 'pr-staging'
           branch_name: ${{ github.event.pull_request.head.ref }}
           reuse_preview_environment: 'true'
-          cleanup: 'true'
