@@ -4,6 +4,11 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
 concurrency:
   group: pr-${{ github.event.pull_request.number }}
   cancel-in-progress: true
@@ -25,5 +30,5 @@ jobs:
           project_id: ${{ secrets.RAILWAY_PROJECT_ID }}
           environment_name: 'staging'
           preview_environment_name: 'pr-${{ github.event.pull_request.number }}'
-          branch_name: ${{ github.head_ref }}
+          branch_name: ${{ github.event.pull_request.head.ref }}
           reuse_preview_environment: 'false'
