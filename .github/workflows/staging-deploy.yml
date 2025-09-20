@@ -38,6 +38,7 @@ jobs:
           railway_api_token: ${{ secrets.RAILWAY_API_TOKEN }}
           project_id: ${{ secrets.RAILWAY_PROJECT_ID }}
           environment_name: 'staging'
-          preview_environment_name: 'pr-${{ github.event.pull_request.number }}'
+          preview_environment_name: 'staging'
           branch_name: ${{ github.event.pull_request.head.sha }}
-          reuse_preview_environment: 'false'
+          reuse_preview_environment: 'true'
+          cleanup: 'true'
