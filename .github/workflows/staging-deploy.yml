@@ -1,53 +1,12 @@
-# name: Staging Deployment
-
-# on:
-#   pull_request_target:
-#     types: [opened, synchronize, reopened]
-
-# permissions:
-#   contents: read
-#   pull-requests: write
-#   issues: write
-
-# concurrency:
-#   group: pr-${{ github.event.pull_request.number }}
-#   cancel-in-progress: true
-
-# jobs:
-#   deploy:
-#     environment: staging
-#     runs-on: ubuntu-latest
-
-#     steps:
-#       - name: Log PR info
-#         run: |
-#           echo "Preparing deployment for PR #${{ github.event.pull_request.number }}"
-#           echo "Branch: ${{ github.event.pull_request.head.ref }}"
-#           echo "Commit SHA: ${{ github.event.pull_request.head.sha }}"
-#           echo "Fork: ${{ github.event.pull_request.head.repo.full_name }}"
-#           echo "Author: ${{ github.event.pull_request.user.login }}"
-
-#       - name: Checkout PR branch from fork
-#         uses: actions/checkout@v4
-#         with:
-#           repository: ${{ github.event.pull_request.head.repo.full_name }}
-#           ref: ${{ github.event.pull_request.head.ref }}
-#           fetch-depth: 1
-
-#       - name: Deploy to Railway
-#         uses: ayungavis/railway-preview-deploy@v1.0.0
-#         with:
-#           railway_api_token: ${{ secrets.RAILWAY_API_TOKEN }}
-#           project_id: ${{ secrets.RAILWAY_PROJECT_ID }}
-#           environment_name: 'staging'
-#           preview_environment_name: 'pr-staging'
-#           branch_name: ${{ github.event.pull_request.head.sha }}
-#           reuse_preview_environment: 'true'
 name: Railway Preview Deployment
 
 on:
-  pull_request_target:
-    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'Pull Request Number'
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -55,7 +14,7 @@ permissions:
   issues: write
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  group: pr-${{ inputs.pr_number }}
   cancel-in-progress: true
 
 jobs:
@@ -63,81 +22,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Get PR info
+        id: pr
+        uses: octokit/request-action@v2.x
+        with:
+          route: GET /repos/${{ github.repository }}/pulls/${{ inputs.pr_number }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Log deployment info
+        run: |
+          echo "Preparing deployment for PR #${{ inputs.pr_number }}"
+          echo "Commit SHA: ${{ fromJson(steps.pr.outputs.data).head.sha }}"
+          echo "Source repo: ${{ fromJson(steps.pr.outputs.data).head.repo.full_name }}"
+          echo "Branch: ${{ fromJson(steps.pr.outputs.data).head.ref }}"
+
+      - name: Checkout commit (supports forks)
         uses: actions/checkout@v4
         with:
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-          ref: ${{ github.event.pull_request.head.ref }}
-          fetch-depth: 1
+          repository: ${{ fromJson(steps.pr.outputs.data).head.repo.full_name }}
+          ref: ${{ fromJson(steps.pr.outputs.data).head.sha }}
+          fetch-depth: 0
 
       - name: Deploy to Railway
         uses: ayungavis/railway-preview-deploy@v1.0.2
         with:
           railway_api_token: ${{ secrets.RAILWAY_API_TOKEN }}
           project_id: ${{ secrets.RAILWAY_PROJECT_ID }}
-          environment_name: 'staging'
-          preview_environment_name: 'pr-${{ github.event.pull_request.number }}'
-          environment_variables: |
-            {
-              "DATABASE_URL": "postgres://username:password@hostname/db"
-            }
-          branch_name: ${{ github.head_ref }}
-
-      - name: Post deployment info
-        run:
-          echo "Preview deployed at ${{ steps.deploy.outputs.service_domain }}"
-
-      - name: Post or update deployment comment
-        if: ${{ steps.test-action.outputs.service_domain != '' }}
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const marker = '<!-- preview-comment -->'; // Unique marker to identify the comment
-            const { data: commits } = await github.rest.pulls.listCommits({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.issue.number,
-              per_page: 100 
-            });
-            const latestCommit = commits[commits.length - 1];
-            const latestCommitSha = latestCommit.sha.substring(0, 7);
-            const latestCommitAuthor = latestCommit.commit.author.name;
-
-
-            const { data: comments } = await github.rest.issues.listComments({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo
-            });
-
-            const body = `
-              ${marker}  <!-- This marker helps identify the comment for future updates -->
-              🚀 **Deployment success!**
-
-              - \`web\` deployed at [${{ steps.test-action.outputs.service_domain }}](https://${{ steps.test-action.outputs.service_domain }})
-
-              ---
-
-              *commit: ${latestCommitSha}*  
-              *author: ${latestCommitAuthor}* 
-            `;
-
-            const existingComment = comments.find(comment => comment.body.includes(marker));
-
-            if (existingComment) {
-              await github.rest.issues.updateComment({
-                comment_id: existingComment.id,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: body
-              });
-              core.info(`Updated comment ID: ${existingComment.id}`);
-            } else {
-              await github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: body
-              });
-              core.info('Created a new comment');
-            }
+          environment_name: staging
+          preview_environment_name: pr-${{ inputs.pr_number }}
+          branch_name: ${{ fromJson(steps.pr.outputs.data).head.sha }}
+          reuse_preview_environment: true
