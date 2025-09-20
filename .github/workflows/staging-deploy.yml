@@ -1,0 +1,23 @@
+name: Staging Deployment
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Install Railway CLI
+        run: curl -fsSL https://railway.app/install.sh | sh
+
+      - name: Deploy to Staging
+        run: railway up --environment staging --service Grace
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
