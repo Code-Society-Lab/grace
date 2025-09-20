@@ -1,8 +1,12 @@
 name: Staging Deployment
 
 on:
-  pull_request_target:
-    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'Pull Request Number'
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -10,7 +14,7 @@ permissions:
   issues: write
 
 concurrency:
-  group: pr-${{ github.event.pull_request.number }}
+  group: pr-${{ inputs.pr_number }}
   cancel-in-progress: true
 
 jobs:
@@ -19,27 +23,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Log PR info
-        run: |
-          echo "Preparing deployment for PR #${{ github.event.pull_request.number }}"
-          echo "Branch: ${{ github.event.pull_request.head.ref }}"
-          echo "Commit SHA: ${{ github.event.pull_request.head.sha }}"
-          echo "Fork: ${{ github.event.pull_request.head.repo.full_name }}"
-          echo "Author: ${{ github.event.pull_request.user.login }}"
+      - name: Get PR info
+        id: pr
+        uses: octokit/request-action@v2.x
+        with:
+          route: GET /repos/${{ github.repository }}/pulls/${{ inputs.pr_number }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Checkout PR branch from fork
+      - name: Log deployment info
+        run: |
+          echo "Preparing deployment for PR #${{ inputs.pr_number }}"
+          echo "Commit SHA: ${{ fromJson(steps.pr.outputs.data).head.sha }}"
+          echo "Source repo: ${{ fromJson(steps.pr.outputs.data).head.repo.full_name }}"
+          echo "Branch: ${{ fromJson(steps.pr.outputs.data).head.ref }}"
+
+      - name: Checkout commit (supports forks)
         uses: actions/checkout@v4
         with:
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-          ref: ${{ github.event.pull_request.head.ref }}
-          fetch-depth: 1
+          repository: ${{ fromJson(steps.pr.outputs.data).head.repo.full_name }}
+          ref: ${{ fromJson(steps.pr.outputs.data).head.sha }}
+          fetch-depth: 0
 
       - name: Deploy to Railway
         uses: ayungavis/railway-preview-deploy@v1.0.2
         with:
           railway_api_token: ${{ secrets.RAILWAY_API_TOKEN }}
           project_id: ${{ secrets.RAILWAY_PROJECT_ID }}
-          environment_name: 'staging'
-          preview_environment_name: 'pr-staging'
-          branch_name: ${{ github.event.pull_request.head.ref }}
-          reuse_preview_environment: 'true'
+          environment_name: staging
+          preview_environment_name: pr-${{ inputs.pr_number }}
+          branch_name: ${{ fromJson(steps.pr.outputs.data).head.sha }}
+          reuse_preview_environment: true
