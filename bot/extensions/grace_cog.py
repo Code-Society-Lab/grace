@@ -141,6 +141,10 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
 
         await view.send(ctx)
 
+    @hybrid_command(name="greet", description="greet the user")
+    async def greet(self, ctx: Context):
+        await ctx.reply("Hello {ctx.author.mention}")
+
 
 async def setup(bot):
     await bot.add_cog(GraceCog(bot))
