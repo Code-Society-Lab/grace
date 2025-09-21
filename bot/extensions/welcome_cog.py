@@ -7,7 +7,7 @@ from discord import Embed
 class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
     """A cog that sends a welcome message to new members when they join the server."""
 
-    BASE_WELCOME_MESSAGE = "Hi {member_name}! Welcome to the **Code Society**."
+    BASE_WELCOME_MESSAGE = "Hi **{member_name}**!"
 
     def __init__(self, bot):
         self.bot = bot
@@ -15,18 +15,22 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
     @property
     def help_section(self):
         return self.__build_section(
-            ["posting_guidelines", "help"],
-            "If you need help, read the <#{}> and open a post in <#{}>"
+            ["posting_guidelines", "help", "resources"],
+            "### Looking for help?\n"
+            "If you need help, read the <#{}> and open a post in <#{}>."
+            "If you're looking for resources, checkout <#{}> or our [website](<https://resources.codesociety.xyz>)."
         )
 
     @property
-    def info_section(self):
+    def project_section(self):
         return self.__build_section(
-            ["info", "rules", "roles", "introductions"],
-            "Before posting please:\n"
-            "- Take a moment to read the <#{}> and the <#{}>.\n"
-            "- Choose some <#{}>.\n"
-            "- Introduce yourself in <#{}>."
+            ["code-society-lab"],
+            "### Looking for projects?\n"
+            "If you're interested in contributing to open-source projects, "
+            "feel free to come chat with us in <#{}> or visite our [GitHub](<https://github.com/Code-Society-Lab>).\n"
+            "\n**Our latest projects**:\n"
+            "- [Grace Framework](<https://github.com/Code-Society-Lab/grace-framework>)\n"
+            "- [Matrix.py](<https://github.com/Code-Society-Lab/matrixpy>)\n"
         )
 
     def get_welcome_message(self, member):
@@ -41,7 +45,7 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
         return "\n\n".join(filter(None, [
             self.BASE_WELCOME_MESSAGE,
             self.help_section,
-            self.info_section,
+            self.project_section,
         ])).strip().format(member_name=member.display_name)
 
     def __build_section(self, channel_names, message):
@@ -84,10 +88,11 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
                 welcome_channel = before.guild.system_channel
 
             embed.add_field(
-                name="The Code Society Server",
+                name="Welcome to **The Code Society Server**",
                 value=self.get_welcome_message(after),
                 inline=False
             )
+            embed.set_footer(text=self.footer(), icon_url="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png")
 
             await welcome_channel.send(f"<@{after.id}>", embed=embed)
 
@@ -111,10 +116,10 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
 
         embed = Embed(
             color=self.bot.default_color,
-            title="The Code Society Server",
+            title="Welcome to **The Code Society Server**",
             description=self.get_welcome_message(ctx.author),
         )
-
+        embed.set_footer(text="https://github.com/Code-Society-Lab/grace", icon_url="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png")
         await ctx.send(embed=embed, ephemeral=True)
 
 
