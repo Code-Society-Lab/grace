@@ -11,7 +11,9 @@ def seed_database():
         "welcome": 823178343943897091,
         "moderation_logs": 876592591657918514,
         "help": 1019793296740073614,
-        "posting_guidelines": 1068966762730750105
+        "posting_guidelines": 1068966762730750105,
+        "code-society-lab": 848991767818272778,
+        "resources": 826138763637293148
     }
 
     for channel_name in initial_channels:
