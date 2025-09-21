@@ -21,6 +21,10 @@ class Extension(app.base, Model):
         return self.module_name.split(".")[-1].replace("_", " ").title()
 
     @property
+    def short_module_name(self):
+        return self.module_name.removeprefix("bot.extensions.")
+
+    @property
     def state(self):
         return State(self._state)
 
@@ -35,12 +39,14 @@ class Extension(app.base, Model):
     def is_enabled(self):
         return self.state == State.ENABLED
 
-    def __eq__(self, other):
-        if isinstance(other, str):
-            return self.module_name == other
-        if isinstance(other, Extension):
-            return self.module_name == other.module_name
-        return False
+    def should_be_loaded(self):
+        load_only = app.config.environment.get("load_only")
+
+        if not load_only:
+            return self.is_enabled()
+
+        names = (self.module_name, self.short_module_name)
+        return self.is_enabled() and any(name in load_only for name in names)
 
     def __str__(self):
         return f"{self.id} | {self.module} - {self.state}"

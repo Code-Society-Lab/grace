@@ -29,7 +29,6 @@ class Grace(Bot):
 
     async def load_extensions(self):
         for module in self.app.extension_modules:
-            disabled_cogs = self.app.config.get("staging", "disabled_cog")
             extension = Extension.get_by(module_name=module)
 
             if not extension:
@@ -38,7 +37,7 @@ class Grace(Bot):
                 )
                 extension = Extension.create(module_name=module)
 
-            if extension.is_enabled() and extension not in disabled_cogs:
+            if extension.should_be_loaded():
                 info(f"Loading {module}")
                 await self.load_extension(module)
             else:
