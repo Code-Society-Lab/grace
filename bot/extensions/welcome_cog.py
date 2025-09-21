@@ -92,7 +92,7 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
                 value=self.get_welcome_message(after),
                 inline=False
             )
-            embed.set_footer(text=self.footer(), icon_url="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png")
+            embed.set_footer(text="https://github.com/Code-Society-Lab/grace", icon_url="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png")
 
             await welcome_channel.send(f"<@{after.id}>", embed=embed)
 
