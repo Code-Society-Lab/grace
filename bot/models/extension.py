@@ -35,5 +35,12 @@ class Extension(app.base, Model):
     def is_enabled(self):
         return self.state == State.ENABLED
 
+    def __eq__(self, other):
+        if isinstance(other, str):
+            return self.module_name == other
+        if isinstance(other, Extension):
+            return self.module_name == other.module_name
+        return False
+
     def __str__(self):
         return f"{self.id} | {self.module} - {self.state}"
