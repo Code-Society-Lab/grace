@@ -3,7 +3,7 @@ from discord.app_commands import Choice, autocomplete
 from discord.ext.commands import Cog, has_permissions, ExtensionAlreadyLoaded, ExtensionNotLoaded, hybrid_group, Context
 from emoji import emojize
 from bot.classes.state import State
-from bot.extensions.command_error_handler import CommandErrorHandler
+from bot.extensions.command_error_handler import send_command_help
 from bot.models.extension import Extension
 from typing import List
 
@@ -51,7 +51,7 @@ class ExtensionCog(Cog, name="Extensions", description="Extensions managing cog"
         :type ctx: Context
         """
         if ctx.invoked_subcommand is None:
-            await CommandErrorHandler.send_command_help(ctx)
+            await send_command_help(ctx)
 
     @extension_group.command(name="list", aliases=["l"], help="Display the list of extensions")
     @has_permissions(administrator=True)

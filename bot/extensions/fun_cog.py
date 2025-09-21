@@ -4,7 +4,7 @@ from discord.ext.commands import Cog, cooldown, hybrid_group, Context
 from discord import Embed, Colour
 from requests import get
 from random import choice as random_choice
-from bot.extensions.command_error_handler import CommandErrorHandler
+from bot.extensions.command_error_handler import send_command_help
 from bot.models.extensions.fun.answer import Answer
 
 
@@ -26,7 +26,7 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
         :type ctx: Context
         """
         if ctx.invoked_subcommand is None:
-            await CommandErrorHandler.send_command_help(ctx)
+            await send_command_help(ctx)
 
     @fun_group.command(name='eightball', aliases=['8ball'], help="Ask a question and be answered.", usage="{question}")
     @cooldown(4, 30, BucketType.user)
