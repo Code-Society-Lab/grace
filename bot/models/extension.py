@@ -36,6 +36,14 @@ class Extension(app.base, Model):
     def module(self):
         return app.get_extension_module(self.module_name)
 
+    def enable(self):
+        self.state = State.ENABLED
+        self.save()
+
+    def disable(self):
+        self.state = State.DISABLED
+        self.save()
+
     def is_enabled(self):
         return self.state == State.ENABLED
 

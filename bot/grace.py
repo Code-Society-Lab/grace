@@ -37,7 +37,10 @@ class Grace(Bot):
                 )
                 extension = Extension.create(module_name=module)
 
-            if extension.should_be_loaded():
+            if not extension.should_be_loaded():
+                extension.disable()
+
+            if extension.is_enabled():
                 info(f"Loading {module}")
                 await self.load_extension(module)
             else:
