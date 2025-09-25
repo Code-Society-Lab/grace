@@ -1,22 +1,32 @@
 import base64
+import json
+import zlib
 import requests
+from logging import info, critical
 
 
 MERMAID_API = "https://mermaid.ink/img/"
 
 
 def _encode_diagram(diagram: str) -> str:
-    """ Converts script string to base64 encoding 
+    """ Converts diagram string to pako-compressed base64 encoding 
     
-    :param diagram: String to be converted
+    :param diagram: Mermaid diagram string to be converted
     :type diagram: str
 
-    :returns: Converted string
+    :returns: Pako-compressed base64 encoded string
     :rtype: str
     """
-    diagram_bytes = diagram.encode("utf8")
-    base64_bytes = base64.urlsafe_b64encode(diagram_bytes)
-    return base64_bytes.decode("ascii")
+    graph_json = {
+        "code": diagram,
+        "mermaid": {"theme": "default"}
+    }
+
+    byte_data = json.dumps(graph_json).encode('ascii')
+    compressed_data = zlib.compress(byte_data, level=9)
+    b64_encoded = base64.b64encode(compressed_data).decode('ascii')
+
+    return b64_encoded.replace('+', '-').replace('/', '_')
 
 
 def _build_url(diagram: str) -> str:
@@ -29,7 +39,7 @@ def _build_url(diagram: str) -> str:
     :rtype: str
     """
     encoded_diagram = _encode_diagram(diagram)
-    return f"{MERMAID_API}{encoded_diagram}"
+    return f"{MERMAID_API}pako:{encoded_diagram}"
 
 
 def _is_valid_diagram(url: str) -> bool:
@@ -43,8 +53,10 @@ def _is_valid_diagram(url: str) -> bool:
     """
     try:
         response = requests.get(url, timeout=5)
+        info(f"url: {url} - code: {response.status_code}")
         return response.status_code == 200
-    except requests.RequestException:
+    except requests.RequestException as e:
+        critical(e)
         return False
 
 
