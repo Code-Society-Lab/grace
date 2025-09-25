@@ -26,7 +26,7 @@ def _encode_diagram(diagram: str) -> str:
     compressed_data = zlib.compress(byte_data, level=9)
     b64_encoded = base64.b64encode(compressed_data).decode('ascii')
 
-    return b64_encoded.replace('+', '-').replace('/', '_')
+    return b64_encoded.replace('+', '-').replace('/', '_').strip('=')
 
 
 def _build_url(diagram: str, type: str = 'img') -> str:
