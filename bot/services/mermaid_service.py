@@ -5,16 +5,16 @@ import requests
 from logging import info, critical
 
 
-MERMAID_API = "https://mermaid.ink/img/"
+MERMAID_API = "https://mermaid.ink"
 
 
 def _encode_diagram(diagram: str) -> str:
-    """ Converts diagram string to pako-compressed base64 encoding 
-    
-    :param diagram: Mermaid diagram string to be converted
+    """Encode a Mermaid diagram into a pako-compressed Base64 string.
+
+    :param diagram: Mermaid diagram definition to encode.
     :type diagram: str
 
-    :returns: Pako-compressed base64 encoded string
+    :returns: Pako-compressed and Base64-encoded diagram string.
     :rtype: str
     """
     graph_json = {
@@ -29,26 +29,26 @@ def _encode_diagram(diagram: str) -> str:
     return b64_encoded.replace('+', '-').replace('/', '_')
 
 
-def _build_url(diagram: str) -> str:
-    """ Constructs mermaid ink API url to generate mermaid diagram image
-    
-    :param diagram: Mermaid script from which the diagram will be generated
+def _build_url(diagram: str, type: str = 'img') -> str:
+    """Build the Mermaid.ink API URL for a given diagram.
+
+    :param diagram: Mermaid diagram definition.
     :type diagram: str
 
-    :returns: Mermaid ink API url
+    :returns: Fully constructed Mermaid.ink API URL.
     :rtype: str
     """
     encoded_diagram = _encode_diagram(diagram)
-    return f"{MERMAID_API}pako:{encoded_diagram}"
+    return f"{MERMAID_API}/{type}/pako:{encoded_diagram}"
 
 
 def _is_valid_diagram(url: str) -> bool:
-    """ Validates Mermaid API url
-    
-    :param url: Url to validate
+    """Check whether a Mermaid.ink API URL returns a valid response.
+
+    :param url: API URL to validate.
     :type url: str
 
-    :returns: Whether url is valid or not
+    :returns: True if the URL is valid (HTTP 200), otherwise False.
     :rtype: bool
     """
     try:
@@ -61,12 +61,15 @@ def _is_valid_diagram(url: str) -> bool:
 
 
 def generate_mermaid_diagram(diagram: str) -> str | None:
-    """ Constructs API url and validates it
-    
-    :param diagram: Mermaid diagram script
+    """Generate a valid Mermaid.ink API URL for a given diagram.
+
+    This function encodes the diagram, constructs the API URL,
+    and validates it before returning.
+
+    :param diagram: Mermaid diagram definition.
     :type diagram: str
 
-    :returns: API url if it's valid, otherwise None
+    :returns: Valid API URL if available, otherwise ``None``.
     :rtype: str | None
     """
     diagram_url = _build_url(diagram)
