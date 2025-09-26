@@ -1,13 +1,13 @@
 from discord.ext.commands import Cog, hybrid_command, Context
-from discord.ui import Button, View
+from discord.ui import Button
+from discord.app_commands import Choice, autocomplete
+from discord import Embed, Interaction
 from emoji import emojize
+from lib.config_required import command_config_required
+from lib.paged_embeds import PagedEmbedView
 from bot.helpers import send_error
 from bot.helpers.github_helper import create_contributors_embeds, create_repository_button, available_project_names
 from bot.services.github_service import GithubService
-from lib.config_required import command_config_required
-from lib.paged_embeds import PagedEmbedView
-from discord.app_commands import Choice, autocomplete
-from discord import Embed, Interaction
 
 
 async def project_autocomplete(_: Interaction, current: str) -> list[Choice[str]]:
@@ -51,25 +51,25 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
 
         info_embed = Embed(
             color=self.bot.default_color,
-            title=f"My name is Grace",
+            title="My name is Grace",
             description=f"Hi, {ctx.author.mention}. I'm the official **Code Society** Discord Bot.\n",
         )
 
         info_embed.add_field(
             name="Fun fact about me",
-            value=f"I'm named after [Grace Hopper](https://en.wikipedia.org/wiki/Grace_Hopper) {emojize(':rabbit:')}",
+            value="I'm named after [Grace Hopper](https://en.wikipedia.org/wiki/Grace_Hopper) {emojize(':rabbit:')}",
             inline=False
         )
 
         info_embed.add_field(
             name=f"{emojize(':test_tube:')} Code Society Lab",
-            value=f"Contribute to our [projects](https://github.com/Code-Society-Lab/grace)\n",
+            value="Contribute to our [projects](https://github.com/Code-Society-Lab/grace)\n",
             inline=True
         )
 
         info_embed.add_field(
             name=f"{emojize(':crossed_swords:')} Codewars",
-            value=f"Set your clan to **CodeSoc**\n",
+            value="Set your clan to **CodeSoc**\n",
             inline=True
         )
 
