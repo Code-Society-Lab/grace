@@ -38,7 +38,7 @@ class RedditCog(Cog, name="Reddit", description="Reddit utilities"):
             :rtype: List[List]
         """
         subreddit_matches = re.findall(
-            r"\br/([A-Za-z0-9_]{3,21})",
+            r"(?<![/.])\br/([A-Za-z0-9_]{3,21})",
             message.content
         )
 
