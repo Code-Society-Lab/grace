@@ -61,6 +61,8 @@ class TimeCog(
         if message.author.bot:
             return
 
+        ctx = await self.bot.get_context(message)
+
         utc = pytz.UTC
         now_utc = datetime.now(utc)
 
@@ -70,7 +72,7 @@ class TimeCog(
 
         try:
             timestamp = self._build_timestamp(utc, time_str)
-            await message.channel.send(f"<t:{timestamp}:F>")
+            await ctx.reply(f"<t:{timestamp}:F>")
         except Exception:
             pass
 
