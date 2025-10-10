@@ -48,7 +48,7 @@ class ModerationCog(Cog, name="Moderation", description="Collection of administr
         if author.bot or is_already_reacted:
             return None
 
-        match demojize(reaction.emoji):
+        match demojize(str(reaction.emoji)):
             case ":SOS_button:":
                 await message.reply("[Don't ask to ask, just ask](<https://dontasktoask.com/>)")
             case ":red_question_mark:":
