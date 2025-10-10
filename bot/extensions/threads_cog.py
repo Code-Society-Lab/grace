@@ -27,7 +27,7 @@ class ThreadModal(Modal, title="Thread"):
         style=TextStyle.paragraph
     )
 
-    def __init__(self, recurrence: Recurrence, thread: Thread = None):
+    def __init__(self, recurrence: Recurrence, remainder: bool = None, thread: Thread = None):
         super().__init__()
 
         if thread:
@@ -35,6 +35,7 @@ class ThreadModal(Modal, title="Thread"):
             self.thread_content.default = thread.content
 
         self.thread = thread
+        self.thread_remainder = remainder
         self.thread_recurrence = recurrence
 
     async def on_submit(self, interaction: Interaction):
@@ -49,6 +50,8 @@ class ThreadModal(Modal, title="Thread"):
             content=self.thread_content.value,
             recurrence=self.thread_recurrence
         )
+        thread.daily_reminder = self.thread_remainder
+
         await interaction.response.send_message(
             f'Thread __**{thread.id}**__ created!',
             ephemeral=True
@@ -58,6 +61,7 @@ class ThreadModal(Modal, title="Thread"):
         self.thread.title = self.thread_title.value,
         self.thread.content = self.thread_content.value,
         self.thread.recurrence = self.thread_recurrence
+        self.thread.daily_reminder = self.thread_remainder
 
         self.thread.save()
 
@@ -117,6 +121,37 @@ class ThreadsCog(Cog, name="Threads"):
             timezone=self.timezone
         ))
 
+        # Runs reminders everyday at 12:30
+        self.jobs.append(self.bot.scheduler.add_job(
+            self.daily_reminder,
+            'cron',
+            hour=12,
+            minute=30,
+            timezone=self.timezone
+        ))
+
+    async def daily_reminder(self):
+        info("Posting daily threads's reminder")
+
+        embed = Embed(
+            color=self.bot.default_color,
+            title="🔔 Daily Reminder",
+            description="Join the discussion in the latest active threads:"
+        )
+
+        if threads := Thread.all():
+            for thread in threads:
+                if hasattr(thread, "latest_thread") and thread.latest_thread:
+                    embed.add_field(
+                        name="",
+                        value=f"- [{thread.title}]({thread.latest_thread})",
+                        inline=False
+                    )
+
+        channel = self.bot.get_channel(self.threads_channel_id)
+        if channel:
+            await channel.send(embed=embed)
+
     def cog_unload(self):
         for job in self.jobs:
             self.bot.scheduler.remove_job(job.id)
@@ -152,7 +187,11 @@ class ThreadsCog(Cog, name="Threads"):
 
         if channel:
             message = await channel.send(content=content, embed=embed)
-            await message.create_thread(name=thread.title)
+            discord_thread = await message.create_thread(name=thread.title)
+
+            if thread.daily_reminder:
+                thread.latest_thread = discord_thread.jump_url
+                thread.save()
 
     @hybrid_group(name="threads", help="Commands to manage threads")
     @has_permissions(administrator=True)
@@ -182,8 +221,8 @@ class ThreadsCog(Cog, name="Threads"):
 
     @threads_group.command(help="Creates a new thread")
     @has_permissions(administrator=True)
-    async def create(self, ctx: Context, recurrence: Recurrence):
-        modal = ThreadModal(recurrence)
+    async def create(self, ctx: Context, recurrence: Recurrence, remainder: bool):
+        modal = ThreadModal(recurrence, remainder=remainder)
         await ctx.interaction.response.send_modal(modal)
 
     @threads_group.command(help="Deletes a given thread")
@@ -199,9 +238,9 @@ class ThreadsCog(Cog, name="Threads"):
     @threads_group.command(help="Update a thread")
     @has_permissions(administrator=True)
     @autocomplete(thread=thread_autocomplete)
-    async def update(self, ctx: Context, thread: int, recurrence: Recurrence):
+    async def update(self, ctx: Context, thread: int, recurrence: Recurrence, remainder: bool):
         if thread := Thread.get(thread):
-            modal = ThreadModal(recurrence, thread=thread)
+            modal = ThreadModal(recurrence, remainder=remainder, thread=thread)
             await ctx.interaction.response.send_modal(modal)
         else:
             await ctx.send("Thread not found!", ephemeral=True)
