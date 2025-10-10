@@ -71,8 +71,8 @@ class TimeCog(
         try:
             timestamp = self._build_timestamp(utc, time_str)
             await message.channel.send(f"<t:{timestamp}:F>")
-        except Exception as e:
-            await message.channel.send(f"Could not parse time. Error: {str(e)}")
+        except Exception:
+            pass
 
 
 async def setup(bot):
