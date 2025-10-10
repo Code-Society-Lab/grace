@@ -13,7 +13,7 @@ def seed_database():
         "help": 1019793296740073614,
         "posting_guidelines": 1068966762730750105,
         "code-society-lab": 848991767818272778,
-        "resources": 826138763637293148
+        "resources": 826138763637293148,
     }
 
     for channel_name in initial_channels:
