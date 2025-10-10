@@ -1,7 +1,8 @@
-from sqlalchemy import Column, Integer, String, Text
+from sqlalchemy import Column, Integer, String, Text, Boolean
 from grace.model import Model
 from bot import app
 from bot.classes.recurrence import Recurrence
+from typing import Optional
 
 
 class Thread(app.base, Model):
@@ -11,6 +12,8 @@ class Thread(app.base, Model):
     title = Column(String, nullable=False,)
     content = Column(Text, nullable=False,)
     _recurrence = Column("recurrence", Integer, nullable=False, default=0)
+    latest_thread = Column(String, nullable=True,)
+    daily_reminder = Column(Boolean, nullable=True,)
 
     @property
     def recurrence(self) -> Recurrence:
