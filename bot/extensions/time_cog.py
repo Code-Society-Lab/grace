@@ -1,4 +1,5 @@
 import pytz
+import re
 
 from discord.ext.commands import Cog
 from datetime import datetime, timedelta
@@ -7,13 +8,33 @@ from discord import Message
 
 # Mapping for common timezone abbreviations to their UTC offsets
 timezone_abbreviations = {
-    "pst": "America/Los_Angeles",
-    "pdt": "America/Los_Angeles",
-    "est": "America/New_York",
-    "edt": "America/New_York",
-    "utc": "UTC",
-    # TODO: Maybe add more timezone or find a way to fetch them dynamically
-    # maybe from pytz or another library?
+    # North American
+    "pst": "America/Los_Angeles",      # Pacific Standard Time
+    "pdt": "America/Los_Angeles",      # Pacific Daylight Time
+    "mst": "America/Denver",           # Mountain Standard Time
+    "mdt": "America/Denver",           # Mountain Daylight Time
+    "cst": "America/Chicago",          # Central Standard Time
+    "cdt": "America/Chicago",          # Central Daylight Time
+    "est": "America/New_York",         # Eastern Standard Time
+    "edt": "America/New_York",         # Eastern Daylight Time
+
+    # International standards
+    "gmt": "Etc/GMT",                  # Greenwich Mean Time
+    "utc": "UTC",                      # Coordinated Universal Time
+
+    # European
+    "bst": "Europe/London",            # British Summer Time
+    "cet": "Europe/Paris",             # Central European Time
+    "cest": "Europe/Paris",            # Central European Summer Time
+
+    # Asia-Pacific
+    "hkt": "Asia/Hong_Kong",           # Hong Kong Time
+    "ist": "Asia/Kolkata",             # India Standard Time
+    "jst": "Asia/Tokyo",               # Japan Standard Time
+    "aest": "Australia/Sydney",        # Australian Eastern Standard Time
+    "aedt": "Australia/Sydney",        # Australian Eastern Daylight Time
+
+    # TODO: find a way to fetch all timezones dynamically
 }
 
 
@@ -56,23 +77,32 @@ class TimeCog(
 
         return time_str
 
+    def _build_regex(self) -> str:
+        keys = timezone_abbreviations.keys()
+        escaped_keys = [re.escape(key) for key in keys]
+        joined = "|".join(escaped_keys)
+
+        return rf"\b({joined})\b"
+
     @Cog.listener()
     async def on_message(self, message: Message) -> None:
         if message.author.bot:
             return
 
-        ctx = await self.bot.get_context(message)
+        time_str = message.content.lower()
+        tz_pattern = self._build_regex()
+        if not re.search(tz_pattern, time_str):
+            return  # process only when timezone in message
 
         utc = pytz.UTC
         now_utc = datetime.now(utc)
 
-        time_str = message.content.lower()
         time_str = " ".join(time_str.split())
         time_str = self._build_relative_date(time_str, now_utc)
 
         try:
             timestamp = self._build_timestamp(utc, time_str)
-            await ctx.reply(f"<t:{timestamp}:F>")
+            await message.reply(f"<t:{timestamp}:F>")
         except Exception:
             pass
 
