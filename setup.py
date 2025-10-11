@@ -32,6 +32,7 @@ setup(
         'pygithub',
         'googletrans==4.0.0-rc1',
         'openai==0.26.1',
-        'apscheduler'
+        'apscheduler',
+        'pytest-asyncio'
     ]
 )
