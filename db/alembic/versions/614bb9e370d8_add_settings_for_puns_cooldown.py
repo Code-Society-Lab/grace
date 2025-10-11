@@ -29,7 +29,6 @@ def upgrade() -> None:
             server_default="60"
         ),
         sa.PrimaryKeyConstraint('id'),
-        if_not_exists=True
     )
 
     # check if column exists before adding

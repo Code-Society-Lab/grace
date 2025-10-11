@@ -24,7 +24,6 @@ def upgrade() -> None:
         sa.Column('text', sa.Text(), nullable=True),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('text'),
-        if_not_exists=True
     )
     op.create_table(
         'pun_words',
@@ -34,7 +33,6 @@ def upgrade() -> None:
         sa.Column('emoji_code', sa.String(length=255), nullable=True),
         sa.ForeignKeyConstraint(['pun_id'], ['puns.id'], ),
         sa.PrimaryKeyConstraint('id'),
-        if_not_exists=True
     )
     # ### end Alembic commands ###
 

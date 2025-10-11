@@ -23,7 +23,6 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), primary_key=True, nullable=False),
         sa.Column("module_name", sa.String(255), nullable=False, unique=True),
         sa.Column("state", sa.Integer(), nullable=True, server_default="1"),
-        if_not_exists=True,
     )
 
     # --- channels table ---
@@ -42,7 +41,6 @@ def upgrade() -> None:
             nullable=False
         ),
         sa.UniqueConstraint("channel_name", "channel_id", name="uq_id_cn_cid"),
-        if_not_exists=True,
     )
 
     # ensure there’s always a single settings row
@@ -59,7 +57,6 @@ def upgrade() -> None:
         "answers",
         sa.Column("id", sa.Integer(), primary_key=True, nullable=False),
         sa.Column("answer", sa.String(255), nullable=False),
-        if_not_exists=True,
     )
 
     # --- triggers table ---
@@ -69,7 +66,6 @@ def upgrade() -> None:
         sa.Column("name", sa.String(255), unique=True),
         sa.Column("positive_emoji_code", sa.String(255), nullable=False),
         sa.Column("negative_emoji_code", sa.String(255), nullable=False),
-        if_not_exists=True,
     )
 
     # --- trigger_words table ---
@@ -83,7 +79,6 @@ def upgrade() -> None:
             nullable=False
         ),
         sa.Column("word", sa.String(255), primary_key=True, nullable=False),
-        if_not_exists=True,
     )
 
 

@@ -1,2 +1,48 @@
 [build-system]
-requires = ["setuptools", "wheel", "Cython"]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "Grace"
+version = "2.0.0"
+description = "The Code Society community Bot"
+authors = [
+    { name = "Code Society Lab" }
+]
+license = { text = "GNU General Public License v3.0" }
+requires-python = ">=3.10.0"
+readme = "README.md"
+
+dependencies = [
+    "grace-framework @ git+https://github.com/Code-Society-Lab/grace-framework.git@main",
+    "discord-pretty-help==2.0.4",
+    "emoji>=2.1.0",
+    "nltk",
+    "requests",
+    "pillow",
+    "geopy",
+    "pytz",
+    "tzdata",
+    "timezonefinder",
+    "pygithub",
+    "googletrans==4.0.0-rc1",
+    "openai==0.26.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+    "flake8",
+    "mypy",
+    "black",
+]
+
+[project.urls]
+Homepage = "https://github.com/Code-Society-Lab/grace"
+Documentation = "https://github.com/Code-Society-Lab/grace/wiki"
+"Issue Tracker" = "https://github.com/Code-Society-Lab/grace/issues"
+"Discord Server" = "https://discord.gg/code-society-823178343943897088"
+
+[tool.setuptools.packages.find]
+include = ["*"]

@@ -11,7 +11,7 @@ class ThankCog(Cog):
     def __init__(self, bot: Grace):
         self.bot: Grace = bot
 
-    @hybrid_group(name='thank', help='Thank commands', invoke_without_command=True)
+    @hybrid_group(name='thank', help='Thank commands')
     async def thank_group(self, ctx: Context) -> None:
         """Event listener for the `thank` command group. If no subcommand is 
         invoked, it sends the command help to the user.
@@ -23,8 +23,8 @@ class ThankCog(Cog):
             await send_command_help(ctx)
 
     @thank_group.command(name='send', description='Send a thank you to a person')
-    @cooldown(1, 3600, BucketType.user)
-    async def thank(self, ctx: Context, *, member: Member) -> Optional[Message]:
+    # @cooldown(1, 3600, BucketType.user)
+    async def thank(self, ctx: Context, *, member: Member) -> None:
         """Send a "thank you" message to a member and increase their thank count by 1.
 
         :param ctx: The context of the command invocation.
@@ -34,18 +34,20 @@ class ThankCog(Cog):
         :return: Message | None
         """
         if member.id == self.bot.user.id:
-            return await ctx.send(f'{ctx.author.display_name}, thank you 😊', ephemeral=True)
+            await ctx.send(f'{ctx.author.display_name}, thank you 😊', ephemeral=True)
+            return
 
         if ctx.author.id == member.id:
-            return await ctx.send('You cannot thank yourself.', ephemeral=True)
+            await ctx.send('You cannot thank yourself.', ephemeral=True)
+            return
 
-        thank: Thank = Thank.get_by(member_id=member.id)
+        thank: Thank = Thank.find_by(member_id=member.id)
 
-        if thank:
-            thank.count += 1
-            thank.save()
-        else:
-            thank = Thank.create(member_id=member.id, count=1)
+        if not thank:
+            thank = Thank.create(member_id=member.id)
+
+        thank.count += 1
+        thank.save()
 
         thank_embed: Embed = Embed(
             title='INFO',
@@ -55,10 +57,10 @@ class ThankCog(Cog):
         )
 
         await member.send(embed=thank_embed)
-        await ctx.interaction.response.send_message(f'Successfully thanked **@{member.display_name}**', ephemeral=True)
+        await ctx.send(f'Successfully thanked **@{member.display_name}**', ephemeral=True)
 
     @thank_group.command(name='leaderboard', description='Shows top n helpers.')
-    async def thank_leaderboard(self, ctx: Context, *, top: int = 10) -> Optional[Message]:
+    async def thank_leaderboard(self, ctx: Context, *, top: int = 10) -> None:
         """Display the top n helpers, sorted by their thank count.
         
         :param ctx: The context of the command invocation.
@@ -67,14 +69,16 @@ class ThankCog(Cog):
         :type top: int (optional)
         :return: Message | None
         """
-        helpers: List[Thank] = Thank.ordered()
+        helpers: List[Thank] = Thank.order_by(count="desc").all()
 
         if not helpers:
-            return await ctx.reply('No helpers found.', ephemeral=True)
+            await ctx.reply('No helpers found.', ephemeral=True)
+            return
 
         top = min(len(helpers), top)
         if top <= 0:
-            return await ctx.reply('The top parameter must have value of at least 1.', ephemeral=True)
+            await ctx.reply('The top parameter must have value of at least 1.', ephemeral=True)
+            return
 
         leaderboard_embed: Embed = Embed(
             title=f'Helpers Leaderboard Top {top}',
@@ -130,7 +134,7 @@ class ThankCog(Cog):
         :return: None
         """
         rank_embed: Embed = Embed(title='YOUR RANK', color=self.bot.default_color)
-        thank = Thank.get_by(member_id=ctx.author.id)
+        thank = Thank.find_by(member_id=ctx.author.id)
 
         if not thank:
             rank_embed.description = 'You haven\'t been thanked yet.'
@@ -149,7 +153,7 @@ class ThankCog(Cog):
         :type member: Member
         """
         rank_embed: Embed = Embed(title=f'{member.display_name} RANK', color=self.bot.default_color)
-        thank = Thank.get_by(member_id=member.id)
+        thank = Thank.find_by(member_id=member.id)
 
         if not thank:
             rank_embed.description = f'User **@{member.display_name}** hasn\'t been thanked yet.'

@@ -1,11 +1,9 @@
-from sqlalchemy import Column, Integer, String
-from grace.model import Model
-from bot import app
+from typing import Optional
+from grace.model import Model, Field
 
 
-class Answer(app.base, Model):
-    """Answer model (With SQLAlchemy ORM)"""
+class Answer(Model):
     __tablename__ = "answers"
 
-    id = Column(Integer, primary_key=True)
-    answer = Column(String(255), nullable=False)
+    id: Optional[int] = Field(default=None, primary_key=True)
+    answer: str = Field(max_length=255)

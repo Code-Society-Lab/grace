@@ -93,7 +93,7 @@ class ExtensionCog(Cog, name="Extensions", description="Extensions managing cog"
         :param extension_name: The module name of the extension to enable.
         :type extension_name: str
         """
-        extension = Extension.get_by(module_name=extension_name)
+        extension = Extension.find_by(module_name=extension_name)
 
         if extension:
             try:
@@ -118,7 +118,7 @@ class ExtensionCog(Cog, name="Extensions", description="Extensions managing cog"
         :param extension_name: The module name of the extension to disable.
         :type extension_name: str
         """
-        extension = Extension.get_by(module_name=extension_name)
+        extension = Extension.find_by(module_name=extension_name)
 
         if extension:
             try:

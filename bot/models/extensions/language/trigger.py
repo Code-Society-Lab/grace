@@ -1,19 +1,18 @@
 from emoji import emojize
-from sqlalchemy import String, Column, Integer
-from sqlalchemy.orm import relationship
-from grace.model import Model
-from bot import app
+from grace.model import Model, Field, Relationship
+from typing import List
 from bot.models.extensions.language.trigger_word import TriggerWord
 
 
-class Trigger(app.base, Model):
+class Trigger(Model):
     __tablename__ = 'triggers'
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String(255), unique=True)
-    positive_emoji_code = Column(String(255), nullable=False)
-    negative_emoji_code = Column(String(255), nullable=False)
-    trigger_words = relationship("TriggerWord")
+    id: int | None = Field(default=None, primary_key=True)
+    name: str = Field(max_length=255, unique=True)
+    positive_emoji_code: str = Field(max_length=255)
+    negative_emoji_code: str = Field(max_length=255)
+
+    trigger_words: List[TriggerWord] = Relationship(back_populates="trigger")
 
     @property
     def words(self):

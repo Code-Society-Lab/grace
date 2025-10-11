@@ -1,19 +1,17 @@
-from datetime import timedelta
-from sqlalchemy import Text, Column, Integer, DateTime
-from sqlalchemy.orm import relationship
-from grace.model import Model
-from bot import app
+from datetime import datetime, timedelta
+from grace.model import Model, Field, Relationship
+from typing import List
 from bot.models.extensions.language.pun_word import PunWord
 from bot.models.bot import BotSettings
 
 
-class Pun(app.base, Model):
+class Pun(Model):
     __tablename__ = "puns"
 
-    id = Column(Integer, primary_key=True)
-    text = Column(Text(), unique=True)
-    last_invoked = Column(DateTime)
-    pun_words = relationship("PunWord", lazy="dynamic", cascade="all, delete-orphan")
+    id: int | None = Field(default=None, primary_key=True)
+    text: str = Field(sa_column_kwargs={"unique": True})
+    last_invoked: datetime | None = Field(default=None)
+    pun_words: List["PunWord"] = Relationship(back_populates="pun")
 
     @property
     def words(self):
@@ -27,7 +25,11 @@ class Pun(app.base, Model):
         PunWord(pun_id=self.id, word=pun_word, emoji_code=emoji_code).save()
 
     def remove_pun_word(self, pun_word):
-        PunWord.where(pun_id=self.id, word=pun_word).first().delete()
+        PunWord.where(
+            PunWord.pun_id == self.id
+        ).where(
+            PunWord.word == pun_word
+        ).first().delete()
 
     def can_invoke_at_time(self, time):
         cooldown_minutes = BotSettings.settings().puns_cooldown

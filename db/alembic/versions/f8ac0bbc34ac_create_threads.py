@@ -24,7 +24,6 @@ def upgrade() -> None:
         sa.Column('content', sa.Text(), nullable=False),
         sa.Column('recurrence', sa.Integer(), nullable=False, default=0),
         sa.PrimaryKeyConstraint('id'),
-        if_not_exists=True
     )
 
 

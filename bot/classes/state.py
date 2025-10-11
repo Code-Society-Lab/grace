@@ -1,8 +1,8 @@
-from enum import Enum, unique
+from enum import IntEnum, unique
 
 
 @unique
-class State(Enum):
+class State(IntEnum):
     DISABLED = 0
     ENABLED = 1
 
