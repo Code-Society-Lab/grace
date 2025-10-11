@@ -41,12 +41,31 @@ timezone_abbreviations = {
 class TimeCog(
     Cog,
     name="Time",
-    description="Convert time to UTC-based timestamp."
+    description="Convert time in messages into UTC-based Discord timestamps."
 ):
+    """
+    A Discord Cog that listens for messages containing time expressions
+    with timezone abbreviations ('5pm PST', 'tomorrow 10am CET') and
+    converts them into Discord-formatted UTC timestamps.
+
+    This allows users to share time references that automatically display
+    correctly in each user's local timezone within Discord.
+    """
     def __init__(self, bot):
         self.bot = bot
 
     def _build_timestamp(self, utc, time_str: str) -> int:
+        """
+        Build the timespamt based on timezone.
+
+        :param utc: UTC timezone object
+        :type utc: _UTCclass
+        :param time_str: The time expression provided by the user.
+        :type time_str: str
+
+        :return: The corresponding UTC timestamp as a Unix integer.
+        :rtype: int
+        """
         parsed_time = parser.parse(time_str, fuzzy=True)
 
         # Detect abbreviation in the message
@@ -67,6 +86,17 @@ class TimeCog(
         return int(parsed_time.timestamp())
 
     def _build_relative_date(self, time_str: str, now_utc: datetime) -> str:
+        """
+        Replace relative date terms with explicit UTC dates.
+
+        :param time_str: The input string containing a time expression.
+        :type time_str: str
+        :param now_utc: The current UTC datetime.
+        :type now_utc: datetime
+
+        :return: Modified time with relative terms replaced by explicit dates.
+        :rtype: str
+        """
         # Handle relative dates
         if "today" in time_str:
             date_str = now_utc.strftime('%Y-%m-%d')
@@ -78,6 +108,12 @@ class TimeCog(
         return time_str
 
     def _build_regex(self) -> str:
+        """
+        Construct a regex pattern to detect known timezone abbreviations.
+
+        :return: A regex pattern that matches any known timezone abbreviation.
+        :rtype: str
+        """
         keys = timezone_abbreviations.keys()
         escaped_keys = [re.escape(key) for key in keys]
         joined = "|".join(escaped_keys)
@@ -86,6 +122,17 @@ class TimeCog(
 
     @Cog.listener()
     async def on_message(self, message: Message) -> None:
+        """
+        Event listener triggered when a new message is sent.
+
+        If the message contains a recognized timezone abbreviation,
+        the function will try to parse the message text for a valid
+        time expression, convert it into a UTC timestamp, and reply
+        with a Discord-formatted timestamp (<t:timestamp:F>).
+
+        :param message: The message object received from Discord.
+        :type message: discord.Message
+        """
         if message.author.bot:
             return
 
