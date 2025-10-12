@@ -6,7 +6,7 @@ try:
     from nltk.downloader import Downloader
     from nltk import download, download_shell
 
-    download('vader_lexicon', quiet=True)
+    download("vader_lexicon", quiet=True)
 except ModuleNotFoundError:
     print("nltk module not properly installed")
 
@@ -17,9 +17,9 @@ def _create_bot(app):
     Import is deferred to avoid circular dependency.
     """
     from bot.grace import Grace
+
     return Grace(app)
 
 
 app = Application()
 bot = _create_bot(app)
-

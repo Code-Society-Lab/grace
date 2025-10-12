@@ -11,7 +11,7 @@ class Grace(Bot):
         super().__init__(
             app,
             intents=Intents.all(),
-            activity=Activity(type=ActivityType.playing, name="::help")
+            activity=Activity(type=ActivityType.playing, name="::help"),
         )
 
         self.help_command = PrettyHelp(color=self.default_color)
@@ -29,12 +29,10 @@ class Grace(Bot):
 
     async def load_extensions(self):
         for module in self.app.extension_modules:
-            extension = Extension.where(Extension.module_name == module).first()
+            extension = Extension.where(module_name=module).first()
 
             if not extension:
-                warning(
-                    f"{module} is not registered. Registering the extension."
-                )
+                warning(f"{module} is not registered. Registering the extension.")
                 extension = Extension.create(module_name=module)
 
             if not extension.should_be_loaded():

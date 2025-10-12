@@ -25,7 +25,7 @@ def create_contributors_embeds(repository: Repository) -> List[Embed]:
 
     for i in range(page_count):
         embed: Embed = Embed(
-            color=Color.from_str("#171515"), # github color
+            color=Color.from_str("#171515"),  # github color
             title=f"{repository.name.capitalize()}'s Contributors",
         )
 
@@ -33,7 +33,7 @@ def create_contributors_embeds(repository: Repository) -> List[Embed]:
             embed.add_field(
                 name=contributor.login,
                 value=f"{contributor.contributions} Contributions",
-                inline=True
+                inline=True,
             )
 
         embeds.append(embed)
@@ -43,7 +43,5 @@ def create_contributors_embeds(repository: Repository) -> List[Embed]:
 
 def create_repository_button(repository: Repository) -> Button:
     return Button(
-        emoji=emojize(":file_folder:"),
-        label=f"Repository",
-        url=repository.html_url
+        emoji=emojize(":file_folder:"), label="Repository", url=repository.html_url
     )

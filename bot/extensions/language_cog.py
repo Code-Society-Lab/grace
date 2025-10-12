@@ -136,7 +136,7 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
 
             embed = Embed(
                 color=self.bot.default_color,
-                title=f"Triggers",
+                title="Triggers",
                 description="\n".join(trigger.words),
             )
 

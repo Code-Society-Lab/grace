@@ -3,7 +3,7 @@ from grace.model import Model, Field
 
 
 class Channel(Model):
-    __tablename__ = 'channels'
+    __tablename__ = "channels"
 
     channel_name: str = Field(primary_key=True)
     channel_id: int = Field(primary_key=True)

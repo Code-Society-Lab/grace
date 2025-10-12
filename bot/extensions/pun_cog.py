@@ -1,4 +1,10 @@
-from discord.ext.commands import Cog, has_permissions, hybrid_command, hybrid_group, Context
+from discord.ext.commands import (
+    Cog,
+    has_permissions,
+    hybrid_command,
+    hybrid_group,
+    Context,
+)
 from discord import Message, Embed
 from bot.models.bot import BotSettings
 from bot.models.extensions.language.pun import Pun
@@ -7,21 +13,23 @@ from nltk.tokenize import TweetTokenizer
 from emoji import demojize
 
 
-class PunCog(Cog, name="Puns", description="Automatically intrude with puns when triggered"):
+class PunCog(
+    Cog, name="Puns", description="Automatically intrude with puns when triggered"
+):
     def __init__(self, bot):
         self.bot = bot
 
         self.tokenizer = TweetTokenizer()
-    
+
     @Cog.listener()
     async def on_message(self, message: Message) -> None:
         """A listener function that calls the `pun_react` functions when a message is received.
-         
-         :param message: The message that was received.
-         :type message: discord.Message
-         """
+
+        :param message: The message that was received.
+        :type message: discord.Message
+        """
         await self.pun_react(message)
-   
+
     async def pun_react(self, message: Message) -> None:
         """Add reactions and send a message in the channel if the message content contains any pun words.
 
@@ -41,19 +49,19 @@ class PunCog(Cog, name="Puns", description="Automatically intrude with puns when
         invoked_at = message.created_at.replace(tzinfo=None)
 
         if matches:
-            matched_pun_words = set(filter(lambda pun_word: pun_word.word in matches, pun_words))
+            matched_pun_words = set(
+                filter(lambda pun_word: pun_word.word in matches, pun_words)
+            )
             puns = map(lambda pun_word: Pun.get(pun_word.pun_id), matched_pun_words)
             puns = filter(lambda pun: pun.can_invoke_at_time(invoked_at), puns)
-            puns = set(puns) # remove duplicate puns
+            puns = set(puns)  # remove duplicate puns
 
             for pun_word in matched_pun_words:
                 await message.add_reaction(pun_word.emoji())
 
             for pun in puns:
                 embed = Embed(
-                    color=self.bot.default_color,
-                    title=f"Gotcha",
-                    description=pun.text
+                    color=self.bot.default_color, title="Gotcha", description=pun.text
                 )
 
                 await message.channel.send(embed=embed)
@@ -72,13 +80,14 @@ class PunCog(Cog, name="Puns", description="Automatically intrude with puns when
     @has_permissions(administrator=True)
     async def list_puns(self, ctx: Context) -> None:
         if ctx.invoked_subcommand is None:
-            pun_texts_with_ids = map(lambda pun: '{}.\t{}'.format(
-                pun.id, pun.text), Pun.all())
+            pun_texts_with_ids = map(
+                lambda pun: "{}.\t{}".format(pun.id, pun.text), Pun.all()
+            )
 
             embed = Embed(
                 color=self.bot.default_color,
-                title=f"Puns",
-                description="\n".join(pun_texts_with_ids)
+                title="Puns",
+                description="\n".join(pun_texts_with_ids),
             )
 
             await ctx.send(embed=embed)
@@ -116,7 +125,9 @@ class PunCog(Cog, name="Puns", description="Automatically intrude with puns when
 
     @puns_group.command(name="add-word", help="Add a pun word to a pun")
     @has_permissions(administrator=True)
-    async def add_pun_word(self, ctx: Context, pun_id: int, pun_word: str, emoji: str) -> None:
+    async def add_pun_word(
+        self, ctx: Context, pun_id: int, pun_word: str, emoji: str
+    ) -> None:
         """Add a new pun word.
 
         :param ctx: The context in which the command was called.
@@ -163,7 +174,9 @@ class PunCog(Cog, name="Puns", description="Automatically intrude with puns when
             await ctx.send(f"Pun with id **{pun.id}** does not exist.")
 
     @hybrid_command(name="cooldown", help="Set cooldown for puns feature in minutes.")
-    async def set_puns_cooldown_command(self, ctx: Context, cooldown_minutes: int) -> None:
+    async def set_puns_cooldown_command(
+        self, ctx: Context, cooldown_minutes: int
+    ) -> None:
         settings = BotSettings.settings()
         settings.puns_cooldown = cooldown_minutes
         settings.save()

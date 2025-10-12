@@ -17,19 +17,16 @@ def _encode_diagram(diagram: str) -> str:
     :returns: Pako-compressed and Base64-encoded diagram string.
     :rtype: str
     """
-    graph_json = {
-        "code": diagram,
-        "mermaid": {"theme": "default"}
-    }
+    graph_json = {"code": diagram, "mermaid": {"theme": "default"}}
 
-    byte_data = json.dumps(graph_json).encode('ascii')
+    byte_data = json.dumps(graph_json).encode("ascii")
     compressed_data = zlib.compress(byte_data, level=9)
-    b64_encoded = base64.b64encode(compressed_data).decode('ascii')
+    b64_encoded = base64.b64encode(compressed_data).decode("ascii")
 
-    return b64_encoded.replace('+', '-').replace('/', '_').strip('=')
+    return b64_encoded.replace("+", "-").replace("/", "_").strip("=")
 
 
-def _build_url(diagram: str, type: str = 'img') -> str:
+def _build_url(diagram: str, type: str = "img") -> str:
     """Build the Mermaid.ink API URL for a given diagram.
 
     :param diagram: Mermaid diagram definition.

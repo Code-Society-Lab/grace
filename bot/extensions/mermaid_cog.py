@@ -9,16 +9,12 @@ from bot.extensions.command_error_handler import send_command_help
 from bot.services.mermaid_service import generate_mermaid_diagram
 
 
-class MermaidCog(
-    Cog,
-    name="Mermaid",
-    description="Generates mermaid diagrams"
-):
+class MermaidCog(Cog, name="Mermaid", description="Generates mermaid diagrams"):
     def __init__(self, bot):
         self.bot = bot
         self.mermaid_codeblock_pattern = r"```mermaid\n(.*?)```"
         self.codeblock_pattern = r"```(?:\w+)?\n(.*?)```"
-        
+
     def generate_diagram_embed(self, diagram: str) -> Embed:
         """
         Generate a Discord embed containing a Mermaid diagram image or error
@@ -47,9 +43,9 @@ class MermaidCog(
         return embed
 
     def extract_code_block(
-            self, 
-            content: str,
-            require_mermaid_tag: bool = False,
+        self,
+        content: str,
+        require_mermaid_tag: bool = False,
     ) -> str:
         """Extracts the mermaid script from a code block.
 
@@ -63,10 +59,10 @@ class MermaidCog(
         THIS IS
         A MERMAID CODE BLOCK
         ```
-        
+
         :param content: String from which the code block will be extracted
         :type content: str
-        :param require_mermaid_tag: Whether mermaid tag is required in a 
+        :param require_mermaid_tag: Whether mermaid tag is required in a
                                     code block or not
         :type require_mermaid_tag: bool
 
@@ -75,30 +71,24 @@ class MermaidCog(
         """
         if require_mermaid_tag:
             if codeblock_match := re.search(
-                self.mermaid_codeblock_pattern,
-                content,
-                re.DOTALL
+                self.mermaid_codeblock_pattern, content, re.DOTALL
             ):
                 return codeblock_match.group(1).strip()
-        elif codeblock_match := re.search(
-            self.codeblock_pattern,
-            content,
-            re.DOTALL
-        ):
+        elif codeblock_match := re.search(self.codeblock_pattern, content, re.DOTALL):
             return codeblock_match.group(1).strip()
 
-        return ''
+        return ""
 
     @command(
         name="mermaid",
         help="Generate a diagram from mermaid script",
-        usage="՝՝՝\nMermaid script goes here...\n՝՝՝"
+        usage="՝՝՝\nMermaid script goes here...\n՝՝՝",
     )
     async def mermaid(self, ctx: Context, *, content: Optional[str]):
         """Generates a mermaid diagram
 
         Reply with this command to a message that contains a code block with
-        mermaid script to generate a diagram from it or attach a codeblock.   
+        mermaid script to generate a diagram from it or attach a codeblock.
 
         :param ctx: Invocation context
         :type ctx: Context
@@ -110,9 +100,7 @@ class MermaidCog(
         if not ctx.message.reference and content:
             diagram = self.extract_code_block(content)
         elif ctx.message.reference and not content:
-            ref_msg = await ctx.channel.fetch_message(
-                ctx.message.reference.message_id
-            )
+            ref_msg = await ctx.channel.fetch_message(ctx.message.reference.message_id)
             diagram = self.extract_code_block(ref_msg.content)
 
         if not diagram:
@@ -134,16 +122,13 @@ class MermaidCog(
 
         ctx = await self.bot.get_context(message)
 
-        # Making sure there're no messages referenced, and no mermaid command 
+        # Making sure there're no messages referenced, and no mermaid command
         # being executed so that it doesn't overlap with the function that
         # executes the command
         if message.reference or ctx.command:
             return
 
-        diagram = self.extract_code_block(
-            message.content,
-            require_mermaid_tag=True
-        )
+        diagram = self.extract_code_block(message.content, require_mermaid_tag=True)
         if diagram:
             await ctx.reply(embed=self.generate_diagram_embed(diagram))
 
@@ -158,10 +143,7 @@ class MermaidCog(
         :param after: Edited message
         :type after: Message
         """
-        diagram = self.extract_code_block(
-            after.content,
-            require_mermaid_tag=True
-        )
+        diagram = self.extract_code_block(after.content, require_mermaid_tag=True)
         if diagram:
             ctx = await self.bot.get_context(after)
             await ctx.reply(embed=self.generate_diagram_embed(diagram))

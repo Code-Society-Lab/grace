@@ -1,11 +1,15 @@
 import traceback
-from typing import Optional
 from logging import info
 from pytz import timezone
 from discord import Interaction, Embed, TextStyle
 from discord.app_commands import Choice, autocomplete
 from discord.ui import Modal, TextInput
-from discord.ext.commands import Cog, has_permissions, hybrid_command, hybrid_group, Context 
+from discord.ext.commands import (
+    Cog,
+    has_permissions,
+    hybrid_group,
+    Context,
+)
 from bot.models.extensions.thread import Thread
 from bot.classes.recurrence import Recurrence
 from bot.extensions.command_error_handler import send_command_help
@@ -24,7 +28,7 @@ class ThreadModal(Modal, title="Thread"):
         label="Content",
         placeholder="The content of the thread...",
         min_length=10,
-        style=TextStyle.paragraph
+        style=TextStyle.paragraph,
     )
 
     def __init__(self, recurrence: Recurrence, thread: Thread = None):
@@ -47,34 +51,35 @@ class ThreadModal(Modal, title="Thread"):
         thread = Thread.create(
             title=self.thread_title.value,
             content=self.thread_content.value,
-            recurrence=self.thread_recurrence
+            recurrence=self.thread_recurrence,
         )
         await interaction.response.send_message(
-            f'Thread __**{thread.id}**__ created!',
-            ephemeral=True
+            f"Thread __**{thread.id}**__ created!", ephemeral=True
         )
 
     async def update_thread(self, interaction: Interaction):
-        self.thread.title = self.thread_title.value,
-        self.thread.content = self.thread_content.value,
+        self.thread.title = (self.thread_title.value,)
+        self.thread.content = (self.thread_content.value,)
         self.thread.recurrence = self.thread_recurrence
 
         self.thread.save()
 
         await interaction.response.send_message(
-            f'Thread __**{self.thread.id}**__ updated!',
-            ephemeral=True
+            f"Thread __**{self.thread.id}**__ updated!", ephemeral=True
         )
 
     async def on_error(self, interaction: Interaction, error: Exception):
-        await interaction.response.send_message('Oops! Something went wrong.', ephemeral=True)
+        await interaction.response.send_message(
+            "Oops! Something went wrong.", ephemeral=True
+        )
         traceback.print_exception(type(error), error, error.__traceback__)
 
 
 async def thread_autocomplete(_: Interaction, current: str) -> list[Choice[str]]:
     return [
         Choice(name=t.title, value=str(t.id))
-        for t in Thread.all() if current.lower() in t.title
+        for t in Thread.all()
+        if current.lower() in t.title
     ]
 
 
@@ -86,36 +91,37 @@ class ThreadsCog(Cog, name="Threads"):
         self.threads_channel_id = self.required_config
         self.timezone = timezone("US/Eastern")
 
-
     def cog_load(self):
         # Runs everyday at 18:30
-        self.jobs.append(self.bot.scheduler.add_job(
-            self.daily_post,
-            'cron',
-            hour=18,
-            minute=30,
-            timezone=self.timezone
-        ))
+        self.jobs.append(
+            self.bot.scheduler.add_job(
+                self.daily_post, "cron", hour=18, minute=30, timezone=self.timezone
+            )
+        )
 
         # Runs every monday at 18:30
-        self.jobs.append(self.bot.scheduler.add_job(
-            self.weekly_post,
-            'cron',
-            day_of_week='mon',
-            hour=18,
-            minute=30,
-            timezone=self.timezone
-        ))
+        self.jobs.append(
+            self.bot.scheduler.add_job(
+                self.weekly_post,
+                "cron",
+                day_of_week="mon",
+                hour=18,
+                minute=30,
+                timezone=self.timezone,
+            )
+        )
 
         # Runs on the 1st of every month at 18:30
-        self.jobs.append(self.bot.scheduler.add_job(
-            self.monthly_post,
-            'cron',
-            day=1,
-            hour=18,
-            minute=30,
-            timezone=self.timezone
-        ))
+        self.jobs.append(
+            self.bot.scheduler.add_job(
+                self.monthly_post,
+                "cron",
+                day=1,
+                hour=18,
+                minute=30,
+                timezone=self.timezone,
+            )
+        )
 
     def cog_unload(self):
         for job in self.jobs:
@@ -145,9 +151,7 @@ class ThreadsCog(Cog, name="Threads"):
         content = f"<@&{role_id}>" if role_id else None
 
         embed = Embed(
-            color=self.bot.default_color,
-            title=thread.title,
-            description=thread.content
+            color=self.bot.default_color, title=thread.title, description=thread.content
         )
 
         if channel:
@@ -163,17 +167,14 @@ class ThreadsCog(Cog, name="Threads"):
     @threads_group.command(help="List all threads")
     @has_permissions(administrator=True)
     async def list(self, ctx: Context):
-        embed = Embed(
-            color=self.bot.default_color,
-            title="Threads"
-        )
+        embed = Embed(color=self.bot.default_color, title="Threads")
 
         if threads := Thread.all():
             for thread in threads:
                 embed.add_field(
                     name=f"[{thread.id}] {thread.title}",
                     value=f"**Recurrence**: {thread.recurrence}",
-                    inline=False
+                    inline=False,
                 )
         else:
             embed.add_field(name="No threads", value="")
@@ -206,16 +207,13 @@ class ThreadsCog(Cog, name="Threads"):
         else:
             await ctx.send("Thread not found!", ephemeral=True)
 
-
     @threads_group.command(help="Post a given thread")
     @has_permissions(administrator=True)
     @autocomplete(thread=thread_autocomplete)
     async def post(self, ctx: Context, thread: int):
         if ctx.interaction:
             await ctx.interaction.response.send_message(
-                content="Opening thread!",
-                delete_after=0,
-                ephemeral=True
+                content="Opening thread!", delete_after=0, ephemeral=True
             )
 
         if thread := Thread.get(thread):

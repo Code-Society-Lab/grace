@@ -5,7 +5,7 @@ from bot.models.extensions.language.trigger_word import TriggerWord
 
 
 class Trigger(Model):
-    __tablename__ = 'triggers'
+    __tablename__ = "triggers"
 
     id: int | None = Field(default=None, primary_key=True)
     name: str = Field(max_length=255, unique=True)
@@ -21,11 +21,11 @@ class Trigger(Model):
 
     @property
     def positive_emoji(self):
-        return emojize(self.positive_emoji_code, language='alias')
+        return emojize(self.positive_emoji_code, language="alias")
 
     @property
     def negative_emoji(self):
-        return emojize(self.negative_emoji_code, language='alias')
+        return emojize(self.negative_emoji_code, language="alias")
 
     def add_trigger_word(self, trigger_word):
         TriggerWord(trigger_id=self.id, word=trigger_word).save()

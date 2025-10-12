@@ -9,37 +9,41 @@ import re
 class RedditCog(Cog, name="Reddit", description="Reddit utilities"):
     def __init__(self, bot):
         self.bot = bot
-        self.blacklisted_subreddits = app.config.get("reddit", "blacklist", "").split(';');
+        self.blacklisted_subreddits = app.config.get("reddit", "blacklist", "").split(
+            ";"
+        )
 
     @property
     def moderation_channel(self):
-        """ Returns the moderation channel """
+        """Returns the moderation channel"""
         return self.bot.get_channel_by_name("moderation_logs")
 
     async def notify_moderation(self, message: Message, blacklisted: List[str]):
-        """ Notifies moderators about a blacklisted subreddit mention
-            
-            :param message: Message that contained blacklisted subreddits
-            :type message: Message
-            :param blacklisted: List of blacklisted subreddits
-            :type blacklisted: List[str]
+        """Notifies moderators about a blacklisted subreddit mention
+
+        :param message: Message that contained blacklisted subreddits
+        :type message: Message
+        :param blacklisted: List of blacklisted subreddits
+        :type blacklisted: List[str]
         """
         if self.moderation_channel:
-            log = danger("BLACKLISTED SUBREDDIT", f"{message.author.mention} mentioned blacklisted subreddits: {', '.join(blacklisted)}\n\nMessage: {message.jump_url}")
+            log = danger(
+                "BLACKLISTED SUBREDDIT",
+                f"{message.author.mention} mentioned blacklisted subreddits: {', '.join(blacklisted)}\n\nMessage: {message.jump_url}",
+            )
             await log.send(self.moderation_channel)
 
     async def extract_subreddits(self, message: Message) -> List[List]:
-        """ Extracts and filters all mentioned subreddits from a message 
-            
-            :param message: Message from which to extract subreddits
-            :type message: Message
+        """Extracts and filters all mentioned subreddits from a message
 
-            :returns: List containing both valid and blacklisted subreddits 
-            :rtype: List[List]
+        :param message: Message from which to extract subreddits
+        :type message: Message
+
+        :returns: List containing both valid and blacklisted subreddits
+        :rtype: List[List]
         """
         subreddit_matches = re.findall(
-            r"(?<![/.])\br/([A-Za-z0-9_]{3,21})",
-            message.content
+            r"(?<![/.])\br/([A-Za-z0-9_]{3,21})", message.content
         )
 
         subreddits = []
@@ -55,14 +59,14 @@ class RedditCog(Cog, name="Reddit", description="Reddit utilities"):
 
     @Cog.listener()
     async def on_message(self, message: Message):
-        """ Listens for messages and replies with links to subreddits if any were mentioned 
+        """Listens for messages and replies with links to subreddits if any were mentioned
 
-            :param message: Message a user has sent
-            :type message: Message
+        :param message: Message a user has sent
+        :type message: Message
         """
 
         # Make sure that the message recieved is not sent by Grace
-        if message.author.id != self.bot.user.id: 
+        if message.author.id != self.bot.user.id:
             subreddits, blacklisted = await self.extract_subreddits(message)
 
             if blacklisted:
@@ -70,7 +74,9 @@ class RedditCog(Cog, name="Reddit", description="Reddit utilities"):
 
             if subreddits:
                 ctx = await self.bot.get_context(message)
-                subreddit_links = [f"https://www.reddit.com/r/{subreddit}" for subreddit in subreddits]
+                subreddit_links = [
+                    f"https://www.reddit.com/r/{subreddit}" for subreddit in subreddits
+                ]
 
                 answer_embed = Embed(
                     title="Here're the subreddits you mentioned",

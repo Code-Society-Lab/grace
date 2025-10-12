@@ -10,6 +10,7 @@ class ConfigRequiredError(DisabledCommand):
     Inherit from `discord.ext.commands.CommandError` and can be handled like
     other CommandError exception in `on_command_error`
     """
+
     pass
 
 
@@ -21,10 +22,14 @@ class MissingRequiredConfigError(ConfigRequiredError):
 
     def __init__(self, section_key: str, value_key: str, message: Optional[str] = None):
         base_error_message = f"Missing config '{value_key}' in section '{section_key}'"
-        super().__init__(f"{base_error_message}\n{message}" if message else base_error_message)
+        super().__init__(
+            f"{base_error_message}\n{message}" if message else base_error_message
+        )
 
 
-def cog_config_required(section_key: str, value_key: str, message: Optional[str] = None) -> Callable:
+def cog_config_required(
+    section_key: str, value_key: str, message: Optional[str] = None
+) -> Callable:
     """Validates the presences of a given configuration before each
     invocation of a `discord.ext.commands.Cog` commands
     :param section_key:
@@ -46,10 +51,13 @@ def cog_config_required(section_key: str, value_key: str, message: Optional[str]
         setattr(cls, "cog_before_invoke", _cog_before_invoke)
 
         return cls
+
     return wrapper
 
 
-def command_config_required(section_key: str, value_key: str, message: Optional[str] = None) -> Callable[[Context], bool]:
+def command_config_required(
+    section_key: str, value_key: str, message: Optional[str] = None
+) -> Callable[[Context], bool]:
     """Validates the presences of a given configuration before running
     the `discord.ext.commands.Command`
 
@@ -67,4 +75,5 @@ def command_config_required(section_key: str, value_key: str, message: Optional[
         if not app.config.get(section_key, value_key):
             raise MissingRequiredConfigError(section_key, value_key, message)
         return True
+
     return commands.check(predicate)

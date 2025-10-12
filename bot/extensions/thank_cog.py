@@ -126,8 +126,7 @@ class ThankCog(Cog):
             rank_embed.description = "You haven't been thanked yet."
         else:
             rank_embed.description = (
-                f"Your rank is: **{thank.rank}**\n"
-                f"Your thank count is: {thank.count}"
+                f"Your rank is: **{thank.rank}**\nYour thank count is: {thank.count}"
             )
 
         await ctx.reply(embed=rank_embed, ephemeral=True)

@@ -19,17 +19,13 @@ class Pun(Model):
             yield pun_word.word
 
     def has_word(self, word):
-        return self.pun_words.filter(PunWord.word == word).count() > 0
+        return self.pun_words.where(word=word).count() > 0
 
     def add_pun_word(self, pun_word, emoji_code):
         PunWord(pun_id=self.id, word=pun_word, emoji_code=emoji_code).save()
 
     def remove_pun_word(self, pun_word):
-        PunWord.where(
-            PunWord.pun_id == self.id
-        ).where(
-            PunWord.word == pun_word
-        ).first().delete()
+        PunWord.where(pun_id=self.id, word=pun_word).first().delete()
 
     def can_invoke_at_time(self, time):
         cooldown_minutes = BotSettings.settings().puns_cooldown

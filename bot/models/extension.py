@@ -7,9 +7,6 @@ from sqlalchemy import Column, Integer
 class Extension(Model):
     __tablename__ = "extensions"
 
-    # id = Column(Integer, primary_key=True)
-    # module_name = Column(String(255), nullable=False, unique=True)
-    # _state = Column("state", Integer, default=1)
     id: int | None = Field(default=None, primary_key=True)
     module_name: str = Field(nullable=False, unique=True)
     state: State = Field(sa_column=Column(Integer), default=1)
@@ -25,14 +22,6 @@ class Extension(Model):
     @property
     def short_module_name(self):
         return self.module_name.removeprefix("bot.extensions.")
-
-    # @property
-    # def state(self):
-    #     return State(self._state)
-    #
-    # @state.setter
-    # def state(self, new_state):
-    #     self.state = new_state.value
 
     @property
     def module(self):
