@@ -5,6 +5,7 @@ from bot import app
 
 class BotSettings(app.base, Model):
     """Configurable settings for each server"""
+
     __tablename__ = 'bot_settings'
 
     id = Column(Integer, primary_key=True)
@@ -12,6 +13,6 @@ class BotSettings(app.base, Model):
 
     @classmethod
     def settings(self):
-        '''Since grace runs on only one settings record per bot,
-        this is a semantic shortcut to get the first record.'''
+        """Since grace runs on only one settings record per bot,
+        this is a semantic shortcut to get the first record."""
         return self.first()

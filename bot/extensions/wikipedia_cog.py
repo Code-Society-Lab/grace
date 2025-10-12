@@ -9,7 +9,7 @@ from json import loads
 
 def search_results(search: str) -> List[Any]:
     """Return search results from Wikipedia for the given search query.
-    
+
     :param search: The search query to be used to search Wikipedia.
     :type search: str
 
@@ -17,7 +17,7 @@ def search_results(search: str) -> List[Any]:
     :rtype: list
     """
     url_encode: str = quote_plus(search)
-    base_url: str = f"https://en.wikipedia.org/w/api.php?action=opensearch&format=json&limit=3&namespace=0&search={url_encode}"
+    base_url: str = f'https://en.wikipedia.org/w/api.php?action=opensearch&format=json&limit=3&namespace=0&search={url_encode}'
 
     with urlopen(base_url) as url:
         return loads(url.read())
@@ -30,24 +30,28 @@ class Buttons(View):
         self.search: str = search
         self.result: List[Any] = result
 
-    async def wiki_result(self, interaction: Interaction, _: Button, index: int) -> None:
+    async def wiki_result(
+        self, interaction: Interaction, _: Button, index: int
+    ) -> None:
         """Send the selected search result to the user.
 
         :param _: The Button clicked
         :type _: Button
-        :param interaction: The interaction object representing the user's interaction with the bot.
+        :param interaction: The interaction object representing the
+        user's interaction with the bot.
         :type interaction: Interaction
         :param index: The index of the search result to be sent to the user.
         :type index: int
         """
         if len(self.result[3]) >= index:
-            await interaction.response.send_message("{mention} requested:\n {request}".format(
-                mention=interaction.user.mention,
-                request=self.result[3][index-1]
-            ))
+            await interaction.response.send_message(
+                '{mention} requested:\n {request}'.format(
+                    mention=interaction.user.mention, request=self.result[3][index - 1]
+                )
+            )
             self.stop()
         else:
-            await interaction.response.send_message("Invalid choice.", ephemeral=True)
+            await interaction.response.send_message('Invalid choice.', ephemeral=True)
 
     @ui.button(label='1', style=ButtonStyle.primary)
     async def first_wiki_result(self, interaction: Interaction, button: Button):
@@ -62,11 +66,14 @@ class Buttons(View):
         await self.wiki_result(interaction, button, 3)
 
 
-class Wikipedia(Cog, name="Wikipedia", description="Search on Wikipedia."):
+class Wikipedia(Cog, name='Wikipedia', description='Search on Wikipedia.'):
     def __init__(self, bot):
         self.bot = bot
 
-    @hybrid_command(name="wiki", description="Searches and displays the first 3 results from Wikipedia.")
+    @hybrid_command(
+        name='wiki',
+        description='Searches and displays the first 3 results from Wikipedia.',
+    )
     async def wiki(self, ctx: Context, *, search: str) -> None:
         """Search Wikipedia and display the first 3 search results to the user.
 
@@ -79,17 +86,19 @@ class Wikipedia(Cog, name="Wikipedia", description="Search on Wikipedia."):
         view: Buttons = Buttons(search, result)
 
         if len(result[1]) == 0:
-            await ctx.interaction.response.send_message("No result found.", ephemeral=True)
+            await ctx.interaction.response.send_message(
+                'No result found.', ephemeral=True
+            )
         else:
-            result_view = ""
+            result_view = ''
             search_count = 1
             for result in result[1]:
-                result_view += f"{str(search_count)}: {result}\n"
+                result_view += f'{str(search_count)}: {result}\n'
                 search_count += 1
 
             embed = Embed(
-                color=0x2376ff,
-                title=f"Top 3 Wikipedia Search",
+                color=0x2376FF,
+                title='Top 3 Wikipedia Search',
                 description=result_view,
             )
             await ctx.send(embed=embed, view=view, ephemeral=True)

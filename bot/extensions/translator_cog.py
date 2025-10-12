@@ -20,19 +20,20 @@ async def language_autocomplete(_: Interaction, current: str) -> list[Choice[str
 
     return [
         Choice(name=language.capitalize(), value=language)
-        for language in languages[:25] if current.lower() in language.lower()
+        for language in languages[:25]
+        if current.lower() in language.lower()
     ]
 
 
 class TranslatorCog(
     Cog,
-    name="Translator",
-    description="Translate a sentence/word from any languages into any languages."
+    name='Translator',
+    description='Translate a sentence/word from any languages into any languages.',
 ):
     @hybrid_command(
         name='translator',
         help='Translate a sentence/word from any languages into any languages',
-        usage="sentence={sentence}"
+        usage='sentence={sentence}',
     )
     @autocomplete(translate_into=language_autocomplete)
     async def translator(self, ctx: Context, *, sentence: str, translate_into: str):
@@ -54,14 +55,14 @@ class TranslatorCog(
         embed = Embed(color=self.bot.default_color)
 
         embed.add_field(
-            name=f"{LANGUAGES[translated_text.src].capitalize()} Original",
+            name=f'{LANGUAGES[translated_text.src].capitalize()} Original',
             value=sentence.capitalize(),
-            inline=False
+            inline=False,
         )
         embed.add_field(
-            name=f"{translate_into} Translation",
+            name=f'{translate_into} Translation',
             value=translated_text.text,
-            inline=False
+            inline=False,
         )
 
         await ctx.send(embed=embed)
@@ -82,7 +83,7 @@ class TranslatorCog(
         original_error = get_original_exception(error)
 
         if isinstance(original_error, ValueError):
-            await ctx.send("Please enter a valid language code.", ephemeral=True)
+            await ctx.send('Please enter a valid language code.', ephemeral=True)
 
 
 async def setup(bot):

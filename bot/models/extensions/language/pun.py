@@ -8,12 +8,12 @@ from bot.models.bot import BotSettings
 
 
 class Pun(app.base, Model):
-    __tablename__ = "puns"
+    __tablename__ = 'puns'
 
     id = Column(Integer, primary_key=True)
     text = Column(Text(), unique=True)
     last_invoked = Column(DateTime)
-    pun_words = relationship("PunWord", lazy="dynamic", cascade="all, delete-orphan")
+    pun_words = relationship('PunWord', lazy='dynamic', cascade='all, delete-orphan')
 
     @property
     def words(self):

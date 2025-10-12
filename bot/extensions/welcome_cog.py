@@ -4,10 +4,10 @@ from bot.models.channel import Channel
 from discord import Embed
 
 
-class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
+class WelcomeCog(Cog, name='Welcome', description='Welcomes new members'):
     """A cog that sends a welcome message to new members when they join the server."""
 
-    BASE_WELCOME_MESSAGE = "Hi **{member_name}**!"
+    BASE_WELCOME_MESSAGE = 'Hi **{member_name}**!'
 
     def __init__(self, bot):
         self.bot = bot
@@ -15,22 +15,22 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
     @property
     def help_section(self):
         return self.__build_section(
-            ["posting_guidelines", "help", "resources"],
-            "### Looking for help?\n"
-            "If you need help, read the <#{}> and open a post in <#{}>."
-            "If you're looking for resources, checkout <#{}> or our [website](<https://resources.codesociety.xyz>)."
+            ['posting_guidelines', 'help', 'resources'],
+            '### Looking for help?\n'
+            'If you need help, read the <#{}> and open a post in <#{}>.'
+            "If you're looking for resources, checkout <#{}> or our [website](<https://resources.codesociety.xyz>).",
         )
 
     @property
     def project_section(self):
         return self.__build_section(
-            ["code-society-lab"],
-            "### Looking for projects?\n"
+            ['code-society-lab'],
+            '### Looking for projects?\n'
             "If you're interested in contributing to open-source projects, "
-            "feel free to come chat with us in <#{}> or visite our [GitHub](<https://github.com/Code-Society-Lab>).\n"
-            "\n**Our latest projects**:\n"
-            "- [Grace Framework](<https://github.com/Code-Society-Lab/grace-framework>)\n"
-            "- [Matrix.py](<https://github.com/Code-Society-Lab/matrixpy>)\n"
+            'feel free to come chat with us in <#{}> or visite our [GitHub](<https://github.com/Code-Society-Lab>).\n'
+            '\n**Our latest projects**:\n'
+            '- [Grace Framework](<https://github.com/Code-Society-Lab/grace-framework>)\n'
+            '- [Matrix.py](<https://github.com/Code-Society-Lab/matrixpy>)\n',
         )
 
     def get_welcome_message(self, member):
@@ -42,17 +42,27 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
         :return: The welcome message for the given member.
         :rtype: str
         """
-        return "\n\n".join(filter(None, [
-            self.BASE_WELCOME_MESSAGE,
-            self.help_section,
-            self.project_section,
-        ])).strip().format(member_name=member.display_name)
+        return (
+            '\n\n'.join(
+                filter(
+                    None,
+                    [
+                        self.BASE_WELCOME_MESSAGE,
+                        self.help_section,
+                        self.project_section,
+                    ],
+                )
+            )
+            .strip()
+            .format(member_name=member.display_name)
+        )
 
     def __build_section(self, channel_names, message):
-        """Builds a section of the welcome message by replacing placeholders with corresponding channel IDs.
+        """Builds a section of the welcome message by replacing
+        placeholders with corresponding channel IDs.
 
-        The message needs to contain empty ({}) or numbered ({index}) placeholders to indicate
-        where the channel IDs will be inserted.
+        The message needs to contain empty ({}) or numbered ({index})
+        placeholders to indicate where the channel IDs will be inserted.
 
         IMPORTANT: The section will return an empty unless all the channels are found.
 
@@ -63,15 +73,20 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
                         indicating where the channel IDs will be inserted.
         :type channel_names: str
 
-        :return: The constructed section of the welcome message with channel IDs inserted.
+        :return: The constructed section of the welcome message
+        with channel IDs inserted.
         :rtype: str
         """
-        channel_ids = [getattr(Channel.get_by(channel_name=n), "channel_id", "") for n in channel_names]
-        return message.format(*channel_ids) if all(channel_ids) else ""
+        channel_ids = [
+            getattr(Channel.get_by(channel_name=n), 'channel_id', '')
+            for n in channel_names
+        ]
+        return message.format(*channel_ids) if all(channel_ids) else ''
 
     @Cog.listener()
     async def on_member_update(self, before, after):
-        """Send a welcome message to the member when their status is changed from "pending" to any other status.
+        """Send a welcome message to the member when their
+        status is changed from "pending" to any other status.
 
         :param before: The member before the update.
         :type before: discord.Member
@@ -79,22 +94,25 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
         :type after: discord.Member
         """
         if not before.bot and (before.pending and not after.pending):
-            info(f"{after.display_name} accepted the rules!")
+            info(f'{after.display_name} accepted the rules!')
 
             embed = Embed(color=self.bot.default_color)
-            welcome_channel = self.bot.get_channel_by_name("welcome")
+            welcome_channel = self.bot.get_channel_by_name('welcome')
 
             if not welcome_channel:
                 welcome_channel = before.guild.system_channel
 
             embed.add_field(
-                name="Welcome to **The Code Society Server**",
+                name='Welcome to **The Code Society Server**',
                 value=self.get_welcome_message(after),
-                inline=False
+                inline=False,
             )
-            embed.set_footer(text="https://github.com/Code-Society-Lab/grace", icon_url="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png")
+            embed.set_footer(
+                text='https://github.com/Code-Society-Lab/grace',
+                icon_url='https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png',
+            )
 
-            await welcome_channel.send(f"<@{after.id}>", embed=embed)
+            await welcome_channel.send(f'<@{after.id}>', embed=embed)
 
     @Cog.listener()
     async def on_member_join(self, member):
@@ -103,23 +121,28 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
         :param member: The member who joined the server.
         :type member: discord.Member
         """
-        info(f"{member.display_name} joined the server!")
+        info(f'{member.display_name} joined the server!')
 
-    @hybrid_command(name="welcome", description="Welcomes the person who issues the command")
+    @hybrid_command(
+        name='welcome', description='Welcomes the person who issues the command'
+    )
     async def welcome_command(self, ctx):
         """Send a welcome message to the person who issued the command.
 
         :param ctx: The context in which the command was invoked.
         :type ctx: Context
         """
-        info(f"{ctx.author.display_name} asked to get welcomed!")
+        info(f'{ctx.author.display_name} asked to get welcomed!')
 
         embed = Embed(
             color=self.bot.default_color,
-            title="Welcome to **The Code Society Server**",
+            title='Welcome to **The Code Society Server**',
             description=self.get_welcome_message(ctx.author),
         )
-        embed.set_footer(text="https://github.com/Code-Society-Lab/grace", icon_url="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png")
+        embed.set_footer(
+            text='https://github.com/Code-Society-Lab/grace',
+            icon_url='https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png',
+        )
         await ctx.send(embed=embed, ephemeral=True)
 
 

@@ -7,8 +7,8 @@ from bot import app
 class PunWord(app.base, Model):
     __tablename__ = 'pun_words'
 
-    id  = Column(Integer, primary_key=True)
-    pun_id = Column(ForeignKey("puns.id"))
+    id = Column(Integer, primary_key=True)
+    pun_id = Column(ForeignKey('puns.id'))
     word = Column(String(255), nullable=False)
     emoji_code = Column(String(255))
 

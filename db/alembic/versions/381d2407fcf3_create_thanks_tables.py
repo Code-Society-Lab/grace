@@ -5,6 +5,7 @@ Revises: 11f3c9cd0977
 Create Date: 2022-12-10 01:52:25.646625
 
 """
+
 from alembic import op
 import sqlalchemy as sa
 
@@ -25,7 +26,7 @@ def upgrade() -> None:
         sa.Column('count', sa.Integer(), nullable=True),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('member_id'),
-        if_not_exists=True
+        if_not_exists=True,
     )
     # ### end Alembic commands ###
 

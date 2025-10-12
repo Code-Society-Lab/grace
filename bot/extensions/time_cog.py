@@ -9,39 +9,35 @@ from discord import Message
 # Mapping for common timezone abbreviations to their UTC offsets
 timezone_abbreviations = {
     # North American
-    "pst": "America/Los_Angeles",      # Pacific Standard Time
-    "pdt": "America/Los_Angeles",      # Pacific Daylight Time
-    "mst": "America/Denver",           # Mountain Standard Time
-    "mdt": "America/Denver",           # Mountain Daylight Time
-    "cst": "America/Chicago",          # Central Standard Time
-    "cdt": "America/Chicago",          # Central Daylight Time
-    "est": "America/New_York",         # Eastern Standard Time
-    "edt": "America/New_York",         # Eastern Daylight Time
-
+    'pst': 'America/Los_Angeles',  # Pacific Standard Time
+    'pdt': 'America/Los_Angeles',  # Pacific Daylight Time
+    'mst': 'America/Denver',  # Mountain Standard Time
+    'mdt': 'America/Denver',  # Mountain Daylight Time
+    'cst': 'America/Chicago',  # Central Standard Time
+    'cdt': 'America/Chicago',  # Central Daylight Time
+    'est': 'America/New_York',  # Eastern Standard Time
+    'edt': 'America/New_York',  # Eastern Daylight Time
     # International standards
-    "gmt": "Etc/GMT",                  # Greenwich Mean Time
-    "utc": "UTC",                      # Coordinated Universal Time
-
+    'gmt': 'Etc/GMT',  # Greenwich Mean Time
+    'utc': 'UTC',  # Coordinated Universal Time
     # European
-    "bst": "Europe/London",            # British Summer Time
-    "cet": "Europe/Paris",             # Central European Time
-    "cest": "Europe/Paris",            # Central European Summer Time
-
+    'bst': 'Europe/London',  # British Summer Time
+    'cet': 'Europe/Paris',  # Central European Time
+    'cest': 'Europe/Paris',  # Central European Summer Time
     # Asia-Pacific
-    "hkt": "Asia/Hong_Kong",           # Hong Kong Time
-    "ist": "Asia/Kolkata",             # India Standard Time
-    "jst": "Asia/Tokyo",               # Japan Standard Time
-    "aest": "Australia/Sydney",        # Australian Eastern Standard Time
-    "aedt": "Australia/Sydney",        # Australian Eastern Daylight Time
-
+    'hkt': 'Asia/Hong_Kong',  # Hong Kong Time
+    'ist': 'Asia/Kolkata',  # India Standard Time
+    'jst': 'Asia/Tokyo',  # Japan Standard Time
+    'aest': 'Australia/Sydney',  # Australian Eastern Standard Time
+    'aedt': 'Australia/Sydney',  # Australian Eastern Daylight Time
     # TODO: find a way to fetch all timezones dynamically
 }
 
 
 class TimeCog(
     Cog,
-    name="Time",
-    description="Convert time in messages into UTC-based Discord timestamps."
+    name='Time',
+    description='Convert time in messages into UTC-based Discord timestamps.',
 ):
     """
     A Discord Cog that listens for messages containing time expressions
@@ -51,6 +47,7 @@ class TimeCog(
     This allows users to share time references that automatically display
     correctly in each user's local timezone within Discord.
     """
+
     def __init__(self, bot):
         self.bot = bot
 
@@ -98,12 +95,12 @@ class TimeCog(
         :rtype: str
         """
         # Handle relative dates
-        if "today" in time_str:
+        if 'today' in time_str:
             date_str = now_utc.strftime('%Y-%m-%d')
-            time_str = time_str.replace("today", date_str)
-        elif "tomorrow" in time_str:
+            time_str = time_str.replace('today', date_str)
+        elif 'tomorrow' in time_str:
             date_str = (now_utc + timedelta(days=1)).strftime('%Y-%m-%d')
-            time_str = time_str.replace("tomorrow", date_str)
+            time_str = time_str.replace('tomorrow', date_str)
 
         return time_str
 
@@ -116,9 +113,9 @@ class TimeCog(
         """
         keys = timezone_abbreviations.keys()
         escaped_keys = [re.escape(key) for key in keys]
-        joined = "|".join(escaped_keys)
+        joined = '|'.join(escaped_keys)
 
-        return rf"\b({joined})\b"
+        return rf'\b({joined})\b'
 
     @Cog.listener()
     async def on_message(self, message: Message) -> None:
@@ -144,12 +141,12 @@ class TimeCog(
         utc = pytz.UTC
         now_utc = datetime.now(utc)
 
-        time_str = " ".join(time_str.split())
+        time_str = ' '.join(time_str.split())
         time_str = self._build_relative_date(time_str, now_utc)
 
         try:
             timestamp = self._build_timestamp(utc, time_str)
-            await message.reply(f"<t:{timestamp}:F>")
+            await message.reply(f'<t:{timestamp}:F>')
         except Exception:
             pass
 

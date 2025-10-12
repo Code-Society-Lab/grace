@@ -7,9 +7,31 @@ from lib.config_required import cog_config_required
 
 
 LANGUAGES = [
-    "Python", "C", "C++", "Java", "Csharp", "R", "Ruby", "JavaScript", "Swift",
-    "Go", "Kotlin", "Rust", "PHP", "ObjectiveC", "SQL", "Lisp", "Perl",
-    "Haskell", "Erlang", "Scala", "Clojure", "Julia", "Elixir", "F#", "Bash"
+    'Python',
+    'C',
+    'C++',
+    'Java',
+    'Csharp',
+    'R',
+    'Ruby',
+    'JavaScript',
+    'Swift',
+    'Go',
+    'Kotlin',
+    'Rust',
+    'PHP',
+    'ObjectiveC',
+    'SQL',
+    'Lisp',
+    'Perl',
+    'Haskell',
+    'Erlang',
+    'Scala',
+    'Clojure',
+    'Julia',
+    'Elixir',
+    'F#',
+    'Bash',
 ]
 
 
@@ -25,17 +47,23 @@ async def language_autocomplete(_: Interaction, current: str) -> list[Choice[str
     """
     return [
         Choice(name=lang.capitalize(), value=lang.capitalize())
-        for lang in LANGUAGES if current.lower() in lang.lower()
+        for lang in LANGUAGES
+        if current.lower() in lang.lower()
     ]
 
 
-@cog_config_required("openai", "api_key", "Generate yours [here](https://beta.openai.com/account/api-keys)")
+@cog_config_required(
+    'openai',
+    'api_key',
+    'Generate yours [here](https://beta.openai.com/account/api-keys)',
+)
 class CodeGenerator(
     Cog,
-    name="OpenAI",
-    description="Generate code using OpenAI API by providing a comment and language."
+    name='OpenAI',
+    description='Generate code using OpenAI API by providing a comment and language.',
 ):
     """A Cog that generate code using text."""
+
     def __init__(self, bot):
         self.bot = bot
         self.api_key = self.required_config
@@ -43,7 +71,7 @@ class CodeGenerator(
     @hybrid_command(
         name='code',
         help='Generate code by providing a comment and language.',
-        usage="language={programming_language} comment={sentence}"
+        usage='language={programming_language} comment={sentence}',
     )
     @autocomplete(language=language_autocomplete)
     async def code_generator(self, ctx, *, language: str, comment: str) -> None:
@@ -64,8 +92,8 @@ class CodeGenerator(
         await ctx.defer(ephemeral=True)
 
         response = Completion.create(
-            model="text-davinci-003",
-            prompt=f"{comment} in {language}",
+            model='text-davinci-003',
+            prompt=f'{comment} in {language}',
             temperature=0.7,
             max_tokens=256,
             top_p=1,
@@ -73,11 +101,11 @@ class CodeGenerator(
             presence_penalty=0,
         )
 
-        code_generated = response["choices"][0]["text"]
+        code_generated = response['choices'][0]['text']
         embed.add_field(
             name=comment.capitalize(),
-            value=f"```{language}{code_generated}``` {ctx.author} | {language}",
-            inline=False
+            value=f'```{language}{code_generated}``` {ctx.author} | {language}',
+            inline=False,
         )
 
         await ctx.send(embed=embed)

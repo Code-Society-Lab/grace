@@ -1,10 +1,11 @@
 """Added puns tables
 
 Revision ID: 11f3c9cd0977
-Revises: 
+Revises:
 Create Date: 2022-11-08 19:39:27.524172
 
 """
+
 from alembic import op
 import sqlalchemy as sa
 
@@ -24,7 +25,7 @@ def upgrade() -> None:
         sa.Column('text', sa.Text(), nullable=True),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('text'),
-        if_not_exists=True
+        if_not_exists=True,
     )
     op.create_table(
         'pun_words',
@@ -32,9 +33,12 @@ def upgrade() -> None:
         sa.Column('pun_id', sa.Integer(), nullable=True),
         sa.Column('word', sa.String(length=255), nullable=False),
         sa.Column('emoji_code', sa.String(length=255), nullable=True),
-        sa.ForeignKeyConstraint(['pun_id'], ['puns.id'], ),
+        sa.ForeignKeyConstraint(
+            ['pun_id'],
+            ['puns.id'],
+        ),
         sa.PrimaryKeyConstraint('id'),
-        if_not_exists=True
+        if_not_exists=True,
     )
     # ### end Alembic commands ###
 

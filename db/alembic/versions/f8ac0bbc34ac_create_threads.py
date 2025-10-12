@@ -5,6 +5,7 @@ Revises: 614bb9e370d8
 Create Date: 2025-03-10 20:34:24.702582
 
 """
+
 from alembic import op
 import sqlalchemy as sa
 
@@ -24,7 +25,7 @@ def upgrade() -> None:
         sa.Column('content', sa.Text(), nullable=False),
         sa.Column('recurrence', sa.Integer(), nullable=False, default=0),
         sa.PrimaryKeyConstraint('id'),
-        if_not_exists=True
+        if_not_exists=True,
     )
 
 

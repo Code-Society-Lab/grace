@@ -6,6 +6,7 @@ from bot import app
 
 class Thank(app.base, Model):
     """A class representing a Thank record in the database."""
+
     __tablename__ = 'thanks'
 
     id = Column(Integer, primary_key=True)
@@ -16,7 +17,7 @@ class Thank(app.base, Model):
     def rank(self) -> Optional[str]:
         """Returns the rank of the member based on the number of times they
         have been thanked.
-        
+
         :return: The rank of the member.
         :rtype: Optional[str]
         """

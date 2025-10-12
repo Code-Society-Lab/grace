@@ -6,11 +6,12 @@ from bot.classes.state import State
 
 class Extension(app.base, Model):
     """Extension model (With SQLAlchemy ORM)"""
-    __tablename__ = "extensions"
+
+    __tablename__ = 'extensions'
 
     id = Column(Integer, primary_key=True)
     module_name = Column(String(255), nullable=False, unique=True)
-    _state = Column("state", Integer, default=1)
+    _state = Column('state', Integer, default=1)
 
     @classmethod
     def by_state(cls, state):
@@ -18,11 +19,11 @@ class Extension(app.base, Model):
 
     @property
     def name(self):
-        return self.module_name.split(".")[-1].replace("_", " ").title()
+        return self.module_name.split('.')[-1].replace('_', ' ').title()
 
     @property
     def short_module_name(self):
-        return self.module_name.removeprefix("bot.extensions.")
+        return self.module_name.removeprefix('bot.extensions.')
 
     @property
     def state(self):
@@ -48,7 +49,7 @@ class Extension(app.base, Model):
         return self.state == State.ENABLED
 
     def should_be_loaded(self):
-        load_only = app.config.environment.get("load_only")
+        load_only = app.config.environment.get('load_only')
 
         if not load_only:
             return self.is_enabled()
@@ -57,4 +58,4 @@ class Extension(app.base, Model):
         return self.is_enabled() and any(name in load_only for name in names)
 
     def __str__(self):
-        return f"{self.id} | {self.module} - {self.state}"
+        return f'{self.id} | {self.module} - {self.state}'

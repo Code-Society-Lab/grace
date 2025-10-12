@@ -13,7 +13,7 @@ class Trigger(app.base, Model):
     name = Column(String(255), unique=True)
     positive_emoji_code = Column(String(255), nullable=False)
     negative_emoji_code = Column(String(255), nullable=False)
-    trigger_words = relationship("TriggerWord")
+    trigger_words = relationship('TriggerWord')
 
     @property
     def words(self):

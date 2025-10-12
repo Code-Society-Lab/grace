@@ -25,8 +25,12 @@ class PagedEmbedView(View):
         self.__message: Optional[Message] = None
         self.__embeds: BidirectionalIterator[Embed] = BidirectionalIterator(embeds)
         self.__arrow_button: List[EmbedButton] = [
-            EmbedButton(self.__embeds.previous, emoji=emojize(":left_arrow:"), disabled=True),
-            EmbedButton(self.__embeds.next, emoji=emojize(":right_arrow:"), disabled=True)
+            EmbedButton(
+                self.__embeds.previous, emoji=emojize(':left_arrow:'), disabled=True
+            ),
+            EmbedButton(
+                self.__embeds.next, emoji=emojize(':right_arrow:'), disabled=True
+            ),
         ]
 
         self.add_item(self.previous_arrow)
@@ -60,4 +64,6 @@ class PagedEmbedView(View):
         await self.__message.edit(embed=self.__embeds.current, view=self)
 
     async def send(self, ctx: Context, ephemeral: bool = True):
-        self.__message = await ctx.send(embed=self.__embeds.current, view=self, ephemeral=ephemeral)
+        self.__message = await ctx.send(
+            embed=self.__embeds.current, view=self, ephemeral=ephemeral
+        )

@@ -1,2 +1,9 @@
 [build-system]
-requires = ["setuptools", "wheel", "Cython"]
+requires = ['setuptools', 'wheel', 'Cython']
+
+[tool.ruff.format]
+quote-style = 'single'
+indent-style = 'space'
+
+[tool.ruff.lint]
+extend-select = ['W', 'E', 'F'] # Pycodestyle errors/warnings (W/E), pyflakes (F)
