@@ -31,7 +31,7 @@ jobs:
         
     - name: Lint with ruff
       run: |
-        ruff check
+        ruff check --preview
 
     - name: Generate config file
       run: |
