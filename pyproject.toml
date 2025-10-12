@@ -35,7 +35,7 @@ dev = [
     "pytest-asyncio",
     "flake8",
     "mypy",
-    "black",
+    "ruff",
 ]
 
 [project.urls]
