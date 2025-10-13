@@ -191,7 +191,7 @@ class ThreadsCog(Cog, name="Threads"):
     @has_permissions(administrator=True)
     @autocomplete(thread=thread_autocomplete)
     async def delete(self, ctx: Context, thread: int):
-        if thread := Thread.get(thread):
+        if thread := Thread.find(thread):
             thread.delete()
             await ctx.send("Thread successfully deleted!", ephemeral=True)
         else:
@@ -201,7 +201,7 @@ class ThreadsCog(Cog, name="Threads"):
     @has_permissions(administrator=True)
     @autocomplete(thread=thread_autocomplete)
     async def update(self, ctx: Context, thread: int, recurrence: Recurrence):
-        if thread := Thread.get(thread):
+        if thread := Thread.find(thread):
             modal = ThreadModal(recurrence, thread=thread)
             await ctx.interaction.response.send_modal(modal)
         else:
@@ -216,7 +216,7 @@ class ThreadsCog(Cog, name="Threads"):
                 content="Opening thread!", delete_after=0, ephemeral=True
             )
 
-        if thread := Thread.get(thread):
+        if thread := Thread.find(thread):
             await self.post_thread(thread)
         else:
             await self.send("Thread not found!")

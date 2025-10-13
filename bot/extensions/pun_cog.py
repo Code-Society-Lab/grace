@@ -52,7 +52,7 @@ class PunCog(
             matched_pun_words = set(
                 filter(lambda pun_word: pun_word.word in matches, pun_words)
             )
-            puns = map(lambda pun_word: Pun.get(pun_word.pun_id), matched_pun_words)
+            puns = map(lambda pun_word: Pun.find(pun_word.pun_id), matched_pun_words)
             puns = filter(lambda pun: pun.can_invoke_at_time(invoked_at), puns)
             puns = set(puns)  # remove duplicate puns
 
@@ -116,7 +116,7 @@ class PunCog(
         :param pun_id: The ID of the pun to which the word will be removed.
         :type pun_id: str
         """
-        pun = Pun.get(pun_id)
+        pun = Pun.find(pun_id)
 
         if pun:
             await ctx.send("Pun removed.")
@@ -139,7 +139,7 @@ class PunCog(
         :param emoji: An emoji to be associated with the pun word.
         :type emoji: str
         """
-        pun = Pun.get(pun_id)
+        pun = Pun.find(pun_id)
 
         if pun:
             if pun.has_word(pun_word):
@@ -162,7 +162,7 @@ class PunCog(
         :param pun_word: The old pun word to be removed.
         :type pun_word: str
         """
-        pun = Pun.get(id)
+        pun = Pun.find(id)
 
         if pun:
             if not pun.has_word(pun_word):
