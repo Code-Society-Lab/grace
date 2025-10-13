@@ -10,7 +10,7 @@ authors = [
     { name = "Code Society Lab" }
 ]
 license = { text = "GNU General Public License v3.0" }
-requires-python = ">=3.10.0"
+requires-python = ">=3.11"
 readme = "README.md"
 
 dependencies = [
