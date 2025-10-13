@@ -43,19 +43,18 @@ class PunCog(
         message_tokens = self.tokenizer.tokenize(message.content)
         tokenlist = set(map(str.lower, message_tokens))
 
-        pun_words = PunWord.all()
+        pun_words = PunWord.distinct().all()
         word_set = set(map(lambda pun_word: pun_word.word, pun_words))
 
         matches = tokenlist.intersection(word_set)
         invoked_at = message.created_at.replace(tzinfo=None)
 
         if matches:
-            matched_pun_words = set(
-                filter(lambda pun_word: pun_word.word in matches, pun_words)
+            matched_pun_words = filter(
+                lambda pun_word: pun_word.word in matches, pun_words
             )
             puns = map(lambda pun_word: Pun.find(pun_word.pun_id), matched_pun_words)
-            puns = filter(lambda pun: pun.can_invoke_at_time(invoked_at), puns)
-            puns = set(puns)  # remove duplicate puns
+            puns = list(filter(lambda pun: pun.can_invoke_at_time(invoked_at), puns))
 
             for pun_word in matched_pun_words:
                 await message.add_reaction(pun_word.emoji())
