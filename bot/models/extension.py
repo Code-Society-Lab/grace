@@ -1,7 +1,7 @@
 from bot import app
 from grace.model import Model, Field
 from bot.classes.state import State
-from sqlalchemy import Column, Integer
+from lib.fields import EnumField
 
 
 class Extension(Model):
@@ -9,11 +9,11 @@ class Extension(Model):
 
     id: int | None = Field(default=None, primary_key=True)
     module_name: str = Field(nullable=False, unique=True)
-    state: State = Field(sa_column=Column(Integer), default=1)
+    state: State = EnumField(State, default=State.ENABLED)
 
     @classmethod
     def by_state(cls, state):
-        return cls.where(state=state.value)
+        return cls.where(state=state)
 
     @property
     def name(self):
