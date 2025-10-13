@@ -13,6 +13,5 @@ class TriggerWord(Model):
     word: str = Field(max_length=255, primary_key=True)
 
     trigger: Optional["Trigger"] = Relationship(
-        back_populates="trigger_words",
-        sa_relationship_kwargs={"lazy": "selectin"}
+        back_populates="trigger_words", sa_relationship_kwargs={"lazy": "selectin"}
     )

@@ -15,8 +15,7 @@ class Trigger(Model):
     negative_emoji_code: str = Field(max_length=255)
 
     trigger_words: List[TriggerWord] = Relationship(
-        back_populates="trigger",
-        sa_relationship_kwargs={"lazy": "selectin"}
+        back_populates="trigger", sa_relationship_kwargs={"lazy": "selectin"}
     )
 
     @property

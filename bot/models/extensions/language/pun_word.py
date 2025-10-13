@@ -15,7 +15,9 @@ class PunWord(Model):
     pun_id: int = Field(foreign_key="puns.id")
     word: str = Field(max_length=255)
     emoji_code: str | None = Field(default=None, max_length=255)
-    pun: "Pun" = Relationship(back_populates="pun_words")
+    pun: "Pun" = Relationship(
+        back_populates="pun_words", sa_relationship_kwargs={"lazy": "selectin"}
+    )
 
     def emoji(self):
         return emojize(self.emoji_code, language="alias")
