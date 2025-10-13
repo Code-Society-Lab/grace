@@ -1,15 +1,17 @@
 import os
-from PIL import Image
+from typing import Tuple, Union
+
+from discord import Color, Embed, File
 from discord.ext.commands import (
     Cog,
-    hybrid_group,
-    HybridCommandError,
     CommandInvokeError,
     Context,
+    HybridCommandError,
+    hybrid_group,
 )
-from discord import Embed, File, Color
+from PIL import Image
+
 from bot.helpers.error_helper import send_command_error
-from typing import Union, Tuple
 
 
 def get_embed_color(color: Union[Tuple[int, int, int], str]) -> Color:

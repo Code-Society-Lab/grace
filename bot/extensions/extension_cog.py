@@ -1,18 +1,20 @@
+from typing import List
+
 from discord import Embed
 from discord.app_commands import Choice, autocomplete
 from discord.ext.commands import (
     Cog,
-    has_permissions,
+    Context,
     ExtensionAlreadyLoaded,
     ExtensionNotLoaded,
+    has_permissions,
     hybrid_group,
-    Context,
 )
 from emoji import emojize
+
 from bot.classes.state import State
 from bot.extensions.command_error_handler import send_command_help
 from bot.models.extension import Extension
-from typing import List
 
 
 def extension_autocomplete(state: bool):

@@ -1,6 +1,8 @@
 from typing import TYPE_CHECKING
+
 from emoji import emojize
-from grace.model import Model, Field, Relationship
+
+from grace.model import Field, Model, Relationship
 
 if TYPE_CHECKING:
     from bot.models.extensions.language.pun import Pun

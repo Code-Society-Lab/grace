@@ -1,8 +1,10 @@
-from typing import List, Any, Callable, Optional
+from typing import Any, Callable, List, Optional
+
 from discord import Embed, Interaction, Message
 from discord.ext.commands import Context
-from discord.ui import View, Button
+from discord.ui import Button, View
 from emoji.core import emojize
+
 from lib.bidirectional_iterator import BidirectionalIterator
 
 

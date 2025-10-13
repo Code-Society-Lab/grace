@@ -1,6 +1,7 @@
 from typing import Type
+
 from sqlalchemy import Column
-from sqlalchemy.types import TypeDecorator, Integer
+from sqlalchemy.types import Integer, TypeDecorator
 from sqlmodel import Field
 
 

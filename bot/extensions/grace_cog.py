@@ -1,17 +1,18 @@
-from discord.ext.commands import Cog, hybrid_command, Context
-from discord.ui import Button
-from discord.app_commands import Choice, autocomplete
 from discord import Embed, Interaction
+from discord.app_commands import Choice, autocomplete
+from discord.ext.commands import Cog, Context, hybrid_command
+from discord.ui import Button
 from emoji import emojize
-from lib.config_required import command_config_required
-from lib.paged_embeds import PagedEmbedView
+
 from bot.helpers import send_error
 from bot.helpers.github_helper import (
+    available_project_names,
     create_contributors_embeds,
     create_repository_button,
-    available_project_names,
 )
 from bot.services.github_service import GithubService
+from lib.config_required import command_config_required
+from lib.paged_embeds import PagedEmbedView
 
 
 async def project_autocomplete(_: Interaction, current: str) -> list[Choice[str]]:

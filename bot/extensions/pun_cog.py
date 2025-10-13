@@ -1,16 +1,17 @@
+from discord import Embed, Message
 from discord.ext.commands import (
     Cog,
+    Context,
     has_permissions,
     hybrid_command,
     hybrid_group,
-    Context,
 )
-from discord import Message, Embed
+from emoji import demojize
+from nltk.tokenize import TweetTokenizer
+
 from bot.models.bot import BotSettings
 from bot.models.extensions.language.pun import Pun
 from bot.models.extensions.language.pun_word import PunWord
-from nltk.tokenize import TweetTokenizer
-from emoji import demojize
 
 
 class PunCog(

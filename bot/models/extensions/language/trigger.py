@@ -1,7 +1,9 @@
-from emoji import emojize
-from grace.model import Model, Field, Relationship
 from typing import List
+
+from emoji import emojize
+
 from bot.models.extensions.language.trigger_word import TriggerWord
+from grace.model import Field, Model, Relationship
 
 
 class Trigger(Model):

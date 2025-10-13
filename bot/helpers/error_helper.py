@@ -1,4 +1,4 @@
-from discord import Embed, Color, DiscordException
+from discord import Color, DiscordException, Embed
 
 
 async def send_error(ctx, error_description, **kwargs):

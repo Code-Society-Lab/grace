@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, Text
-from grace.model import Model, Field
+
 from bot.classes.recurrence import Recurrence
+from grace.model import Field, Model
 
 
 class Thread(Model):

@@ -1,7 +1,9 @@
-from discord.ext.commands import Cog, hybrid_command
 from logging import info
-from bot.models.channel import Channel
+
 from discord import Embed
+from discord.ext.commands import Cog, hybrid_command
+
+from bot.models.channel import Channel
 
 
 class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):

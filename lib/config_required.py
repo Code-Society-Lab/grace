@@ -1,7 +1,9 @@
-from bot import app
 from typing import Callable, Optional
+
 from discord.ext import commands
 from discord.ext.commands import CogMeta, Context, DisabledCommand
+
+from bot import app
 
 
 class ConfigRequiredError(DisabledCommand):

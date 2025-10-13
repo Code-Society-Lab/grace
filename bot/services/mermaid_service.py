@@ -1,9 +1,9 @@
 import base64
 import json
 import zlib
-import requests
-from logging import info, critical
+from logging import critical, info
 
+import requests
 
 MERMAID_API = "https://mermaid.ink"
 

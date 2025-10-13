@@ -1,8 +1,10 @@
-from discord.ext.commands import Cog, has_permissions, hybrid_group, Context
-from discord import Message, Embed
 from logging import warning
-from nltk.tokenize import TweetTokenizer
+
+from discord import Embed, Message
+from discord.ext.commands import Cog, Context, has_permissions, hybrid_group
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
+from nltk.tokenize import TweetTokenizer
+
 from bot.models.extensions.language.trigger import Trigger
 
 

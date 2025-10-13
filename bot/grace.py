@@ -1,9 +1,11 @@
-from grace.bot import Bot
 from logging import info, warning
-from discord import Intents, Colour, Activity, ActivityType
+
+from discord import Activity, ActivityType, Colour, Intents
 from pretty_help import PrettyHelp
+
 from bot.models.channel import Channel
 from bot.models.extension import Extension
+from grace.bot import Bot
 
 
 class Grace(Bot):

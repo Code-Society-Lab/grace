@@ -1,8 +1,9 @@
 from datetime import datetime, timedelta
-from grace.model import Model, Field, Relationship
 from typing import List
-from bot.models.extensions.language.pun_word import PunWord
+
 from bot.models.bot import BotSettings
+from bot.models.extensions.language.pun_word import PunWord
+from grace.model import Field, Model, Relationship
 
 
 class Pun(Model):

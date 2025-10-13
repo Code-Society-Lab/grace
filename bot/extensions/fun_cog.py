@@ -1,9 +1,11 @@
 from json import loads
-from discord.ext.commands.cooldowns import BucketType
-from discord.ext.commands import Cog, cooldown, hybrid_group, Context
-from discord import Embed
-from requests import get
 from random import choice as random_choice
+
+from discord import Embed
+from discord.ext.commands import Cog, Context, cooldown, hybrid_group
+from discord.ext.commands.cooldowns import BucketType
+from requests import get
+
 from bot.extensions.command_error_handler import send_command_help
 from bot.models.extensions.fun.answer import Answer
 

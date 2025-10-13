@@ -1,10 +1,11 @@
-from typing import List, Any
-from discord.ext.commands import Cog, hybrid_command, Context
-from discord.ui import View
-from discord import ButtonStyle, ui, Embed, Interaction, Button
-from urllib.request import urlopen
-from urllib.parse import quote_plus
 from json import loads
+from typing import Any, List
+from urllib.parse import quote_plus
+from urllib.request import urlopen
+
+from discord import Button, ButtonStyle, Embed, Interaction, ui
+from discord.ext.commands import Cog, Context, hybrid_command
+from discord.ui import View
 
 
 def search_results(search: str) -> List[Any]:

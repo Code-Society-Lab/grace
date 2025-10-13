@@ -1,5 +1,6 @@
 from typing import Optional
-from grace.model import Model, Field
+
+from grace.model import Field, Model
 
 
 class Answer(Model):

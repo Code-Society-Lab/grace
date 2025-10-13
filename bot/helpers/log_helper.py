@@ -1,5 +1,6 @@
-from discord import Embed, Color
 from datetime import datetime
+
+from discord import Color, Embed
 
 
 def info(title, description):

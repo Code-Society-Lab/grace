@@ -1,6 +1,6 @@
-from grace.model import Model, Field, Relationship
 from typing import TYPE_CHECKING, Optional
 
+from grace.model import Field, Model, Relationship
 
 if TYPE_CHECKING:
     from .trigger import Trigger

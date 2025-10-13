@@ -1,10 +1,12 @@
+from math import ceil
 from typing import Iterable, List
-from discord import Embed, Color
+
+from discord import Color, Embed
 from discord.ui import Button
 from emoji import emojize
-from github import Repository, Organization
+from github import Organization, Repository
+
 from bot.services.github_service import GithubService
-from math import ceil
 
 
 def available_project_names() -> Iterable[str]:

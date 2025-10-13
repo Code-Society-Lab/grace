@@ -1,9 +1,11 @@
+import re
+from typing import List
+
+from discord import Embed, Message
 from discord.ext.commands import Cog
-from discord import Message, Embed
+
 from bot import app
 from bot.helpers.log_helper import danger
-from typing import List
-import re
 
 
 class RedditCog(Cog, name="Reddit", description="Reddit utilities"):

@@ -1,7 +1,7 @@
-from discord.ext.commands import Cog, hybrid_command, Context, CommandError
-from googletrans import Translator, LANGUAGES
 from discord import Embed, Interaction
 from discord.app_commands import Choice, autocomplete
+from discord.ext.commands import Cog, CommandError, Context, hybrid_command
+from googletrans import LANGUAGES, Translator
 
 from bot.helpers.error_helper import get_original_exception
 

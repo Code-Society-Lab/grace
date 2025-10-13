@@ -1,9 +1,8 @@
 import re
-
 from typing import Optional
 
-from discord.ext.commands import Cog, command, Context
 from discord import Embed, Message
+from discord.ext.commands import Cog, Context, command
 
 from bot.extensions.command_error_handler import send_command_help
 from bot.services.mermaid_service import generate_mermaid_diagram

@@ -1,10 +1,12 @@
-from timezonefinder import TimezoneFinder
-from pytz import timezone
 from datetime import datetime
-from discord.ext.commands import Cog, hybrid_command
-from requests import get
-from discord import Embed
 from string import capwords
+
+from discord import Embed
+from discord.ext.commands import Cog, hybrid_command
+from pytz import timezone
+from requests import get
+from timezonefinder import TimezoneFinder
+
 from lib.config_required import cog_config_required
 
 

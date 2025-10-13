@@ -1,10 +1,10 @@
-from discord.ext.commands import Cog, hybrid_command
-from discord.app_commands import Choice, autocomplete
-from discord import Embed, Interaction
-from openai.api_resources.completion import Completion
 import openai
-from lib.config_required import cog_config_required
+from discord import Embed, Interaction
+from discord.app_commands import Choice, autocomplete
+from discord.ext.commands import Cog, hybrid_command
+from openai.api_resources.completion import Completion
 
+from lib.config_required import cog_config_required
 
 LANGUAGES = [
     "Python",
