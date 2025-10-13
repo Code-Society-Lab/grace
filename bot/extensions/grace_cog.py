@@ -59,14 +59,14 @@ class GraceCog(Cog, name='Grace', description='Default grace commands'):
         info_embed = Embed(
             color=self.bot.default_color,
             title='My name is Grace',
-            description=f"Hi, {ctx.author.mention}. I'm the official" \
-                         "**Code Society** Discord Bot.\n",
+            description=f"Hi, {ctx.author.mention}. I'm the official"
+            '**Code Society** Discord Bot.\n',
         )
 
         info_embed.add_field(
             name='Fun fact about me',
-            value="I'm named after [Grace Hopper]" \
-                  "(https://en.wikipedia.org/wiki/Grace_Hopper) {emojize(':rabbit:')}",
+            value="I'm named after [Grace Hopper]"
+            "(https://en.wikipedia.org/wiki/Grace_Hopper) {emojize(':rabbit:')}",
             inline=False,
         )
 

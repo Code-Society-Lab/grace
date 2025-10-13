@@ -2,6 +2,5 @@
 # and would give 'run command not found' error when running grace
 # Main purpose is to streamline/simplify importing of the logging functions
 # that are separated into multiple modules
-from bot.helpers.error_helper import * # noqa - ignoring violations
-from bot.helpers.log_helper import * # noqa
-
+from bot.helpers.error_helper import *  # noqa - ignoring violations
+from bot.helpers.log_helper import *  # noqa

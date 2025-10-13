@@ -37,7 +37,7 @@ class ModerationCog(
 
         log = danger(
             'PURGE',
-            f'{limit} message(s) purged by {ctx.author.mention} ' \
+            f'{limit} message(s) purged by {ctx.author.mention} '
             f'in {ctx.channel.mention}',
         )
         log.add_field('Reason', reason)
@@ -72,8 +72,8 @@ class ModerationCog(
 
                 if guidelines and help:
                     await message.reply(
-                        f'If you need some help, read the <#{guidelines.channel_id}>' \
-                         'and open a post in <#{help.channel_id}>!'
+                        f'If you need some help, read the <#{guidelines.channel_id}>'
+                        'and open a post in <#{help.channel_id}>!'
                     )
             case _:
                 return None
@@ -111,8 +111,8 @@ class ModerationCog(
             )
 
             await member.send(
-                f'Your account needs to be {minimum_account_age} days old' \
-                 'or more to join the server.'
+                f'Your account needs to be {minimum_account_age} days old'
+                'or more to join the server.'
             )
             await member.guild.kick(user=member, reason='Account age restriction')
 
