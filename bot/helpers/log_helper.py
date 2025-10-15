@@ -1,14 +1,15 @@
-from discord import Embed, Color
 from datetime import datetime
+
+from discord import Color, Embed
 
 
 def info(title, description):
-	# Will be deprected in favor of notice
+    # Will be deprected in favor of notice
     return LogHelper(title, description, "info")
 
 
 def notice(title, description):
-	return LogHelper(title, description, "info")
+    return LogHelper(title, description, "info")
 
 
 def warning(title, description):
@@ -32,15 +33,11 @@ class LogHelper:
             title=title,
             description=description,
             color=self.COLORS_BY_LOG_LEVEL.get(log_level, self.__DEFAULT_COLOR),
-            timestamp=datetime.utcnow()
+            timestamp=datetime.utcnow(),
         )
 
     def add_field(self, name, value):
-        self.embed.add_field(
-            name=name,
-            value=value,
-            inline=False
-        )
+        self.embed.add_field(name=name, value=value, inline=False)
 
     async def send(self, channel):
         await channel.send(embed=self.embed)

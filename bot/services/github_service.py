@@ -1,6 +1,8 @@
-from typing import Union, Optional
+from typing import Optional, Union
+
 from github import Github, Organization
 from github.Repository import Repository
+
 from bot import app
 
 
