@@ -104,11 +104,11 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
         embed = Embed(
             color=self.bot.default_color,
             title=title,
-            description=description
+            description=description,
         )
         embed.set_footer(
             text="https://github.com/Code-Society-Lab/grace",
-            icon_url="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png"
+            icon_url="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png",
         )
         return embed
 
@@ -146,7 +146,8 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
         info(f"{member.display_name} joined the server!")
 
     @hybrid_command(
-        name="welcome", description="Welcomes the person who issues the command"
+        name="welcome",
+        description="Welcomes the person who issues the command"
     )
     async def welcome_command(self, ctx):
         """Send a welcome message to the person who issued the command.
