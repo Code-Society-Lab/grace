@@ -110,8 +110,7 @@ async def test_daily_reminder_with_active_threads(threads_cog, mock_bot):
     discord_thread.locked = False
 
     with patch(
-        "bot.extensions.threads_cog.Thread.all",
-        return_value=[thread1, thread2]
+        "bot.extensions.threads_cog.Thread.all", return_value=[thread1, thread2]
     ):
         mock_bot.fetch_channel = AsyncMock(return_value=discord_thread)
         mock_channel = MagicMock()
@@ -128,10 +127,7 @@ async def test_daily_reminder_with_active_threads(threads_cog, mock_bot):
 
         assert len(embed.fields) == 1
         assert embed.fields[0].value == f"- <#{thread1.latest_thread}>"
-        assert any(
-            thread2.latest_thread != field.value
-            for field in embed.fields
-        )
+        assert any(thread2.latest_thread != field.value for field in embed.fields)
 
 
 @pytest.mark.asyncio
