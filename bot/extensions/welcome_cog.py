@@ -1,6 +1,6 @@
 from logging import info
 
-from discord import Embed
+from discord import Embed, Member
 from discord.ext.commands import Cog, hybrid_command
 
 from bot.models.channel import Channel
@@ -35,7 +35,7 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
             "- [Matrix.py](<https://github.com/Code-Society-Lab/matrixpy>)\n",
         )
 
-    def get_welcome_message(self, member):
+    def get_welcome_message(self, member: Member):
         """Return the welcome message for the given member.
 
         :param member: The member to welcome.
@@ -86,22 +86,19 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
         ]
         return message.format(*channel_ids) if all(channel_ids) else ""
 
-    def __build_embed(self, title: str, description: str) -> Embed:
+    def __build_embed(self, member: Member) -> Embed:
         """Builds a Discord embed with the given title and description.
 
-        :param title: The title of the embed.
-        :type title: str
-
-        :param description: The description of the embed.
-        :type description: str
+        :param member: The member to welcome.
+        :type member: discord.Member
 
         :return: The constructed Discord embed.
         :rtype: discord.Embed
         """
         embed = Embed(
             color=self.bot.default_color,
-            title=title,
-            description=description,
+            title="Welcome to **The Code Society Server**",
+            description=self.get_welcome_message(member),
         )
         embed.set_footer(
             text="https://github.com/Code-Society-Lab/grace",
@@ -122,10 +119,7 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
         if not before.bot and (before.pending and not after.pending):
             info(f"{after.display_name} accepted the rules!")
 
-            embed = self.__build_embed(
-                title="Welcome to **The Code Society Server**",
-                description=self.get_welcome_message(after),
-            )
+            embed = self.__build_embed(after)
             welcome_channel = self.bot.get_channel_by_name("welcome")
 
             if not welcome_channel:
@@ -153,10 +147,7 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
         """
         info(f"{ctx.author.display_name} asked to get welcomed!")
 
-        embed = self.__build_embed(
-            title="Welcome to **The Code Society Server**",
-            description=self.get_welcome_message(ctx.author),
-        )
+        embed = self.__build_embed(ctx.author)
         await ctx.send(embed=embed, ephemeral=True)
 
 
