@@ -1,7 +1,9 @@
-from bot import app
 from typing import Callable, Optional
+
 from discord.ext import commands
 from discord.ext.commands import CogMeta, Context, DisabledCommand
+
+from bot import app
 
 
 class ConfigRequiredError(DisabledCommand):
@@ -23,7 +25,7 @@ class MissingRequiredConfigError(ConfigRequiredError):
     def __init__(self, section_key: str, value_key: str, message: Optional[str] = None):
         base_error_message = f"Missing config '{value_key}' in section '{section_key}'"
         super().__init__(
-            f'{base_error_message}\n{message}' if message else base_error_message
+            f"{base_error_message}\n{message}" if message else base_error_message
         )
 
 

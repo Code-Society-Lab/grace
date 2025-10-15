@@ -1,15 +1,13 @@
-from sqlalchemy import Integer, Column, BigInteger
-from grace.model import Model
-from bot import app
+from grace.model import Field, Model
 
 
-class BotSettings(app.base, Model):
+class BotSettings(Model):
     """Configurable settings for each server"""
 
-    __tablename__ = 'bot_settings'
+    __tablename__ = "bot_settings"
 
-    id = Column(Integer, primary_key=True)
-    puns_cooldown = Column(BigInteger, default=60)
+    id: int | None = Field(default=None, primary_key=True)
+    puns_cooldown: int = Field(default=60)
 
     @classmethod
     def settings(self):

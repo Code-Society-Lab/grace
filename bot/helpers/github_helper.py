@@ -1,10 +1,12 @@
+from math import ceil
 from typing import Iterable, List
-from discord import Embed, Color
+
+from discord import Color, Embed
 from discord.ui import Button
 from emoji import emojize
-from github import Repository, Organization
+from github import Organization, Repository
+
 from bot.services.github_service import GithubService
-from math import ceil
 
 
 def available_project_names() -> Iterable[str]:
@@ -25,14 +27,14 @@ def create_contributors_embeds(repository: Repository) -> List[Embed]:
 
     for i in range(page_count):
         embed: Embed = Embed(
-            color=Color.from_str('#171515'),  # github color
+            color=Color.from_str("#171515"),  # github color
             title=f"{repository.name.capitalize()}'s Contributors",
         )
 
         for contributor in contributors.get_page(i):
             embed.add_field(
                 name=contributor.login,
-                value=f'{contributor.contributions} Contributions',
+                value=f"{contributor.contributions} Contributions",
                 inline=True,
             )
 
@@ -43,5 +45,5 @@ def create_contributors_embeds(repository: Repository) -> List[Embed]:
 
 def create_repository_button(repository: Repository) -> Button:
     return Button(
-        emoji=emojize(':file_folder:'), label='Repository', url=repository.html_url
+        emoji=emojize(":file_folder:"), label="Repository", url=repository.html_url
     )

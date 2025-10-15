@@ -1,7 +1,8 @@
-from bot import app
 from logging import info
-from db.seed import get_seed_modules
 
+from bot import app
+from db.seed import get_seed_modules
+from grace.database import up_migration
 
 app.load('test')
 
@@ -13,6 +14,8 @@ app.drop_database()
 
 app.create_database()
 app.create_tables()
+
+up_migration(app, "head")
 
 for seed_module in get_seed_modules():
     info(f'Seeding {seed_module.__name__}')

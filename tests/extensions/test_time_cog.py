@@ -1,8 +1,9 @@
-import pytest
 from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock
 
+import pytest
 import pytz
+
 from bot.extensions.time_cog import TimeCog
 
 

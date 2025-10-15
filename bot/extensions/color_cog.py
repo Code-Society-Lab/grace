@@ -1,15 +1,17 @@
 import os
-from PIL import Image
+from typing import Tuple, Union
+
+from discord import Color, Embed, File
 from discord.ext.commands import (
     Cog,
-    hybrid_group,
-    HybridCommandError,
     CommandInvokeError,
     Context,
+    HybridCommandError,
+    hybrid_group,
 )
-from discord import Embed, File, Color
+from PIL import Image
+
 from bot.helpers.error_helper import send_command_error
-from typing import Union, Tuple
 
 
 def get_embed_color(color: Union[Tuple[int, int, int], str]) -> Color:
@@ -28,7 +30,7 @@ def get_embed_color(color: Union[Tuple[int, int, int], str]) -> Color:
 
 
 class ColorCog(
-    Cog, name='Color', description='Collection of commands to bring color in your life.'
+    Cog, name="Color", description="Collection of commands to bring color in your life."
 ):
     """A Discord Cog that provides a set of commands to display colors."""
 
@@ -69,24 +71,24 @@ class ColorCog(
                       a hexadecimal color.
         :type color: Union[Tuple[int, int, int], str]
         """
-        colored_image = Image.new('RGB', (200, 200), color)
-        colored_image.save('color.png')
-        file = File('color.png')
+        colored_image = Image.new("RGB", (200, 200), color)
+        colored_image.save("color.png")
+        file = File("color.png")
 
         embed = Embed(
             color=get_embed_color(color),
-            title='Here goes your color!',
-            description=f'{color}',
+            title="Here goes your color!",
+            description=f"{color}",
         )
         embed.set_image(url='attachment://color.png')
 
         await ctx.send(embed=embed, file=file)
-        os.remove('color.png')
+        os.remove("color.png")
 
     @show_group.command(
-        name='rgb',
-        help='Displays the RGB color entered by the user.',
-        usage='color show rgb {red integer} {green integer} {blue integer}',
+        name="rgb",
+        help="Displays the RGB color entered by the user.",
+        usage="color show rgb {red integer} {green integer} {blue integer}",
     )
     async def rgb_command(self, ctx: Context, r: int, g: int, b: int) -> None:
         """Display an RGB color in an embed message.
@@ -116,13 +118,13 @@ class ColorCog(
             error, CommandInvokeError
         ):
             await send_command_error(
-                ctx, 'Expected rgb color', ctx.command, '244 195 8'
+                ctx, "Expected rgb color", ctx.command, "244 195 8"
             )
 
     @show_group.command(
-        name='hex',
-        help='Displays the color of the hexcode entered by the user.',
-        usage='color show hex {hexadecimal string}',
+        name="hex",
+        help="Displays the color of the hexcode entered by the user.",
+        usage="color show hex {hexadecimal string}",
     )
     async def hex_command(self, ctx: Context, hex_code: str) -> None:
         """Display a color in an embed message using a hexadecimal color code.
@@ -133,8 +135,8 @@ class ColorCog(
         representing a hexadecimal color.
         :type hex_code: str
         """
-        if not hex_code.startswith('#'):
-            hex_code = f'#{hex_code}'
+        if not hex_code.startswith("#"):
+            hex_code = f"#{hex_code}"
         await self.display_color(ctx, hex_code)
 
     @hex_command.error
@@ -151,7 +153,7 @@ class ColorCog(
             error, CommandInvokeError
         ):
             await send_command_error(
-                ctx, 'Expected hexadecimal color', ctx.command, '#F4C308'
+                ctx, "Expected hexadecimal color", ctx.command, "#F4C308"
             )
 
 

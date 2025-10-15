@@ -1,13 +1,15 @@
 import traceback
 from logging import info
-from pytz import timezone
-from discord import Interaction, Embed, TextStyle
+
+from discord import Embed, Interaction, TextStyle
 from discord.app_commands import Choice, autocomplete
+from discord.ext.commands import Cog, Context, has_permissions, hybrid_group
 from discord.ui import Modal, TextInput
-from discord.ext.commands import Cog, has_permissions, hybrid_group, Context
-from bot.models.extensions.thread import Thread
+from pytz import timezone
+
 from bot.classes.recurrence import Recurrence
 from bot.extensions.command_error_handler import send_command_help
+from bot.models.extensions.thread import Thread
 from lib.config_required import cog_config_required
 
 
@@ -49,7 +51,7 @@ class ThreadModal(Modal, title='Thread'):
             recurrence=self.thread_recurrence,
         )
         await interaction.response.send_message(
-            f'Thread __**{thread.id}**__ created!', ephemeral=True
+            f"Thread __**{thread.id}**__ created!", ephemeral=True
         )
 
     async def update_thread(self, interaction: Interaction):
@@ -60,12 +62,12 @@ class ThreadModal(Modal, title='Thread'):
         self.thread.save()
 
         await interaction.response.send_message(
-            f'Thread __**{self.thread.id}**__ updated!', ephemeral=True
+            f"Thread __**{self.thread.id}**__ updated!", ephemeral=True
         )
 
     async def on_error(self, interaction: Interaction, error: Exception):
         await interaction.response.send_message(
-            'Oops! Something went wrong.', ephemeral=True
+            "Oops! Something went wrong.", ephemeral=True
         )
         traceback.print_exception(type(error), error, error.__traceback__)
 
@@ -84,13 +86,13 @@ class ThreadsCog(Cog, name='Threads'):
         self.bot = bot
         self.jobs = []
         self.threads_channel_id = self.required_config
-        self.timezone = timezone('US/Eastern')
+        self.timezone = timezone("US/Eastern")
 
     def cog_load(self):
         # Runs everyday at 18:30
         self.jobs.append(
             self.bot.scheduler.add_job(
-                self.daily_post, 'cron', hour=18, minute=30, timezone=self.timezone
+                self.daily_post, "cron", hour=18, minute=30, timezone=self.timezone
             )
         )
 
@@ -98,8 +100,8 @@ class ThreadsCog(Cog, name='Threads'):
         self.jobs.append(
             self.bot.scheduler.add_job(
                 self.weekly_post,
-                'cron',
-                day_of_week='mon',
+                "cron",
+                day_of_week="mon",
                 hour=18,
                 minute=30,
                 timezone=self.timezone,
@@ -110,7 +112,7 @@ class ThreadsCog(Cog, name='Threads'):
         self.jobs.append(
             self.bot.scheduler.add_job(
                 self.monthly_post,
-                'cron',
+                "cron",
                 day=1,
                 hour=18,
                 minute=30,
@@ -162,13 +164,13 @@ class ThreadsCog(Cog, name='Threads'):
     @threads_group.command(help='List all threads')
     @has_permissions(administrator=True)
     async def list(self, ctx: Context):
-        embed = Embed(color=self.bot.default_color, title='Threads')
+        embed = Embed(color=self.bot.default_color, title="Threads")
 
         if threads := Thread.all():
             for thread in threads:
                 embed.add_field(
-                    name=f'[{thread.id}] {thread.title}',
-                    value=f'**Recurrence**: {thread.recurrence}',
+                    name=f"[{thread.id}] {thread.title}",
+                    value=f"**Recurrence**: {thread.recurrence}",
                     inline=False,
                 )
         else:
@@ -186,7 +188,7 @@ class ThreadsCog(Cog, name='Threads'):
     @has_permissions(administrator=True)
     @autocomplete(thread=thread_autocomplete)
     async def delete(self, ctx: Context, thread: int):
-        if thread := Thread.get(thread):
+        if thread := Thread.find(thread):
             thread.delete()
             await ctx.send('Thread successfully deleted!', ephemeral=True)
         else:
@@ -196,22 +198,22 @@ class ThreadsCog(Cog, name='Threads'):
     @has_permissions(administrator=True)
     @autocomplete(thread=thread_autocomplete)
     async def update(self, ctx: Context, thread: int, recurrence: Recurrence):
-        if thread := Thread.get(thread):
+        if thread := Thread.find(thread):
             modal = ThreadModal(recurrence, thread=thread)
             await ctx.interaction.response.send_modal(modal)
         else:
             await ctx.send('Thread not found!', ephemeral=True)
 
-    @threads_group.command(help='Post a given thread')
+    @threads_group.command(help="Post a given thread")
     @has_permissions(administrator=True)
     @autocomplete(thread=thread_autocomplete)
     async def post(self, ctx: Context, thread: int):
         if ctx.interaction:
             await ctx.interaction.response.send_message(
-                content='Opening thread!', delete_after=0, ephemeral=True
+                content="Opening thread!", delete_after=0, ephemeral=True
             )
 
-        if thread := Thread.get(thread):
+        if thread := Thread.find(thread):
             await self.post_thread(thread)
         else:
             await self.send('Thread not found!')

@@ -1,10 +1,11 @@
-from typing import List, Any
-from discord.ext.commands import Cog, hybrid_command, Context
-from discord.ui import View
-from discord import ButtonStyle, ui, Embed, Interaction, Button
-from urllib.request import urlopen
-from urllib.parse import quote_plus
 from json import loads
+from typing import Any, List
+from urllib.parse import quote_plus
+from urllib.request import urlopen
+
+from discord import Button, ButtonStyle, Embed, Interaction, ui
+from discord.ext.commands import Cog, Context, hybrid_command
+from discord.ui import View
 
 
 def search_results(search: str) -> List[Any]:
@@ -45,7 +46,7 @@ class Buttons(View):
         """
         if len(self.result[3]) >= index:
             await interaction.response.send_message(
-                '{mention} requested:\n {request}'.format(
+                "{mention} requested:\n {request}".format(
                     mention=interaction.user.mention, request=self.result[3][index - 1]
                 )
             )
@@ -53,15 +54,15 @@ class Buttons(View):
         else:
             await interaction.response.send_message('Invalid choice.', ephemeral=True)
 
-    @ui.button(label='1', style=ButtonStyle.primary)
+    @ui.button(label="1", style=ButtonStyle.primary)
     async def first_wiki_result(self, interaction: Interaction, button: Button):
         await self.wiki_result(interaction, button, 1)
 
-    @ui.button(label='2', style=ButtonStyle.primary)
+    @ui.button(label="2", style=ButtonStyle.primary)
     async def second_wiki_result(self, interaction: Interaction, button: Button):
         await self.wiki_result(interaction, button, 2)
 
-    @ui.button(label='3', style=ButtonStyle.primary)
+    @ui.button(label="3", style=ButtonStyle.primary)
     async def third_wiki_result(self, interaction: Interaction, button: Button):
         await self.wiki_result(interaction, button, 3)
 
@@ -71,8 +72,8 @@ class Wikipedia(Cog, name='Wikipedia', description='Search on Wikipedia.'):
         self.bot = bot
 
     @hybrid_command(
-        name='wiki',
-        description='Searches and displays the first 3 results from Wikipedia.',
+        name="wiki",
+        description="Searches and displays the first 3 results from Wikipedia.",
     )
     async def wiki(self, ctx: Context, *, search: str) -> None:
         """Search Wikipedia and display the first 3 search results to the user.
@@ -87,7 +88,7 @@ class Wikipedia(Cog, name='Wikipedia', description='Search on Wikipedia.'):
 
         if len(result[1]) == 0:
             await ctx.interaction.response.send_message(
-                'No result found.', ephemeral=True
+                "No result found.", ephemeral=True
             )
         else:
             result_view = ''
@@ -98,7 +99,7 @@ class Wikipedia(Cog, name='Wikipedia', description='Search on Wikipedia.'):
 
             embed = Embed(
                 color=0x2376FF,
-                title='Top 3 Wikipedia Search',
+                title="Top 3 Wikipedia Search",
                 description=result_view,
             )
             await ctx.send(embed=embed, view=view, ephemeral=True)

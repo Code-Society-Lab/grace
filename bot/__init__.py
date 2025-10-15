@@ -1,10 +1,12 @@
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+
 from grace.application import Application
 
-
 try:
-    from nltk import download
+    from nltk import download, download_shell
+    from nltk.downloader import Downloader
 
-    download('vader_lexicon', quiet=True)
+    download("vader_lexicon", quiet=True)
 except ModuleNotFoundError:
     print('nltk module not properly installed')
 

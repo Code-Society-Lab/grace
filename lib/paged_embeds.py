@@ -1,8 +1,10 @@
-from typing import List, Any, Callable, Optional
+from typing import Any, Callable, List, Optional
+
 from discord import Embed, Interaction, Message
 from discord.ext.commands import Context
-from discord.ui import View, Button
+from discord.ui import Button, View
 from emoji.core import emojize
+
 from lib.bidirectional_iterator import BidirectionalIterator
 
 
@@ -26,10 +28,10 @@ class PagedEmbedView(View):
         self.__embeds: BidirectionalIterator[Embed] = BidirectionalIterator(embeds)
         self.__arrow_button: List[EmbedButton] = [
             EmbedButton(
-                self.__embeds.previous, emoji=emojize(':left_arrow:'), disabled=True
+                self.__embeds.previous, emoji=emojize(":left_arrow:"), disabled=True
             ),
             EmbedButton(
-                self.__embeds.next, emoji=emojize(':right_arrow:'), disabled=True
+                self.__embeds.next, emoji=emojize(":right_arrow:"), disabled=True
             ),
         ]
 

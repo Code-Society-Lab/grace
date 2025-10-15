@@ -1,33 +1,32 @@
 from datetime import timedelta
 from logging import warning
+from typing import Any, Coroutine, Optional
+
+from discord import Interaction
 from discord.ext.commands import (
     Cog,
-    MissingRequiredArgument,
     CommandNotFound,
-    MissingPermissions,
     CommandOnCooldown,
+    Context,
     DisabledCommand,
     HybridCommandError,
-    Context,
+    MissingPermissions,
+    MissingRequiredArgument,
 )
+
 from bot.helpers.error_helper import send_error
-from typing import Any, Coroutine, Optional
-from discord import Interaction
 from lib.config_required import MissingRequiredConfigError
 
 
 class CommandErrorHandler(Cog):
-    """A Discord Cog that listens for command errors
-    and sends an appropriate message to the user.
-    """
+    """A Discord Cog that listens for command errors and sends an appropriate message to the user."""
 
     def __init__(self, bot):
         self.bot = bot
 
     @Cog.listener('on_command_error')
     async def get_command_error(self, ctx: Context, error: Exception) -> None:
-        """Event listener for command errors.
-        It logs the error and sends an appropriate message to the user.
+        """Event listener for command errors. It logs the error and sends an appropriate message to the user.
 
         :param ctx: The context of the command invocation.
         :type ctx: Context
@@ -56,7 +55,7 @@ class CommandErrorHandler(Cog):
         elif isinstance(error, HybridCommandError):
             await self.get_app_command_error(ctx.interaction, error)
 
-    @Cog.listener('on_app_command_error')
+    @Cog.listener("on_app_command_error")
     async def get_app_command_error(
         self, interaction: Optional[Interaction], _: Exception
     ) -> None:
@@ -70,7 +69,7 @@ class CommandErrorHandler(Cog):
         """
         if interaction and interaction.is_expired():
             await interaction.response.send_message(
-                'Interaction failed, please try again later!', ephemeral=True
+                "Interaction failed, please try again later!", ephemeral=True
             )
 
 

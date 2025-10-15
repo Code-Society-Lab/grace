@@ -1,19 +1,22 @@
+from typing import List
+
 from emoji import emojize
-from sqlalchemy import String, Column, Integer
-from sqlalchemy.orm import relationship
-from grace.model import Model
-from bot import app
+
 from bot.models.extensions.language.trigger_word import TriggerWord
+from grace.model import Field, Model, Relationship
 
 
-class Trigger(app.base, Model):
-    __tablename__ = 'triggers'
+class Trigger(Model):
+    __tablename__ = "triggers"
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String(255), unique=True)
-    positive_emoji_code = Column(String(255), nullable=False)
-    negative_emoji_code = Column(String(255), nullable=False)
-    trigger_words = relationship('TriggerWord')
+    id: int | None = Field(default=None, primary_key=True)
+    name: str = Field(max_length=255, unique=True)
+    positive_emoji_code: str = Field(max_length=255)
+    negative_emoji_code: str = Field(max_length=255)
+
+    trigger_words: List[TriggerWord] = Relationship(
+        back_populates="trigger", sa_relationship_kwargs={"lazy": "selectin"}
+    )
 
     @property
     def words(self):
@@ -22,11 +25,11 @@ class Trigger(app.base, Model):
 
     @property
     def positive_emoji(self):
-        return emojize(self.positive_emoji_code, language='alias')
+        return emojize(self.positive_emoji_code, language="alias")
 
     @property
     def negative_emoji(self):
-        return emojize(self.negative_emoji_code, language='alias')
+        return emojize(self.negative_emoji_code, language="alias")
 
     def add_trigger_word(self, trigger_word):
         TriggerWord(trigger_id=self.id, word=trigger_word).save()

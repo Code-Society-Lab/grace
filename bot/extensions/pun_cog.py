@@ -1,20 +1,21 @@
+from discord import Embed, Message
 from discord.ext.commands import (
     Cog,
+    Context,
     has_permissions,
     hybrid_command,
     hybrid_group,
-    Context,
 )
-from discord import Message, Embed
+from emoji import demojize
+from nltk.tokenize import TweetTokenizer
+
 from bot.models.bot import BotSettings
 from bot.models.extensions.language.pun import Pun
 from bot.models.extensions.language.pun_word import PunWord
-from nltk.tokenize import TweetTokenizer
-from emoji import demojize
 
 
 class PunCog(
-    Cog, name='Puns', description='Automatically intrude with puns when triggered'
+    Cog, name="Puns", description="Automatically intrude with puns when triggered"
 ):
     def __init__(self, bot):
         self.bot = bot
@@ -23,8 +24,7 @@ class PunCog(
 
     @Cog.listener()
     async def on_message(self, message: Message) -> None:
-        """A listener function that calls the `pun_react`
-        functions when a message is received.
+        """A listener function that calls the `pun_react` functions when a message is received.
 
         :param message: The message that was received.
         :type message: discord.Message
@@ -44,26 +44,25 @@ class PunCog(
         message_tokens = self.tokenizer.tokenize(message.content)
         tokenlist = set(map(str.lower, message_tokens))
 
-        pun_words = PunWord.all()
+        pun_words = PunWord.distinct().all()
         word_set = set(map(lambda pun_word: pun_word.word, pun_words))
 
         matches = tokenlist.intersection(word_set)
         invoked_at = message.created_at.replace(tzinfo=None)
 
         if matches:
-            matched_pun_words = set(
-                filter(lambda pun_word: pun_word.word in matches, pun_words)
+            matched_pun_words = filter(
+                lambda pun_word: pun_word.word in matches, pun_words
             )
-            puns = map(lambda pun_word: Pun.get(pun_word.pun_id), matched_pun_words)
-            puns = filter(lambda pun: pun.can_invoke_at_time(invoked_at), puns)
-            puns = set(puns)  # remove duplicate puns
+            puns = map(lambda pun_word: Pun.find(pun_word.pun_id), matched_pun_words)
+            puns = list(filter(lambda pun: pun.can_invoke_at_time(invoked_at), puns))
 
             for pun_word in matched_pun_words:
                 await message.add_reaction(pun_word.emoji())
 
             for pun in puns:
                 embed = Embed(
-                    color=self.bot.default_color, title='Gotcha', description=pun.text
+                    color=self.bot.default_color, title="Gotcha", description=pun.text
                 )
 
                 await message.channel.send(embed=embed)
@@ -83,13 +82,13 @@ class PunCog(
     async def list_puns(self, ctx: Context) -> None:
         if ctx.invoked_subcommand is None:
             pun_texts_with_ids = map(
-                lambda pun: '{}.\t{}'.format(pun.id, pun.text), Pun.all()
+                lambda pun: "{}.\t{}".format(pun.id, pun.text), Pun.all()
             )
 
             embed = Embed(
                 color=self.bot.default_color,
-                title='Puns',
-                description='\n'.join(pun_texts_with_ids),
+                title="Puns",
+                description="\n".join(pun_texts_with_ids),
             )
 
             await ctx.send(embed=embed)
@@ -118,7 +117,7 @@ class PunCog(
         :param pun_id: The ID of the pun to which the word will be removed.
         :type pun_id: str
         """
-        pun = Pun.get(pun_id)
+        pun = Pun.find(pun_id)
 
         if pun:
             await ctx.send('Pun removed.')
@@ -141,7 +140,7 @@ class PunCog(
         :param emoji: An emoji to be associated with the pun word.
         :type emoji: str
         """
-        pun = Pun.get(pun_id)
+        pun = Pun.find(pun_id)
 
         if pun:
             if pun.has_word(pun_word):
@@ -164,7 +163,7 @@ class PunCog(
         :param pun_word: The old pun word to be removed.
         :type pun_word: str
         """
-        pun = Pun.get(id)
+        pun = Pun.find(id)
 
         if pun:
             if not pun.has_word(pun_word):
@@ -175,7 +174,7 @@ class PunCog(
         else:
             await ctx.send(f'Pun with id **{pun.id}** does not exist.')
 
-    @hybrid_command(name='cooldown', help='Set cooldown for puns feature in minutes.')
+    @hybrid_command(name="cooldown", help="Set cooldown for puns feature in minutes.")
     async def set_puns_cooldown_command(
         self, ctx: Context, cooldown_minutes: int
     ) -> None:

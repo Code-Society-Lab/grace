@@ -1,14 +1,15 @@
-from discord import Embed, Color
 from datetime import datetime
+
+from discord import Color, Embed
 
 
 def info(title, description):
     # Will be deprected in favor of notice
-    return LogHelper(title, description, 'info')
+    return LogHelper(title, description, "info")
 
 
 def notice(title, description):
-    return LogHelper(title, description, 'info')
+    return LogHelper(title, description, "info")
 
 
 def warning(title, description):

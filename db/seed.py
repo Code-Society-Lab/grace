@@ -19,6 +19,7 @@ def seed_database():
 
 import importlib
 import pkgutil
+
 from db import seeds
 
 

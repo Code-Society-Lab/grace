@@ -1,7 +1,9 @@
 from typing import List
-from discord import Embed, Message, Interaction, File
+
+from discord import Embed, File, Interaction, Message
 from discord.app_commands import ContextMenu
 from discord.ext.commands import Cog
+
 from bot.grace import Grace
 
 
@@ -10,7 +12,7 @@ class BookmarkCog(Cog):
         self.bot: Grace = bot
 
         save_message_ctx_menu: ContextMenu = ContextMenu(
-            name='Save Message', callback=self.save_message
+            name="Save Message", callback=self.save_message
         )
 
         self.bot.tree.add_command(save_message_ctx_menu)
@@ -37,18 +39,18 @@ class BookmarkCog(Cog):
         sent_at: int = int(message.created_at.timestamp())
         files: List[File] = await self.get_message_files(message)
 
-        save_embed: Embed = Embed(title='Bookmark Info', color=self.bot.default_color)
+        save_embed: Embed = Embed(title="Bookmark Info", color=self.bot.default_color)
 
-        save_embed.add_field(name='Sent By', value=message.author, inline=False)
-        save_embed.add_field(name='Sent At', value=f'<t:{sent_at}>', inline=False)
+        save_embed.add_field(name="Sent By", value=message.author, inline=False)
+        save_embed.add_field(name="Sent At", value=f"<t:{sent_at}>", inline=False)
         save_embed.add_field(
-            name='Original Message', value=f'[Jump]({message.jump_url})', inline=False
+            name="Original Message", value=f"[Jump]({message.jump_url})", inline=False
         )
 
         await interaction.user.send(embed=save_embed)
         await interaction.user.send(message.content, embeds=message.embeds, files=files)
         await interaction.response.send_message(
-            'Message successfully saved.', ephemeral=True
+            "Message successfully saved.", ephemeral=True
         )
 
 

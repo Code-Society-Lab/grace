@@ -1,43 +1,43 @@
-import pytz
 import re
-
-from discord.ext.commands import Cog
 from datetime import datetime, timedelta
+
+import pytz
 from dateutil import parser
 from discord import Message
+from discord.ext.commands import Cog
 
 # Mapping for common timezone abbreviations to their UTC offsets
 timezone_abbreviations = {
     # North American
-    'pst': 'America/Los_Angeles',  # Pacific Standard Time
-    'pdt': 'America/Los_Angeles',  # Pacific Daylight Time
-    'mst': 'America/Denver',  # Mountain Standard Time
-    'mdt': 'America/Denver',  # Mountain Daylight Time
-    'cst': 'America/Chicago',  # Central Standard Time
-    'cdt': 'America/Chicago',  # Central Daylight Time
-    'est': 'America/New_York',  # Eastern Standard Time
-    'edt': 'America/New_York',  # Eastern Daylight Time
+    "pst": "America/Los_Angeles",  # Pacific Standard Time
+    "pdt": "America/Los_Angeles",  # Pacific Daylight Time
+    "mst": "America/Denver",  # Mountain Standard Time
+    "mdt": "America/Denver",  # Mountain Daylight Time
+    "cst": "America/Chicago",  # Central Standard Time
+    "cdt": "America/Chicago",  # Central Daylight Time
+    "est": "America/New_York",  # Eastern Standard Time
+    "edt": "America/New_York",  # Eastern Daylight Time
     # International standards
-    'gmt': 'Etc/GMT',  # Greenwich Mean Time
-    'utc': 'UTC',  # Coordinated Universal Time
+    "gmt": "Etc/GMT",  # Greenwich Mean Time
+    "utc": "UTC",  # Coordinated Universal Time
     # European
-    'bst': 'Europe/London',  # British Summer Time
-    'cet': 'Europe/Paris',  # Central European Time
-    'cest': 'Europe/Paris',  # Central European Summer Time
+    "bst": "Europe/London",  # British Summer Time
+    "cet": "Europe/Paris",  # Central European Time
+    "cest": "Europe/Paris",  # Central European Summer Time
     # Asia-Pacific
-    'hkt': 'Asia/Hong_Kong',  # Hong Kong Time
-    'ist': 'Asia/Kolkata',  # India Standard Time
-    'jst': 'Asia/Tokyo',  # Japan Standard Time
-    'aest': 'Australia/Sydney',  # Australian Eastern Standard Time
-    'aedt': 'Australia/Sydney',  # Australian Eastern Daylight Time
+    "hkt": "Asia/Hong_Kong",  # Hong Kong Time
+    "ist": "Asia/Kolkata",  # India Standard Time
+    "jst": "Asia/Tokyo",  # Japan Standard Time
+    "aest": "Australia/Sydney",  # Australian Eastern Standard Time
+    "aedt": "Australia/Sydney",  # Australian Eastern Daylight Time
     # TODO: find a way to fetch all timezones dynamically
 }
 
 
 class TimeCog(
     Cog,
-    name='Time',
-    description='Convert time in messages into UTC-based Discord timestamps.',
+    name="Time",
+    description="Convert time in messages into UTC-based Discord timestamps.",
 ):
     """
     A Discord Cog that listens for messages containing time expressions
@@ -95,12 +95,12 @@ class TimeCog(
         :rtype: str
         """
         # Handle relative dates
-        if 'today' in time_str:
-            date_str = now_utc.strftime('%Y-%m-%d')
-            time_str = time_str.replace('today', date_str)
-        elif 'tomorrow' in time_str:
-            date_str = (now_utc + timedelta(days=1)).strftime('%Y-%m-%d')
-            time_str = time_str.replace('tomorrow', date_str)
+        if "today" in time_str:
+            date_str = now_utc.strftime("%Y-%m-%d")
+            time_str = time_str.replace("today", date_str)
+        elif "tomorrow" in time_str:
+            date_str = (now_utc + timedelta(days=1)).strftime("%Y-%m-%d")
+            time_str = time_str.replace("tomorrow", date_str)
 
         return time_str
 

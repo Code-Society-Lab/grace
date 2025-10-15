@@ -1,6 +1,8 @@
-from asyncio import sleep as async_sleep, create_task, Task
+from asyncio import Task, create_task
+from asyncio import sleep as async_sleep
 from datetime import timedelta
 from typing import Optional
+
 from discord.ui import View
 
 
@@ -57,7 +59,7 @@ class TimedView(View):
     def start_timer(self):
         """Starts the view's timer task"""
         self.__timer_task = create_task(
-            self.__impl_timer_task(), name=f'grace-timed-view-timer-{self.id}'
+            self.__impl_timer_task(), name=f"grace-timed-view-timer-{self.id}"
         )
 
     def cancel_timer(self):

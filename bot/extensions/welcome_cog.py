@@ -1,7 +1,9 @@
-from discord.ext.commands import Cog, hybrid_command
 from logging import info
-from bot.models.channel import Channel
+
 from discord import Embed
+from discord.ext.commands import Cog, hybrid_command
+
+from bot.models.channel import Channel
 
 
 class WelcomeCog(Cog, name='Welcome', description='Welcomes new members'):
@@ -15,9 +17,9 @@ class WelcomeCog(Cog, name='Welcome', description='Welcomes new members'):
     @property
     def help_section(self):
         return self.__build_section(
-            ['posting_guidelines', 'help', 'resources'],
-            '### Looking for help?\n'
-            'If you need help, read the <#{}> and open a post in <#{}>.'
+            ["posting_guidelines", "help", "resources"],
+            "### Looking for help?\n"
+            "If you need help, read the <#{}> and open a post in <#{}>."
             "If you're looking for resources, checkout <#{}> or our [website](<https://resources.codesociety.xyz>).",
         )
 
@@ -27,10 +29,10 @@ class WelcomeCog(Cog, name='Welcome', description='Welcomes new members'):
             ['code-society-lab'],
             '### Looking for projects?\n'
             "If you're interested in contributing to open-source projects, "
-            'feel free to come chat with us in <#{}> or visite our [GitHub](<https://github.com/Code-Society-Lab>).\n'
-            '\n**Our latest projects**:\n'
-            '- [Grace Framework](<https://github.com/Code-Society-Lab/grace-framework>)\n'
-            '- [Matrix.py](<https://github.com/Code-Society-Lab/matrixpy>)\n',
+            "feel free to come chat with us in <#{}> or visite our [GitHub](<https://github.com/Code-Society-Lab>).\n"
+            "\n**Our latest projects**:\n"
+            "- [Grace Framework](<https://github.com/Code-Society-Lab/grace-framework>)\n"
+            "- [Matrix.py](<https://github.com/Code-Society-Lab/matrixpy>)\n",
         )
 
     def get_welcome_message(self, member):
@@ -43,7 +45,7 @@ class WelcomeCog(Cog, name='Welcome', description='Welcomes new members'):
         :rtype: str
         """
         return (
-            '\n\n'.join(
+            "\n\n".join(
                 filter(
                     None,
                     [
@@ -78,10 +80,10 @@ class WelcomeCog(Cog, name='Welcome', description='Welcomes new members'):
         :rtype: str
         """
         channel_ids = [
-            getattr(Channel.get_by(channel_name=n), 'channel_id', '')
+            getattr(Channel.find_by(channel_name=n), "channel_id", "")
             for n in channel_names
         ]
-        return message.format(*channel_ids) if all(channel_ids) else ''
+        return message.format(*channel_ids) if all(channel_ids) else ""
 
     @Cog.listener()
     async def on_member_update(self, before, after):
@@ -108,8 +110,8 @@ class WelcomeCog(Cog, name='Welcome', description='Welcomes new members'):
                 inline=False,
             )
             embed.set_footer(
-                text='https://github.com/Code-Society-Lab/grace',
-                icon_url='https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png',
+                text="https://github.com/Code-Society-Lab/grace",
+                icon_url="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png",
             )
 
             await welcome_channel.send(f'<@{after.id}>', embed=embed)
@@ -124,7 +126,7 @@ class WelcomeCog(Cog, name='Welcome', description='Welcomes new members'):
         info(f'{member.display_name} joined the server!')
 
     @hybrid_command(
-        name='welcome', description='Welcomes the person who issues the command'
+        name="welcome", description="Welcomes the person who issues the command"
     )
     async def welcome_command(self, ctx):
         """Send a welcome message to the person who issued the command.
@@ -140,8 +142,8 @@ class WelcomeCog(Cog, name='Welcome', description='Welcomes new members'):
             description=self.get_welcome_message(ctx.author),
         )
         embed.set_footer(
-            text='https://github.com/Code-Society-Lab/grace',
-            icon_url='https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png',
+            text="https://github.com/Code-Society-Lab/grace",
+            icon_url="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png",
         )
         await ctx.send(embed=embed, ephemeral=True)
 

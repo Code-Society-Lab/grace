@@ -1,19 +1,18 @@
 import re
-
 from typing import Optional
 
-from discord.ext.commands import Cog, command, Context
 from discord import Embed, Message
+from discord.ext.commands import Cog, Context, command
 
 from bot.extensions.command_error_handler import send_command_help
 from bot.services.mermaid_service import generate_mermaid_diagram
 
 
-class MermaidCog(Cog, name='Mermaid', description='Generates mermaid diagrams'):
+class MermaidCog(Cog, name="Mermaid", description="Generates mermaid diagrams"):
     def __init__(self, bot):
         self.bot = bot
-        self.mermaid_codeblock_pattern = r'```mermaid\n(.*?)```'
-        self.codeblock_pattern = r'```(?:\w+)?\n(.*?)```'
+        self.mermaid_codeblock_pattern = r"```mermaid\n(.*?)```"
+        self.codeblock_pattern = r"```(?:\w+)?\n(.*?)```"
 
     def generate_diagram_embed(self, diagram: str) -> Embed:
         """
@@ -77,12 +76,12 @@ class MermaidCog(Cog, name='Mermaid', description='Generates mermaid diagrams'):
         elif codeblock_match := re.search(self.codeblock_pattern, content, re.DOTALL):
             return codeblock_match.group(1).strip()
 
-        return ''
+        return ""
 
     @command(
-        name='mermaid',
-        help='Generate a diagram from mermaid script',
-        usage='՝՝՝\nMermaid script goes here...\n՝՝՝',
+        name="mermaid",
+        help="Generate a diagram from mermaid script",
+        usage="՝՝՝\nMermaid script goes here...\n՝՝՝",
     )
     async def mermaid(self, ctx: Context, *, content: Optional[str]):
         """Generates a mermaid diagram

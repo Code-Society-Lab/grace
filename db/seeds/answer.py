@@ -25,10 +25,10 @@ def seed_database():
         'Cannot predict now.',
         'Concentrate and ask again.',
         "Don't Count on it.",
-        'My reply is No.',
-        'My sources say No.',
-        'Outlook not so good.',
-        'Very Doubtful',
+        "My reply is No.",
+        "My sources say No.",
+        "Outlook not so good.",
+        "Very Doubtful",
     ]
 
     for answer in initial_answers:

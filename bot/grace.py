@@ -1,9 +1,11 @@
-from grace.bot import Bot
 from logging import info, warning
-from discord import Intents, Colour, Activity, ActivityType
+
+from discord import Activity, ActivityType, Colour, Intents
 from pretty_help import PrettyHelp
+
 from bot.models.channel import Channel
 from bot.models.extension import Extension
+from grace.bot import Bot
 
 
 class Grace(Bot):
@@ -11,7 +13,7 @@ class Grace(Bot):
         super().__init__(
             app,
             intents=Intents.all(),
-            activity=Activity(type=ActivityType.playing, name='::help'),
+            activity=Activity(type=ActivityType.playing, name="::help"),
         )
 
         self.help_command = PrettyHelp(color=self.default_color)
@@ -21,7 +23,7 @@ class Grace(Bot):
         return Colour.from_str(self.config.get('default_color'))
 
     def get_channel_by_name(self, name):
-        channel = Channel.get_by(channel_name=name)
+        channel = Channel.find_by(channel_name=name)
 
         if channel:
             return self.get_channel(channel.channel_id)
@@ -29,10 +31,10 @@ class Grace(Bot):
 
     async def load_extensions(self):
         for module in self.app.extension_modules:
-            extension = Extension.get_by(module_name=module)
+            extension = Extension.where(module_name=module).first()
 
             if not extension:
-                warning(f'{module} is not registered. Registering the extension.')
+                warning(f"{module} is not registered. Registering the extension.")
                 extension = Extension.create(module_name=module)
 
             if not extension.should_be_loaded():
