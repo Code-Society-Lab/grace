@@ -4,19 +4,13 @@ from pytz import timezone
 
 from discord import Embed, Interaction, TextStyle
 from discord.app_commands import Choice, autocomplete
-from discord.ext.commands import Cog, Context, has_permissions, hybrid_group
+
 from discord.ui import Modal, TextInput
-from discord.ext.commands import (
-    Cog,
-    has_permissions,
-    hybrid_group,
-    Context
-)
+from discord.ext.commands import Cog, has_permissions, hybrid_group, Context
 
 from bot.models.extensions.thread import Thread
 from bot.classes.recurrence import Recurrence
 from bot.extensions.command_error_handler import send_command_help
-from bot.models.extensions.thread import Thread
 from lib.config_required import cog_config_required
 
 
@@ -62,20 +56,20 @@ class ThreadModal(Modal, title="Thread"):
             title=self.thread_title.value,
             content=self.thread_content.value,
             recurrence=self.thread_recurrence,
+            daily_reminder=self.thread_reminder,
         )
-        thread.daily_reminder = self.thread_reminder
 
         await interaction.response.send_message(
             f"Thread __**{thread.id}**__ created!", ephemeral=True
         )
 
     async def update_thread(self, interaction: Interaction):
-        self.thread.title = self.thread_title.value
-        self.thread.content = self.thread_content.value
-        self.thread.recurrence = self.thread_recurrence
-        self.thread.daily_reminder = self.thread_reminder
-
-        self.thread.save()
+        self.thread.update(
+            title=self.thread_title.value,
+            content=self.thread_content.value,
+            recurrence=self.thread_recurrence,
+            daily_reminder=self.thread_reminder,
+        )
 
         await interaction.response.send_message(
             f"Thread __**{self.thread.id}**__ updated!", ephemeral=True
@@ -142,11 +136,7 @@ class ThreadsCog(Cog, name="Threads"):
         # Runs reminders everyday at 12:30
         self.jobs.append(
             self.bot.scheduler.add_job(
-                self.daily_reminder,
-                "cron",
-                hour=12,
-                minute=30,
-                timezone=self.timezone
+                self.daily_reminder, "cron", hour=12, minute=30, timezone=self.timezone
             )
         )
 
@@ -157,67 +147,26 @@ class ThreadsCog(Cog, name="Threads"):
         embed = Embed(
             color=self.bot.default_color,
             title="🔔 Daily Reminder",
-            description="Join the discussion in the latest active threads:"
+            description="Join the discussion in the latest active threads:",
         )
 
         if threads := Thread.all():
             for thread in threads:
-                discord_thread = await self.bot.fetch_channel(
-                    int(thread.latest_thread)
-                )
-                if getattr(discord_thread, "archived", False) \
-                        or getattr(discord_thread, "locked", False):
-                    continue  # Skip archieved and locked threads
-
-                if hasattr(thread, "latest_thread") \
-                        and thread.latest_thread and thread.daily_reminder:
-                    embed.add_field(
-                        name="",
-                        value=f"- <#{thread.latest_thread}>",
-                        inline=False
+                if (
+                    hasattr(thread, "latest_thread")
+                    and thread.latest_thread
+                    and thread.daily_reminder
+                ):
+                    discord_thread = await self.bot.fetch_channel(
+                        int(thread.latest_thread)
                     )
+                    if getattr(discord_thread, "archived", False) or getattr(
+                        discord_thread, "locked", False
+                    ):
+                        continue  # Skip archieved and locked threads
 
-        if embed.fields:
-            channel = self.bot.get_channel(self.threads_channel_id)
-            if channel:
-                await channel.send(embed=embed)
-
-        # Runs reminders everyday at 12:30
-        self.jobs.append(
-            self.bot.scheduler.add_job(
-                self.daily_reminder,
-                'cron',
-                hour=12,
-                minute=30,
-                timezone=self.timezone
-            )
-        )
-
-    async def daily_reminder(self):
-        """Send a daily reminder for active threads."""
-        info("Posting daily threads's reminder")
-
-        embed = Embed(
-            color=self.bot.default_color,
-            title="🔔 Daily Reminder",
-            description="Join the discussion in the latest active threads:"
-        )
-
-        if threads := Thread.all():
-            for thread in threads:
-                discord_thread = await self.bot.fetch_channel(
-                    int(thread.latest_thread)
-                )
-                if getattr(discord_thread, "archived", False) \
-                        or getattr(discord_thread, "locked", False):
-                    continue  # Skip archieved and locked threads
-
-                if hasattr(thread, "latest_thread") \
-                        and thread.latest_thread and thread.daily_reminder:
                     embed.add_field(
-                        name="",
-                        value=f"- <#{thread.latest_thread}>",
-                        inline=False
+                        name="", value=f"- <#{thread.latest_thread}>", inline=False
                     )
 
         if embed.fields:
@@ -283,7 +232,7 @@ class ThreadsCog(Cog, name="Threads"):
                         f"**Recurrence**: {thread.recurrence}\n"
                         f"**Reminder**: {thread.daily_reminder}"
                     ),
-                    inline=False
+                    inline=False,
                 )
         else:
             embed.add_field(name="No threads", value="")
