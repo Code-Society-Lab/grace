@@ -1,8 +1,8 @@
-from sqlalchemy import Column, Integer, Text
+from sqlalchemy import Text
 
 from bot.classes.recurrence import Recurrence
 from grace.model import Field, Model
-
+from lib.fields import EnumField
 
 class Thread(Model):
     __tablename__ = "threads"
@@ -10,7 +10,7 @@ class Thread(Model):
     id: int | None = Field(default=None, primary_key=True)
     title: str
     content: str = Field(sa_type=Text)
-    recurrence: Recurrence = Field(sa_column=Column(Integer))
+    recurrence: Recurrence = EnumField(Recurrence, default=Recurrence.NONE)
 
     @classmethod
     def find_by_recurrence(cls, recurrence: Recurrence) -> "Recurrence":

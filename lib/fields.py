@@ -16,9 +16,9 @@ class IntEnumType(TypeDecorator):
     def process_bind_param(self, value, dialect):
         if value is None:
             return None
-        if isinstance(value, int):  # 👈 new safeguard
+        if isinstance(value, int):
             return value
-        return value.value  # Enum instance
+        return value.value
 
     def process_result_value(self, value, dialect):
         return self.enumtype(value) if value is not None else None
