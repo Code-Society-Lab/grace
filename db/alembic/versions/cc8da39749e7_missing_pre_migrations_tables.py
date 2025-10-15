@@ -5,13 +5,13 @@ Revises: f8ac0bbc34ac
 Create Date: 2025-09-16 00:17:25.001017
 
 """
-from alembic import op
-import sqlalchemy as sa
 
+import sqlalchemy as sa
+from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = 'cc8da39749e7'
-down_revision = 'f8ac0bbc34ac'
+revision = "cc8da39749e7"
+down_revision = "f8ac0bbc34ac"
 branch_labels = None
 depends_on = None
 
@@ -23,26 +23,14 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), primary_key=True, nullable=False),
         sa.Column("module_name", sa.String(255), nullable=False, unique=True),
         sa.Column("state", sa.Integer(), nullable=True, server_default="1"),
-        if_not_exists=True,
     )
 
     # --- channels table ---
     op.create_table(
         "channels",
-        sa.Column(
-            "channel_name",
-            sa.String(255),
-            primary_key=True,
-            nullable=False
-        ),
-        sa.Column(
-            "channel_id",
-            sa.BigInteger(),
-            primary_key=True,
-            nullable=False
-        ),
+        sa.Column("channel_name", sa.String(255), primary_key=True, nullable=False),
+        sa.Column("channel_id", sa.BigInteger(), primary_key=True, nullable=False),
         sa.UniqueConstraint("channel_name", "channel_id", name="uq_id_cn_cid"),
-        if_not_exists=True,
     )
 
     # ensure there’s always a single settings row
@@ -59,7 +47,6 @@ def upgrade() -> None:
         "answers",
         sa.Column("id", sa.Integer(), primary_key=True, nullable=False),
         sa.Column("answer", sa.String(255), nullable=False),
-        if_not_exists=True,
     )
 
     # --- triggers table ---
@@ -69,7 +56,6 @@ def upgrade() -> None:
         sa.Column("name", sa.String(255), unique=True),
         sa.Column("positive_emoji_code", sa.String(255), nullable=False),
         sa.Column("negative_emoji_code", sa.String(255), nullable=False),
-        if_not_exists=True,
     )
 
     # --- trigger_words table ---
@@ -80,10 +66,9 @@ def upgrade() -> None:
             sa.Integer(),
             sa.ForeignKey("triggers.id"),
             primary_key=True,
-            nullable=False
+            nullable=False,
         ),
         sa.Column("word", sa.String(255), primary_key=True, nullable=False),
-        if_not_exists=True,
     )
 
 

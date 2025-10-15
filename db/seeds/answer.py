@@ -28,7 +28,7 @@ def seed_database():
         "My reply is No.",
         "My sources say No.",
         "Outlook not so good.",
-        "Very Doubtful"
+        "Very Doubtful",
     ]
 
     for answer in initial_answers:

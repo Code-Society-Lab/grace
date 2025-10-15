@@ -1,7 +1,9 @@
-from discord.ext.commands import Cog, hybrid_command
 from logging import info
-from bot.models.channel import Channel
+
 from discord import Embed
+from discord.ext.commands import Cog, hybrid_command
+
+from bot.models.channel import Channel
 
 
 class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
@@ -18,7 +20,7 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
             ["posting_guidelines", "help", "resources"],
             "### Looking for help?\n"
             "If you need help, read the <#{}> and open a post in <#{}>."
-            "If you're looking for resources, checkout <#{}> or our [website](<https://resources.codesociety.xyz>)."
+            "If you're looking for resources, checkout <#{}> or our [website](<https://resources.codesociety.xyz>).",
         )
 
     @property
@@ -30,7 +32,7 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
             "feel free to come chat with us in <#{}> or visite our [GitHub](<https://github.com/Code-Society-Lab>).\n"
             "\n**Our latest projects**:\n"
             "- [Grace Framework](<https://github.com/Code-Society-Lab/grace-framework>)\n"
-            "- [Matrix.py](<https://github.com/Code-Society-Lab/matrixpy>)\n"
+            "- [Matrix.py](<https://github.com/Code-Society-Lab/matrixpy>)\n",
         )
 
     def get_welcome_message(self, member):
@@ -42,11 +44,20 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
         :return: The welcome message for the given member.
         :rtype: str
         """
-        return "\n\n".join(filter(None, [
-            self.BASE_WELCOME_MESSAGE,
-            self.help_section,
-            self.project_section,
-        ])).strip().format(member_name=member.display_name)
+        return (
+            "\n\n".join(
+                filter(
+                    None,
+                    [
+                        self.BASE_WELCOME_MESSAGE,
+                        self.help_section,
+                        self.project_section,
+                    ],
+                )
+            )
+            .strip()
+            .format(member_name=member.display_name)
+        )
 
     def __build_section(self, channel_names, message):
         """Builds a section of the welcome message by replacing placeholders with corresponding channel IDs.
@@ -66,7 +77,10 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
         :return: The constructed section of the welcome message with channel IDs inserted.
         :rtype: str
         """
-        channel_ids = [getattr(Channel.get_by(channel_name=n), "channel_id", "") for n in channel_names]
+        channel_ids = [
+            getattr(Channel.find_by(channel_name=n), "channel_id", "")
+            for n in channel_names
+        ]
         return message.format(*channel_ids) if all(channel_ids) else ""
 
     @Cog.listener()
@@ -90,9 +104,12 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
             embed.add_field(
                 name="Welcome to **The Code Society Server**",
                 value=self.get_welcome_message(after),
-                inline=False
+                inline=False,
             )
-            embed.set_footer(text="https://github.com/Code-Society-Lab/grace", icon_url="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png")
+            embed.set_footer(
+                text="https://github.com/Code-Society-Lab/grace",
+                icon_url="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png",
+            )
 
             await welcome_channel.send(f"<@{after.id}>", embed=embed)
 
@@ -105,7 +122,9 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
         """
         info(f"{member.display_name} joined the server!")
 
-    @hybrid_command(name="welcome", description="Welcomes the person who issues the command")
+    @hybrid_command(
+        name="welcome", description="Welcomes the person who issues the command"
+    )
     async def welcome_command(self, ctx):
         """Send a welcome message to the person who issued the command.
 
@@ -119,7 +138,10 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
             title="Welcome to **The Code Society Server**",
             description=self.get_welcome_message(ctx.author),
         )
-        embed.set_footer(text="https://github.com/Code-Society-Lab/grace", icon_url="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png")
+        embed.set_footer(
+            text="https://github.com/Code-Society-Lab/grace",
+            icon_url="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png",
+        )
         await ctx.send(embed=embed, ephemeral=True)
 
 

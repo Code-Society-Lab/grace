@@ -1,19 +1,20 @@
-from datetime import timedelta
-from sqlalchemy import Text, Column, Integer, DateTime
-from sqlalchemy.orm import relationship
-from grace.model import Model
-from bot import app
-from bot.models.extensions.language.pun_word import PunWord
+from datetime import datetime, timedelta
+from typing import List
+
 from bot.models.bot import BotSettings
+from bot.models.extensions.language.pun_word import PunWord
+from grace.model import Field, Model, Relationship
 
 
-class Pun(app.base, Model):
+class Pun(Model):
     __tablename__ = "puns"
 
-    id = Column(Integer, primary_key=True)
-    text = Column(Text(), unique=True)
-    last_invoked = Column(DateTime)
-    pun_words = relationship("PunWord", lazy="dynamic", cascade="all, delete-orphan")
+    id: int | None = Field(default=None, primary_key=True)
+    text: str = Field(sa_column_kwargs={"unique": True})
+    last_invoked: datetime | None = Field(default=None)
+    pun_words: List["PunWord"] = Relationship(
+        back_populates="pun", sa_relationship_kwargs={"lazy": "selectin"}
+    )
 
     @property
     def words(self):
@@ -21,7 +22,7 @@ class Pun(app.base, Model):
             yield pun_word.word
 
     def has_word(self, word):
-        return self.pun_words.filter(PunWord.word == word).count() > 0
+        return self.pun_words.where(word=word).count() > 0
 
     def add_pun_word(self, pun_word, emoji_code):
         PunWord(pun_id=self.id, word=pun_word, emoji_code=emoji_code).save()

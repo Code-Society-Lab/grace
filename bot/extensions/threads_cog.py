@@ -1,8 +1,10 @@
 import traceback
 from logging import info
 from pytz import timezone
-from discord import Interaction, Embed, TextStyle
+
+from discord import Embed, Interaction, TextStyle
 from discord.app_commands import Choice, autocomplete
+from discord.ext.commands import Cog, Context, has_permissions, hybrid_group
 from discord.ui import Modal, TextInput
 from discord.ext.commands import (
     Cog,
@@ -10,9 +12,11 @@ from discord.ext.commands import (
     hybrid_group,
     Context
 )
+
 from bot.models.extensions.thread import Thread
 from bot.classes.recurrence import Recurrence
 from bot.extensions.command_error_handler import send_command_help
+from bot.models.extensions.thread import Thread
 from lib.config_required import cog_config_required
 
 
@@ -28,7 +32,7 @@ class ThreadModal(Modal, title="Thread"):
         label="Content",
         placeholder="The content of the thread...",
         min_length=10,
-        style=TextStyle.paragraph
+        style=TextStyle.paragraph,
     )
 
     def __init__(
@@ -57,13 +61,12 @@ class ThreadModal(Modal, title="Thread"):
         thread = Thread.create(
             title=self.thread_title.value,
             content=self.thread_content.value,
-            recurrence=self.thread_recurrence
+            recurrence=self.thread_recurrence,
         )
         thread.daily_reminder = self.thread_reminder
 
         await interaction.response.send_message(
-            f'Thread __**{thread.id}**__ created!',
-            ephemeral=True
+            f"Thread __**{thread.id}**__ created!", ephemeral=True
         )
 
     async def update_thread(self, interaction: Interaction):
@@ -75,14 +78,12 @@ class ThreadModal(Modal, title="Thread"):
         self.thread.save()
 
         await interaction.response.send_message(
-            f'Thread __**{self.thread.id}**__ updated!',
-            ephemeral=True
+            f"Thread __**{self.thread.id}**__ updated!", ephemeral=True
         )
 
     async def on_error(self, interaction: Interaction, error: Exception):
         await interaction.response.send_message(
-            'Oops! Something went wrong.',
-            ephemeral=True
+            "Oops! Something went wrong.", ephemeral=True
         )
         traceback.print_exception(type(error), error, error.__traceback__)
 
@@ -108,33 +109,78 @@ class ThreadsCog(Cog, name="Threads"):
 
     def cog_load(self):
         # Runs everyday at 18:30
-        self.jobs.append(self.bot.scheduler.add_job(
-            self.daily_post,
-            'cron',
-            hour=18,
-            minute=30,
-            timezone=self.timezone
-        ))
+        self.jobs.append(
+            self.bot.scheduler.add_job(
+                self.daily_post, "cron", hour=18, minute=30, timezone=self.timezone
+            )
+        )
 
         # Runs every monday at 18:30
-        self.jobs.append(self.bot.scheduler.add_job(
-            self.weekly_post,
-            'cron',
-            day_of_week='mon',
-            hour=18,
-            minute=30,
-            timezone=self.timezone
-        ))
+        self.jobs.append(
+            self.bot.scheduler.add_job(
+                self.weekly_post,
+                "cron",
+                day_of_week="mon",
+                hour=18,
+                minute=30,
+                timezone=self.timezone,
+            )
+        )
 
         # Runs on the 1st of every month at 18:30
-        self.jobs.append(self.bot.scheduler.add_job(
-            self.monthly_post,
-            'cron',
-            day=1,
-            hour=18,
-            minute=30,
-            timezone=self.timezone
-        ))
+        self.jobs.append(
+            self.bot.scheduler.add_job(
+                self.monthly_post,
+                "cron",
+                day=1,
+                hour=18,
+                minute=30,
+                timezone=self.timezone,
+            )
+        )
+
+        # Runs reminders everyday at 12:30
+        self.jobs.append(
+            self.bot.scheduler.add_job(
+                self.daily_reminder,
+                "cron",
+                hour=12,
+                minute=30,
+                timezone=self.timezone
+            )
+        )
+
+    async def daily_reminder(self):
+        """Send a daily reminder for active threads."""
+        info("Posting daily threads's reminder")
+
+        embed = Embed(
+            color=self.bot.default_color,
+            title="🔔 Daily Reminder",
+            description="Join the discussion in the latest active threads:"
+        )
+
+        if threads := Thread.all():
+            for thread in threads:
+                discord_thread = await self.bot.fetch_channel(
+                    int(thread.latest_thread)
+                )
+                if getattr(discord_thread, "archived", False) \
+                        or getattr(discord_thread, "locked", False):
+                    continue  # Skip archieved and locked threads
+
+                if hasattr(thread, "latest_thread") \
+                        and thread.latest_thread and thread.daily_reminder:
+                    embed.add_field(
+                        name="",
+                        value=f"- <#{thread.latest_thread}>",
+                        inline=False
+                    )
+
+        if embed.fields:
+            channel = self.bot.get_channel(self.threads_channel_id)
+            if channel:
+                await channel.send(embed=embed)
 
         # Runs reminders everyday at 12:30
         self.jobs.append(
@@ -207,9 +253,7 @@ class ThreadsCog(Cog, name="Threads"):
         content = f"<@&{role_id}>" if role_id else None
 
         embed = Embed(
-            color=self.bot.default_color,
-            title=thread.title,
-            description=thread.content
+            color=self.bot.default_color, title=thread.title, description=thread.content
         )
 
         if channel:
@@ -229,10 +273,7 @@ class ThreadsCog(Cog, name="Threads"):
     @threads_group.command(help="List all threads")
     @has_permissions(administrator=True)
     async def list(self, ctx: Context):
-        embed = Embed(
-            color=self.bot.default_color,
-            title="Threads"
-        )
+        embed = Embed(color=self.bot.default_color, title="Threads")
 
         if threads := Thread.all():
             for thread in threads:
@@ -264,7 +305,7 @@ class ThreadsCog(Cog, name="Threads"):
     @has_permissions(administrator=True)
     @autocomplete(thread=thread_autocomplete)
     async def delete(self, ctx: Context, thread: int):
-        if thread := Thread.get(thread):
+        if thread := Thread.find(thread):
             thread.delete()
             await ctx.send("Thread successfully deleted!", ephemeral=True)
         else:
@@ -280,7 +321,7 @@ class ThreadsCog(Cog, name="Threads"):
         recurrence: Recurrence,
         reminder: bool,
     ):
-        if thread := Thread.get(thread):
+        if thread := Thread.find(thread):
             modal = ThreadModal(recurrence, reminder=reminder, thread=thread)
             await ctx.interaction.response.send_modal(modal)
         else:
@@ -292,12 +333,10 @@ class ThreadsCog(Cog, name="Threads"):
     async def post(self, ctx: Context, thread: int):
         if ctx.interaction:
             await ctx.interaction.response.send_message(
-                content="Opening thread!",
-                delete_after=0,
-                ephemeral=True
+                content="Opening thread!", delete_after=0, ephemeral=True
             )
 
-        if thread := Thread.get(thread):
+        if thread := Thread.find(thread):
             await self.post_thread(thread)
         else:
             await self.send("Thread not found!")

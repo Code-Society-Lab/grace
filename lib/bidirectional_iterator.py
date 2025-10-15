@@ -1,4 +1,4 @@
-from typing import List, TypeVar, Generic, Iterator, Optional
+from typing import Generic, Iterator, List, Optional, TypeVar
 
 T = TypeVar("T")
 
@@ -10,6 +10,7 @@ class BidirectionalIterator(Generic[T]):
     :param collection: An optional collection of items, default to an empty List.
     :type collection: Optional[List[T]]
     """
+
     def __init__(self, collection: Optional[List[T]]):
         self.__collection: List[T] = collection or []
         self.__position: int = 0

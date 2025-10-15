@@ -17,5 +17,6 @@ def seed_database():
     }
 
     for channel_name in initial_channels:
-        Channel.create(channel_name=channel_name, channel_id=initial_channels.get(channel_name))
-
+        Channel.create(
+            channel_name=channel_name, channel_id=initial_channels.get(channel_name)
+        )
