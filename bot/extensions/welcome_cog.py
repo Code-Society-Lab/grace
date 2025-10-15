@@ -1,6 +1,6 @@
 from logging import info
 
-from discord import Embed
+from discord import Embed, Member
 from discord.ext.commands import Cog, hybrid_command
 
 from bot.models.channel import Channel
@@ -35,7 +35,7 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
             "- [Matrix.py](<https://github.com/Code-Society-Lab/matrixpy>)\n",
         )
 
-    def get_welcome_message(self, member):
+    def get_welcome_message(self, member: Member):
         """Return the welcome message for the given member.
 
         :param member: The member to welcome.
@@ -66,16 +66,17 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
         The message needs to contain empty ({}) or numbered ({index})
         placeholders to indicate where the channel IDs will be inserted.
 
-        IMPORTANT: The section will return an empty unless all the channels are found.
+        IMPORTANT: The section will return an empty unless all the channels
+        are found.
 
-        :param channel_names: The names of the channels to include in the section.
+        :param channel_names: Names of the channels to include in the section.
         :type channel_names: List[str]
 
         :param message: A string containing placeholders ({}) or {index}
                         indicating where the channel IDs will be inserted.
-        :type channel_names: str
+        :type message: str
 
-        :return: The constructed section of the welcome message
+        :return: Constructed section of the welcome message
         with channel IDs inserted.
         :rtype: str
         """
@@ -84,6 +85,26 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
             for n in channel_names
         ]
         return message.format(*channel_ids) if all(channel_ids) else ""
+
+    def __build_embed(self, member: Member) -> Embed:
+        """Builds a Discord embed with the given title and description.
+
+        :param member: The member to welcome.
+        :type member: discord.Member
+
+        :return: The constructed Discord embed.
+        :rtype: discord.Embed
+        """
+        embed = Embed(
+            color=self.bot.default_color,
+            title="Welcome to **The Code Society Server**",
+            description=self.get_welcome_message(member),
+        )
+        embed.set_footer(
+            text="https://github.com/Code-Society-Lab/grace",
+            icon_url="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png",
+        )
+        return embed
 
     @Cog.listener()
     async def on_member_update(self, before, after):
@@ -98,21 +119,11 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
         if not before.bot and (before.pending and not after.pending):
             info(f"{after.display_name} accepted the rules!")
 
-            embed = Embed(color=self.bot.default_color)
+            embed = self.__build_embed(after)
             welcome_channel = self.bot.get_channel_by_name("welcome")
 
             if not welcome_channel:
                 welcome_channel = before.guild.system_channel
-
-            embed.add_field(
-                name="Welcome to **The Code Society Server**",
-                value=self.get_welcome_message(after),
-                inline=False,
-            )
-            embed.set_footer(
-                text="https://github.com/Code-Society-Lab/grace",
-                icon_url="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png",
-            )
 
             await welcome_channel.send(f"<@{after.id}>", embed=embed)
 
@@ -136,15 +147,7 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
         """
         info(f"{ctx.author.display_name} asked to get welcomed!")
 
-        embed = Embed(
-            color=self.bot.default_color,
-            title="Welcome to **The Code Society Server**",
-            description=self.get_welcome_message(ctx.author),
-        )
-        embed.set_footer(
-            text="https://github.com/Code-Society-Lab/grace",
-            icon_url="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png",
-        )
+        embed = self.__build_embed(ctx.author)
         await ctx.send(embed=embed, ephemeral=True)
 
 
