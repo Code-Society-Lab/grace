@@ -1,16 +1,23 @@
+from typing import TYPE_CHECKING
+
 from emoji import emojize
-from sqlalchemy import Integer, String, Column, ForeignKey
-from grace.model import Model
-from bot import app
+
+from grace.model import Field, Model, Relationship
+
+if TYPE_CHECKING:
+    from bot.models.extensions.language.pun import Pun
 
 
-class PunWord(app.base, Model):
-    __tablename__ = 'pun_words'
+class PunWord(Model):
+    __tablename__ = "pun_words"
 
-    id  = Column(Integer, primary_key=True)
-    pun_id = Column(ForeignKey("puns.id"))
-    word = Column(String(255), nullable=False)
-    emoji_code = Column(String(255))
+    id: int | None = Field(default=None, primary_key=True)
+    pun_id: int = Field(foreign_key="puns.id")
+    word: str = Field(max_length=255)
+    emoji_code: str | None = Field(default=None, max_length=255)
+    pun: "Pun" = Relationship(
+        back_populates="pun_words", sa_relationship_kwargs={"lazy": "selectin"}
+    )
 
     def emoji(self):
-        return emojize(self.emoji_code, language='alias')
+        return emojize(self.emoji_code, language="alias")

@@ -1,8 +1,10 @@
-from discord.ext.commands import Cog, has_permissions, hybrid_group, Context
-from discord import Message, Embed
 from logging import warning
-from nltk.tokenize import TweetTokenizer
+
+from discord import Embed, Message
+from discord.ext.commands import Cog, Context, has_permissions, hybrid_group
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
+from nltk.tokenize import TweetTokenizer
+
 from bot.models.extensions.language.trigger import Trigger
 
 
@@ -35,23 +37,25 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
         # negatively about something. We run the while message through vader and if the aggregated
         # score is ultimately negative, neutral, or positive
         sv = self.sid.polarity_scores(message.content)
-        if sv['neu'] + sv['pos'] < sv['neg'] or sv['pos'] == 0.0:
-            if sv['neg'] > sv['pos']:
+        if sv["neu"] + sv["pos"] < sv["neg"] or sv["pos"] == 0.0:
+            if sv["neg"] > sv["pos"]:
                 return -1
             return 0
-        return 1;
+        return 1
 
     async def name_react(self, message: Message) -> None:
         """
         Checks message sentiment and if the sentiment is neutral or positive,
         react with a positive_emoji, otherwise react with negative_emoji
         """
-        grace_trigger = Trigger.get_by(name="Grace")
+        grace_trigger = Trigger.find_by(name="Grace")
         if grace_trigger is None:
-            warning("Missing trigger entry for \"Grace\"")
+            warning('Missing trigger entry for "Grace"')
             return
 
-        if self.bot.user.mentioned_in(message) and not message.content.startswith('<@!'):
+        if self.bot.user.mentioned_in(message) and not message.content.startswith(
+            "<@!"
+        ):
             # Note: the trigger needs to have a None-condition now that it's generic
             if self.get_message_sentiment_polarity(message) >= 0:
                 await message.add_reaction(grace_trigger.positive_emoji)
@@ -67,35 +71,42 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
         :param message: A discord message to check for references to our lord and savior.
         :type message: discord.Message
         """
-        linus_trigger = Trigger.get_by(name="Linus")
+        linus_trigger = Trigger.find_by(name="Linus")
         if linus_trigger is None:
-            warning("Missing trigger entry for \"Linus\"")
+            warning('Missing trigger entry for "Linus"')
             return
 
         message_tokens = self.tokenizer.tokenize(message.content)
         tokenlist = list(map(lambda s: s.lower(), message_tokens))
-        linustarget = [i for i, x in enumerate(
-            tokenlist) if x in linus_trigger.words]
+        linustarget = [i for i, x in enumerate(tokenlist) if x in linus_trigger.words]
         # Get the indices of all linuses in the message
 
         if linustarget:
             fail = False
             for linusindex in linustarget:
                 try:
-                    if tokenlist[linusindex + 1] == 'tech' and tokenlist[linusindex + 2] == 'tips':
+                    if (
+                        tokenlist[linusindex + 1] == "tech"
+                        and tokenlist[linusindex + 2] == "tips"
+                    ):
                         fail = True
-                    elif tokenlist[linusindex + 1] == 'and' and tokenlist[linusindex + 2] == 'lucy':
+                    elif (
+                        tokenlist[linusindex + 1] == "and"
+                        and tokenlist[linusindex + 2] == "lucy"
+                    ):
                         fail = True
                 except IndexError:
                     pass
 
-                determined_sentiment_polarity = self.get_message_sentiment_polarity(message)
+                determined_sentiment_polarity = self.get_message_sentiment_polarity(
+                    message
+                )
 
                 if not fail and determined_sentiment_polarity < 0:
                     await message.add_reaction(linus_trigger.negative_emoji)
                     return
 
-                fail = (determined_sentiment_polarity < 1)
+                fail = determined_sentiment_polarity < 1
 
             if not fail:
                 await message.add_reaction(linus_trigger.positive_emoji)
@@ -104,10 +115,10 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
     async def on_message(self, message: Message) -> None:
         """A listener function that calls the `penguin_react`, `name_react`, and `pun_react` functions when a message
         is received.
-         
+
          :param message: The message that was received.
          :type message: discord.Message
-         """
+        """
         await self.penguin_react(message)
         await self.name_react(message)
 
@@ -120,15 +131,15 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
         :type ctx: discord.ext.commands.Context
         """
         if ctx.invoked_subcommand is None:
-            trigger = Trigger.get_by(name="Linus")
+            trigger = Trigger.find_by(name="Linus")
             if trigger is None:
-                warning("Missing trigger entry for \"Linus\"")
+                warning('Missing trigger entry for "Linus"')
                 return
 
             embed = Embed(
                 color=self.bot.default_color,
-                title=f"Triggers",
-                description="\n".join(trigger.words)
+                title="Triggers",
+                description="\n".join(trigger.words),
             )
 
             await ctx.send(embed=embed)
@@ -143,7 +154,7 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
         :param new_word: The new trigger word to be added.
         :type new_word: str
         """
-        trigger = Trigger.get_by(name="Linus")
+        trigger = Trigger.find_by(name="Linus")
 
         if trigger:
             if new_word in trigger.words:
@@ -155,7 +166,9 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
         else:
             await ctx.send(f"Unable to add **{new_word}**")
 
-    @triggers_group.command(name="remove", help="Remove a trigger word", usage="{old_word}")
+    @triggers_group.command(
+        name="remove", help="Remove a trigger word", usage="{old_word}"
+    )
     @has_permissions(administrator=True)
     async def remove_trigger_word(self, ctx: Context, old_word: str) -> None:
         """Remove an existing trigger word.
@@ -165,7 +178,7 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
         :param old_word: The trigger word to be removed.
         :type old_word: str
         """
-        trigger = Trigger.get_by(name="Linus")
+        trigger = Trigger.find_by(name="Linus")
 
         if trigger:
             if old_word not in trigger.words:
