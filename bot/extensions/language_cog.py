@@ -10,13 +10,17 @@ from bot.models.extensions.language.trigger import Trigger
 
 class LanguageCog(Cog, name="Language", description="Analyze and reacts to messages"):
     def __init__(self, bot):
-        """
-        I know not everyone working here is familiar with NLTK, so I'll explain some terminology.
-        Not to be confused with Auth Tokens, tokenization just means splitting the natural language
-        into discrete meaningful chunks, usually it's words, but words like "it's" or "ain't" will be
-        split into "it is" and "are not".
-        We're using the casual tokenizer for now, but it can be changed down the line so long as you're
-        aware of any new behaviors. https://www.nltk.org/api/nltk.tokenize.html
+        """I know not everyone working here is familiar with NLTK,
+        so I'll explain some terminology.
+
+        Not to be confused with Auth Tokens, tokenization just means
+        splitting the natural language into discrete meaningful chunks,
+        usually it's words, but words like "it's" or "ain't" will be split
+        into "it is" and "are not".
+
+        We're using the casual tokenizer for now,
+        but it can be changed down the line so long as you're aware
+        of any new behaviors. https://www.nltk.org/api/nltk.tokenize.html
         """
         self.bot = bot
 
@@ -33,9 +37,10 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
              0 iff the message is neutral
              1 iff the message is more positive than negative
         """
-        # Here we're using the VADER algorithm to determine if the message sentiment is speaking
-        # negatively about something. We run the while message through vader and if the aggregated
-        # score is ultimately negative, neutral, or positive
+        # Here we're using the VADER algorithm
+        # The purpose is to determine if the message sentiment is speaking
+        # negatively about something. We run the while message through vader
+        # and if the aggregated score is ultimately negative, neutral, or positive
         sv = self.sid.polarity_scores(message.content)
         if sv["neu"] + sv["pos"] < sv["neg"] or sv["pos"] == 0.0:
             if sv["neg"] > sv["pos"]:
@@ -63,12 +68,16 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
             await message.add_reaction(grace_trigger.negative_emoji)
 
     async def penguin_react(self, message: Message) -> None:
-        """Checks to see if a message contains a reference to Linus (torvalds only), will be made more complicated
-        as needed. If a linus reference is positively identified, Grace will react with a penguin emoji.
-        I know using NLTK is kinda like bringing a tomahawk missile to a knife fight, but it may come in handy for
+        """Checks to see if a message contains a reference to Linus (torvalds only),
+        will be made more complicated as needed.
+        If a linus reference is positively identified, Grace will react
+        with a penguin emoji.
+        I know using NLTK is kinda like bringing a tomahawk missile to a knife fight,
+        but it may come in handy for
         future tasks, so the tokenizer object will be shared across all methods.
 
-        :param message: A discord message to check for references to our lord and savior.
+        :param message: A discord message to check for references
+        to our lord and savior.
         :type message: discord.Message
         """
         linus_trigger = Trigger.find_by(name="Linus")
@@ -113,7 +122,8 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
 
     @Cog.listener()
     async def on_message(self, message: Message) -> None:
-        """A listener function that calls the `penguin_react`, `name_react`, and `pun_react` functions when a message
+        """A listener function that calls the `penguin_react`, `name_react`,
+        and `pun_react` functions when a message
         is received.
 
          :param message: The message that was received.

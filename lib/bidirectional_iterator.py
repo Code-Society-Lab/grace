@@ -4,8 +4,9 @@ T = TypeVar("T")
 
 
 class BidirectionalIterator(Generic[T]):
-    """An iterator allows to go forward and backward in a list, modify the list during iteration and obtain the item
-    at the current position in the list.
+    """An iterator allows to go forward and backward in a list,
+    modify the list during iteration and obtain the item at the
+    current position in the list.
 
     :param collection: An optional collection of items, default to an empty List.
     :type collection: Optional[List[T]]
@@ -59,7 +60,8 @@ class BidirectionalIterator(Generic[T]):
         self.__collection.remove(item)
 
     def next(self) -> T:
-        """Returns the next item in the list if it has any next item or return the current item.
+        """Returns the next item in the list if it has any next item
+        or return the current item.
 
         :return: The next and current item
         :rtype: T
@@ -69,7 +71,8 @@ class BidirectionalIterator(Generic[T]):
         return self.current
 
     def previous(self) -> T:
-        """Returns the previous item in the list if it has any previous item or return the current item.
+        """Returns the previous item in the list if it has any previous item
+        or return the current item.
 
         :return: The previous or current item
         :rtype: T

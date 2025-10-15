@@ -50,7 +50,8 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
 
         :param ctx: The context in which the command was called.
         :type ctx: Context
-        :param ephemeral: A flag indicating whether the message should be sent as an ephemeral message. Default is True.
+        :param ephemeral: A flag indicating whether the message
+        should be sent as an ephemeral message. Default is True.
         :type ephemeral: bool, optional
         """
         if ctx.interaction:
@@ -59,7 +60,8 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
         info_embed = Embed(
             color=self.bot.default_color,
             title="My name is Grace",
-            description=f"Hi, {ctx.author.mention}. I'm the official **Code Society** Discord Bot.\n",
+            description=f"Hi, {ctx.author.mention}. I'm the official"
+            "**Code Society** Discord Bot.\n",
         )
 
         info_embed.add_field(

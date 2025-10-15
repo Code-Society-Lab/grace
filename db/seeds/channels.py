@@ -2,7 +2,9 @@ from bot.models.channel import Channel
 
 
 def seed_database():
-    """The seed function. This function is needed in order for the seed to be executed"""
+    """The seed function.
+    This function is needed in order for the seed to be executed
+    """
     initial_channels = {
         "introductions": 916658807789199390,
         "roles": 823239926023192596,

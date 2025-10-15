@@ -60,10 +60,11 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
         )
 
     def __build_section(self, channel_names, message):
-        """Builds a section of the welcome message by replacing placeholders with corresponding channel IDs.
+        """Builds a section of the welcome message by replacing
+        placeholders with corresponding channel IDs.
 
-        The message needs to contain empty ({}) or numbered ({index}) placeholders to indicate
-        where the channel IDs will be inserted.
+        The message needs to contain empty ({}) or numbered ({index})
+        placeholders to indicate where the channel IDs will be inserted.
 
         IMPORTANT: The section will return an empty unless all the channels are found.
 
@@ -74,7 +75,8 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
                         indicating where the channel IDs will be inserted.
         :type channel_names: str
 
-        :return: The constructed section of the welcome message with channel IDs inserted.
+        :return: The constructed section of the welcome message
+        with channel IDs inserted.
         :rtype: str
         """
         channel_ids = [
@@ -85,7 +87,8 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
 
     @Cog.listener()
     async def on_member_update(self, before, after):
-        """Send a welcome message to the member when their status is changed from "pending" to any other status.
+        """Send a welcome message to the member when their
+        status is changed from "pending" to any other status.
 
         :param before: The member before the update.
         :type before: discord.Member
