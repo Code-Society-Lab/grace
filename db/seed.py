@@ -1,6 +1,7 @@
 """Database seed modules
 
-All seed modules are located in the `db/seeds` folder. They need a  ̀seed_database` function. Without this function,
+All seed modules are located in the `db/seeds` folder.
+They need a  ̀seed_database` function. Without this function,
 the modules will be skipped and thus the seeding will not work correctly.
 
 Template Ex.

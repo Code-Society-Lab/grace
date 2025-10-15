@@ -38,7 +38,8 @@ class Buttons(View):
 
         :param _: The Button clicked
         :type _: Button
-        :param interaction: The interaction object representing the user's interaction with the bot.
+        :param interaction: The interaction object representing the
+        user's interaction with the bot.
         :type interaction: Interaction
         :param index: The index of the search result to be sent to the user.
         :type index: int

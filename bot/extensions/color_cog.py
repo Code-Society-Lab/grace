@@ -131,7 +131,8 @@ class ColorCog(
 
         :param ctx: The context of the command invocation.
         :type ctx: Context
-        :param hex_code: A string in the format '#RRGGBB' representing a hexadecimal color.
+        :param hex_code: A string in the format '#RRGGBB'
+        representing a hexadecimal color.
         :type hex_code: str
         """
         if not hex_code.startswith("#"):

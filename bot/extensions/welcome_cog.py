@@ -7,9 +7,7 @@ from bot.models.channel import Channel
 
 
 class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
-    """A cog that sends a welcome message to new members when they join the
-    server.
-    """
+    """A cog that sends a welcome message to new members when they join the server."""
 
     BASE_WELCOME_MESSAGE = "Hi **{member_name}**!"
 
@@ -62,12 +60,11 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
         )
 
     def __build_section(self, channel_names, message):
-        """Builds a section of the welcome message by replacing placeholders
-         with corresponding channel IDs.
+        """Builds a section of the welcome message by replacing
+        placeholders with corresponding channel IDs.
 
         The message needs to contain empty ({}) or numbered ({index})
-        placeholders to indicate
-        where the channel IDs will be inserted.
+        placeholders to indicate where the channel IDs will be inserted.
 
         IMPORTANT: The section will return an empty unless all the channels
         are found.
@@ -79,8 +76,8 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
                         indicating where the channel IDs will be inserted.
         :type message: str
 
-        :return: Constructed section of the welcome message with channel
-                  IDs inserted.
+        :return: Constructed section of the welcome message
+        with channel IDs inserted.
         :rtype: str
         """
         channel_ids = [
@@ -114,8 +111,8 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
 
     @Cog.listener()
     async def on_member_update(self, before, after):
-        """Send a welcome message to the member when their status is changed
-        from "pending" to any other status.
+        """Send a welcome message to the member when their
+        status is changed from "pending" to any other status.
 
         :param before: The member before the update.
         :type before: discord.Member
@@ -127,7 +124,7 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
 
             embed = self.__build_embed(
                 title="Welcome to **The Code Society Server**",
-                description=self.get_welcome_message(after)
+                description=self.get_welcome_message(after),
             )
             welcome_channel = self.bot.get_channel_by_name("welcome")
 
@@ -146,8 +143,7 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
         info(f"{member.display_name} joined the server!")
 
     @hybrid_command(
-        name="welcome",
-        description="Welcomes the person who issues the command"
+        name="welcome", description="Welcomes the person who issues the command"
     )
     async def welcome_command(self, ctx):
         """Send a welcome message to the person who issued the command.

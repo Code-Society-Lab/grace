@@ -67,7 +67,8 @@ class WeatherCog(
 
         :param city: The name of the city to retrieve weather information for
         :type city: str
-        :return: A dictionary containing the weather information, or None if the city was not found
+        :return: A dictionary containing the weather information,
+        or None if the city was not found
         :rtype: dict
         """
         # complete_url to retreive weather info
