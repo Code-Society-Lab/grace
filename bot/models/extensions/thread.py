@@ -2,7 +2,6 @@ from sqlalchemy import Column, Integer, String, Text, Boolean
 from grace.model import Model
 from bot import app
 from bot.classes.recurrence import Recurrence
-from typing import Optional
 
 
 class Thread(app.base, Model):
