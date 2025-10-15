@@ -113,9 +113,9 @@ class TimeCog(
         """
         keys = timezone_abbreviations.keys()
         escaped_keys = [re.escape(key) for key in keys]
-        joined = '|'.join(escaped_keys)
+        joined = "|".join(escaped_keys)
 
-        return rf'\b({joined})\b'
+        return rf"\b({joined})\b"
 
     @Cog.listener()
     async def on_message(self, message: Message) -> None:
@@ -141,12 +141,12 @@ class TimeCog(
         utc = pytz.UTC
         now_utc = datetime.now(utc)
 
-        time_str = ' '.join(time_str.split())
+        time_str = " ".join(time_str.split())
         time_str = self._build_relative_date(time_str, now_utc)
 
         try:
             timestamp = self._build_timestamp(utc, time_str)
-            await message.reply(f'<t:{timestamp}:F>')
+            await message.reply(f"<t:{timestamp}:F>")
         except Exception:
             pass
 

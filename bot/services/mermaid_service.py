@@ -5,7 +5,7 @@ from logging import critical, info
 
 import requests
 
-MERMAID_API = 'https://mermaid.ink'
+MERMAID_API = "https://mermaid.ink"
 
 
 def _encode_diagram(diagram: str) -> str:
@@ -36,7 +36,7 @@ def _build_url(diagram: str, type: str = "img") -> str:
     :rtype: str
     """
     encoded_diagram = _encode_diagram(diagram)
-    return f'{MERMAID_API}/{type}/pako:{encoded_diagram}'
+    return f"{MERMAID_API}/{type}/pako:{encoded_diagram}"
 
 
 def _is_valid_diagram(url: str) -> bool:
@@ -50,7 +50,7 @@ def _is_valid_diagram(url: str) -> bool:
     """
     try:
         response = requests.get(url, timeout=5)
-        info(f'url: {url} - code: {response.status_code}')
+        info(f"url: {url} - code: {response.status_code}")
         return response.status_code == 200
     except requests.RequestException as e:
         critical(e)

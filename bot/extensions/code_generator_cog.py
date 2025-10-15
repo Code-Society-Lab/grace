@@ -92,8 +92,8 @@ class CodeGenerator(
         await ctx.defer(ephemeral=True)
 
         response = Completion.create(
-            model='text-davinci-003',
-            prompt=f'{comment} in {language}',
+            model="text-davinci-003",
+            prompt=f"{comment} in {language}",
             temperature=0.7,
             max_tokens=256,
             top_p=1,
@@ -101,7 +101,7 @@ class CodeGenerator(
             presence_penalty=0,
         )
 
-        code_generated = response['choices'][0]['text']
+        code_generated = response["choices"][0]["text"]
         embed.add_field(
             name=comment.capitalize(),
             value=f"```{language}{code_generated}``` {ctx.author} | {language}",

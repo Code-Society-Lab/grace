@@ -154,7 +154,7 @@ class WeatherCog(
         else:
             embed = Embed(
                 color=self.bot.default_color,
-                description=f'{city} No Found!',
+                description=f"{city} No Found!",
             )
         await ctx.send(embed=embed)
 

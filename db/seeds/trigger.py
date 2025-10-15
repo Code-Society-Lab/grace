@@ -13,7 +13,7 @@ def seed_database():
         linus_trigger.add_trigger_word(trigger_word)
 
     Trigger.create(
-        name='Grace',
-        positive_emoji_code=':blush:',
-        negative_emoji_code=':cry:',
+        name="Grace",
+        positive_emoji_code=":blush:",
+        negative_emoji_code=":cry:",
     )

@@ -29,14 +29,14 @@ class MermaidCog(Cog, name="Mermaid", description="Generates mermaid diagrams"):
         diagram_url = generate_mermaid_diagram(diagram)
 
         if diagram_url:
-            embed.title = 'Diagram'
+            embed.title = "Diagram"
             embed.set_image(url=diagram_url)
         else:
-            embed.title = 'Mermaid compilation error'
+            embed.title = "Mermaid compilation error"
             embed.description = (
-                'An error occurred while generating the diagram. '
-                'Please make sure there is no syntax error.\n\n'
-                'https://mermaid.js.org/intro/getting-started.html'
+                "An error occurred while generating the diagram. "
+                "Please make sure there is no syntax error.\n\n"
+                "https://mermaid.js.org/intro/getting-started.html"
             )
 
         return embed

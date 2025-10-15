@@ -1,14 +1,11 @@
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-
 from grace.application import Application
 
 try:
-    from nltk import download, download_shell
-    from nltk.downloader import Downloader
+    from nltk import download
 
     download("vader_lexicon", quiet=True)
 except ModuleNotFoundError:
-    print('nltk module not properly installed')
+    print("nltk module not properly installed")
 
 
 def _create_bot(app):

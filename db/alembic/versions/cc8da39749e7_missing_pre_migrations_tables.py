@@ -36,11 +36,11 @@ def upgrade() -> None:
     # ensure there’s always a single settings row
     conn = op.get_bind()
     result = conn.execute(
-        sa.text('SELECT id FROM bot_settings WHERE id = 1')
+        sa.text("SELECT id FROM bot_settings WHERE id = 1")
     ).fetchone()
 
     if not result:
-        conn.execute(sa.text('INSERT INTO bot_settings (id) VALUES (1)'))
+        conn.execute(sa.text("INSERT INTO bot_settings (id) VALUES (1)"))
 
     # --- answers table ---
     op.create_table(
@@ -60,11 +60,11 @@ def upgrade() -> None:
 
     # --- trigger_words table ---
     op.create_table(
-        'trigger_words',
+        "trigger_words",
         sa.Column(
-            'trigger_id',
+            "trigger_id",
             sa.Integer(),
-            sa.ForeignKey('triggers.id'),
+            sa.ForeignKey("triggers.id"),
             primary_key=True,
             nullable=False,
         ),
@@ -76,16 +76,16 @@ def downgrade() -> None:
     # Drop in reverse dependency order
 
     # --- trigger_words depends on triggers ---
-    op.drop_table('trigger_words', if_exists=True)
+    op.drop_table("trigger_words", if_exists=True)
 
     # --- triggers ---
-    op.drop_table('triggers', if_exists=True)
+    op.drop_table("triggers", if_exists=True)
 
     # --- answers ---
-    op.drop_table('answers', if_exists=True)
+    op.drop_table("answers", if_exists=True)
 
     # --- channels ---
-    op.drop_table('channels', if_exists=True)
+    op.drop_table("channels", if_exists=True)
 
     # --- extensions ---
-    op.drop_table('extensions', if_exists=True)
+    op.drop_table("extensions", if_exists=True)

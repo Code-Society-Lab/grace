@@ -43,7 +43,7 @@ class TimedView(View):
         :raises ValueError: Raised if the given value is lower than 1
         """
         if seconds < 1:
-            raise ValueError('Value cannot be lower than 1')
+            raise ValueError("Value cannot be lower than 1")
 
         self.__seconds = seconds
 

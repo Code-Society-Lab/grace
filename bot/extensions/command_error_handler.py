@@ -24,7 +24,7 @@ class CommandErrorHandler(Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @Cog.listener('on_command_error')
+    @Cog.listener("on_command_error")
     async def get_command_error(self, ctx: Context, error: Exception) -> None:
         """Event listener for command errors. It logs the error and sends an appropriate message to the user.
 
@@ -33,7 +33,7 @@ class CommandErrorHandler(Cog):
         :param error: The error that was raised during command execution.
         :type error: Exception
         """
-        warning(f'Error: {error}. Issued by {ctx.author}')
+        warning(f"Error: {error}. Issued by {ctx.author}")
 
         if isinstance(error, CommandNotFound):
             await send_command_help(ctx)
@@ -49,7 +49,7 @@ class CommandErrorHandler(Cog):
                 f"You're on Cooldown, wait {timedelta(seconds=int(error.retry_after))}",
             )
         elif isinstance(error, DisabledCommand):
-            await send_error(ctx, 'This command is disabled.')
+            await send_error(ctx, "This command is disabled.")
         elif isinstance(error, MissingRequiredArgument):
             await send_command_help(ctx)
         elif isinstance(error, HybridCommandError):

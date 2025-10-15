@@ -19,7 +19,7 @@ class ModerationCog(
 
     @property
     def moderation_channel(self):
-        return self.bot.get_channel_by_name('moderation_logs')
+        return self.bot.get_channel_by_name("moderation_logs")
 
     @hybrid_command(name="purge", help="Deletes n amount of messages.")
     @has_permissions(manage_messages=True)
@@ -102,7 +102,7 @@ class ModerationCog(
         ).days
 
         if account_age_in_days < minimum_account_age:
-            info(f'{member} kicked due to account age restriction!')
+            info(f"{member} kicked due to account age restriction!")
 
             log = danger("KICK", f"{member} has been kicked.")
             log.add_field(

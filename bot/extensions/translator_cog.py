@@ -55,12 +55,12 @@ class TranslatorCog(
         embed = Embed(color=self.bot.default_color)
 
         embed.add_field(
-            name=f'{LANGUAGES[translated_text.src].capitalize()} Original',
+            name=f"{LANGUAGES[translated_text.src].capitalize()} Original",
             value=sentence.capitalize(),
             inline=False,
         )
         embed.add_field(
-            name=f'{translate_into} Translation',
+            name=f"{translate_into} Translation",
             value=translated_text.text,
             inline=False,
         )
@@ -83,7 +83,7 @@ class TranslatorCog(
         original_error = get_original_exception(error)
 
         if isinstance(original_error, ValueError):
-            await ctx.send('Please enter a valid language code.', ephemeral=True)
+            await ctx.send("Please enter a valid language code.", ephemeral=True)
 
 
 async def setup(bot):

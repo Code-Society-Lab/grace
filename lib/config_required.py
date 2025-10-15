@@ -49,8 +49,8 @@ def cog_config_required(
             if not self.required_config:
                 raise MissingRequiredConfigError(section_key, value_key, message)
 
-        setattr(cls, 'required_config', app.config.get(section_key, value_key))
-        setattr(cls, 'cog_before_invoke', _cog_before_invoke)
+        setattr(cls, "required_config", app.config.get(section_key, value_key))
+        setattr(cls, "cog_before_invoke", _cog_before_invoke)
 
         return cls
 

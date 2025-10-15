@@ -8,7 +8,7 @@ from nltk.tokenize import TweetTokenizer
 from bot.models.extensions.language.trigger import Trigger
 
 
-class LanguageCog(Cog, name='Language', description='Analyze and reacts to messages'):
+class LanguageCog(Cog, name="Language", description="Analyze and reacts to messages"):
     def __init__(self, bot):
         """I know not everyone working here is familiar with NLTK,
         so I'll explain some terminology.
@@ -132,7 +132,7 @@ class LanguageCog(Cog, name='Language', description='Analyze and reacts to messa
         await self.penguin_react(message)
         await self.name_react(message)
 
-    @hybrid_group(name='triggers', help='Commands to manage triggers')
+    @hybrid_group(name="triggers", help="Commands to manage triggers")
     @has_permissions(administrator=True)
     async def triggers_group(self, ctx) -> None:
         """A command group that allows administrators to manage trigger words.
@@ -154,7 +154,7 @@ class LanguageCog(Cog, name='Language', description='Analyze and reacts to messa
 
             await ctx.send(embed=embed)
 
-    @triggers_group.command(name='add', help='Add a trigger word', usage='{new_word}')
+    @triggers_group.command(name="add", help="Add a trigger word", usage="{new_word}")
     @has_permissions(administrator=True)
     async def add_trigger_word(self, ctx: Context, new_word: str) -> None:
         """Add a new trigger word.
@@ -168,13 +168,13 @@ class LanguageCog(Cog, name='Language', description='Analyze and reacts to messa
 
         if trigger:
             if new_word in trigger.words:
-                await ctx.send(f'**{new_word}** is already a trigger')
+                await ctx.send(f"**{new_word}** is already a trigger")
             else:
                 trigger.add_trigger_word(new_word)
 
-                await ctx.send(f'Trigger **{new_word}** added successfully')
+                await ctx.send(f"Trigger **{new_word}** added successfully")
         else:
-            await ctx.send(f'Unable to add **{new_word}**')
+            await ctx.send(f"Unable to add **{new_word}**")
 
     @triggers_group.command(
         name="remove", help="Remove a trigger word", usage="{old_word}"
@@ -192,13 +192,13 @@ class LanguageCog(Cog, name='Language', description='Analyze and reacts to messa
 
         if trigger:
             if old_word not in trigger.words:
-                await ctx.send(f'**{old_word}** is not a trigger')
+                await ctx.send(f"**{old_word}** is not a trigger")
             else:
                 trigger.remove_trigger_word(old_word)
 
-                await ctx.send(f'Trigger **{old_word}** removed successfully')
+                await ctx.send(f"Trigger **{old_word}** removed successfully")
         else:
-            await ctx.send(f'Unable to remove **{old_word}**')
+            await ctx.send(f"Unable to remove **{old_word}**")
 
 
 async def setup(bot):

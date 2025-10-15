@@ -18,7 +18,7 @@ def search_results(search: str) -> List[Any]:
     :rtype: list
     """
     url_encode: str = quote_plus(search)
-    base_url: str = f'https://en.wikipedia.org/w/api.php?action=opensearch&format=json&limit=3&namespace=0&search={url_encode}'
+    base_url: str = f"https://en.wikipedia.org/w/api.php?action=opensearch&format=json&limit=3&namespace=0&search={url_encode}"
 
     with urlopen(base_url) as url:
         return loads(url.read())
@@ -52,7 +52,7 @@ class Buttons(View):
             )
             self.stop()
         else:
-            await interaction.response.send_message('Invalid choice.', ephemeral=True)
+            await interaction.response.send_message("Invalid choice.", ephemeral=True)
 
     @ui.button(label="1", style=ButtonStyle.primary)
     async def first_wiki_result(self, interaction: Interaction, button: Button):
@@ -67,7 +67,7 @@ class Buttons(View):
         await self.wiki_result(interaction, button, 3)
 
 
-class Wikipedia(Cog, name='Wikipedia', description='Search on Wikipedia.'):
+class Wikipedia(Cog, name="Wikipedia", description="Search on Wikipedia."):
     def __init__(self, bot):
         self.bot = bot
 
@@ -91,10 +91,10 @@ class Wikipedia(Cog, name='Wikipedia', description='Search on Wikipedia.'):
                 "No result found.", ephemeral=True
             )
         else:
-            result_view = ''
+            result_view = ""
             search_count = 1
             for result in result[1]:
-                result_view += f'{str(search_count)}: {result}\n'
+                result_view += f"{str(search_count)}: {result}\n"
                 search_count += 1
 
             embed = Embed(

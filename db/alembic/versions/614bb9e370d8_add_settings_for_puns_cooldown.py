@@ -37,11 +37,11 @@ def upgrade() -> None:
         op.add_column("puns", sa.Column("last_invoked", sa.DateTime(), nullable=True))
 
     result = bind.execute(
-        sa.text('SELECT id FROM bot_settings WHERE id = 1')
+        sa.text("SELECT id FROM bot_settings WHERE id = 1")
     ).fetchone()
 
     if not result:
-        op.execute('INSERT INTO bot_settings (id) VALUES (1)')
+        op.execute("INSERT INTO bot_settings (id) VALUES (1)")
 
 
 def downgrade() -> None:

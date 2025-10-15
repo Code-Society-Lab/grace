@@ -1,6 +1,6 @@
 from typing import Generic, Iterator, List, Optional, TypeVar
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class BidirectionalIterator(Generic[T]):

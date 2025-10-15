@@ -32,7 +32,7 @@ async def project_autocomplete(_: Interaction, current: str) -> list[Choice[str]
     ]
 
 
-class GraceCog(Cog, name='Grace', description='Default grace commands'):
+class GraceCog(Cog, name="Grace", description="Default grace commands"):
     """A cog that contains default commands for the Grace bot."""
 
     __CODE_SOCIETY_WEBSITE_BUTTON = Button(
@@ -59,9 +59,9 @@ class GraceCog(Cog, name='Grace', description='Default grace commands'):
 
         info_embed = Embed(
             color=self.bot.default_color,
-            title='My name is Grace',
+            title="My name is Grace",
             description=f"Hi, {ctx.author.mention}. I'm the official"
-            '**Code Society** Discord Bot.\n',
+            "**Code Society** Discord Bot.\n",
         )
 
         info_embed.add_field(
@@ -90,7 +90,7 @@ class GraceCog(Cog, name='Grace', description='Default grace commands'):
         view.add_item(self.__CODE_SOCIETY_WEBSITE_BUTTON)
 
         if GithubService.can_connect():
-            repository = GithubService().get_code_society_lab_repo('grace')
+            repository = GithubService().get_code_society_lab_repo("grace")
             view.add_item(create_repository_button(repository))
 
             for embed in create_contributors_embeds(repository):
@@ -107,7 +107,7 @@ class GraceCog(Cog, name='Grace', description='Default grace commands'):
         """
         embed = Embed(
             color=self.bot.default_color,
-            description=f'pong :ping_pong:  {round(self.bot.latency * 1000)}ms',
+            description=f"pong :ping_pong:  {round(self.bot.latency * 1000)}ms",
         )
 
         await ctx.send(embed=embed)
@@ -120,7 +120,7 @@ class GraceCog(Cog, name='Grace', description='Default grace commands'):
         :type ctx: Context
         :return: None
         """
-        await ctx.send('https://www.smbc-comics.com/?id=2516')
+        await ctx.send("https://www.smbc-comics.com/?id=2516")
 
     @command_config_required("github", "api_key")
     @hybrid_command(

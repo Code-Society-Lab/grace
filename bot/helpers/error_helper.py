@@ -3,7 +3,7 @@ from discord import Color, DiscordException, Embed
 
 async def send_error(ctx, error_description, **kwargs):
     embed = Embed(
-        title='Oops! An error occurred',
+        title="Oops! An error occurred",
         color=Color.red(),
         description=error_description,
     )

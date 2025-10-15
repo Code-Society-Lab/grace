@@ -9,4 +9,4 @@ class Channel(Model):
     channel_name: str = Field(primary_key=True)
     channel_id: int = Field(primary_key=True)
 
-    UniqueConstraint('channel_name', 'channel_id', name='uq_id_cn_cid')
+    UniqueConstraint("channel_name", "channel_id", name="uq_id_cn_cid")

@@ -20,7 +20,7 @@ class Grace(Bot):
 
     @property
     def default_color(self):
-        return Colour.from_str(self.config.get('default_color'))
+        return Colour.from_str(self.config.get("default_color"))
 
     def get_channel_by_name(self, name):
         channel = Channel.find_by(channel_name=name)
@@ -41,10 +41,10 @@ class Grace(Bot):
                 extension.disable()
 
             if extension.is_enabled():
-                info(f'Loading {module}')
+                info(f"Loading {module}")
                 await self.load_extension(module)
             else:
-                info(f'{module} is disabled, it will not be loaded.')
+                info(f"{module} is disabled, it will not be loaded.")
 
     async def on_ready(self):
-        info(f'{self.user.name}#{self.user.id} is online and ready to use!')
+        info(f"{self.user.name}#{self.user.id} is online and ready to use!")

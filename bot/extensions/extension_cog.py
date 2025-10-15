@@ -63,7 +63,7 @@ def extension_autocomplete(state: bool):
     return inner_autocomplete
 
 
-class ExtensionCog(Cog, name='Extensions', description='Extensions managing cog'):
+class ExtensionCog(Cog, name="Extensions", description="Extensions managing cog"):
     """A `Cog` for managing extensions."""
 
     def __init__(self, bot):
@@ -110,7 +110,7 @@ class ExtensionCog(Cog, name='Extensions', description='Extensions managing cog'
             )
 
         if not extensions:
-            embed.description = 'No extension found'
+            embed.description = "No extension found"
 
         await ctx.send(embed=embed, ephemeral=True)
 
@@ -138,11 +138,11 @@ class ExtensionCog(Cog, name='Extensions', description='Extensions managing cog'
                 extension.state = State.ENABLED
 
                 extension.save()
-                await ctx.send(f'**{extension.name}** enabled.', ephemeral=True)
+                await ctx.send(f"**{extension.name}** enabled.", ephemeral=True)
             except ExtensionAlreadyLoaded:
-                await ctx.send(f'**{extension.name}** already enabled', ephemeral=True)
+                await ctx.send(f"**{extension.name}** already enabled", ephemeral=True)
         else:
-            await ctx.send(f'Extension **{extension_name}** not found', ephemeral=True)
+            await ctx.send(f"Extension **{extension_name}** not found", ephemeral=True)
 
     @extension_group.command(
         name="disable",
@@ -170,11 +170,11 @@ class ExtensionCog(Cog, name='Extensions', description='Extensions managing cog'
                 extension.state = State.DISABLED
 
                 extension.save()
-                await ctx.send(f'**{extension.name}** disabled.', ephemeral=True)
+                await ctx.send(f"**{extension.name}** disabled.", ephemeral=True)
             except ExtensionNotLoaded:
-                await ctx.send(f'**{extension.name}** already disabled', ephemeral=True)
+                await ctx.send(f"**{extension.name}** already disabled", ephemeral=True)
         else:
-            await ctx.send(f'Extension **{extension_name}** not found', ephemeral=True)
+            await ctx.send(f"Extension **{extension_name}** not found", ephemeral=True)
 
 
 async def setup(bot):

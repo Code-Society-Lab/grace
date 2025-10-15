@@ -37,7 +37,7 @@ class ColorCog(
     def __init__(self, bot):
         self.bot = bot
 
-    @hybrid_group(name='color', help='Commands to bring color in your life')
+    @hybrid_group(name="color", help="Commands to bring color in your life")
     async def color_group(self, ctx: Context) -> None:
         """Group command for the color commands. If called without a subcommand,
         it sends the help message.
@@ -48,7 +48,7 @@ class ColorCog(
         if ctx.invoked_subcommand is None:
             await ctx.send_help(ctx.command)
 
-    @color_group.group(name='show', help='Commands to display colors.')
+    @color_group.group(name="show", help="Commands to display colors.")
     async def show_group(self, ctx: Context) -> None:
         """Group command for the show subcommands. If called without a subcommand,
         it sends the help message.
@@ -80,7 +80,7 @@ class ColorCog(
             title="Here goes your color!",
             description=f"{color}",
         )
-        embed.set_image(url='attachment://color.png')
+        embed.set_image(url="attachment://color.png")
 
         await ctx.send(embed=embed, file=file)
         os.remove("color.png")

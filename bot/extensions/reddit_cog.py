@@ -8,7 +8,7 @@ from bot import app
 from bot.helpers.log_helper import danger
 
 
-class RedditCog(Cog, name='Reddit', description='Reddit utilities'):
+class RedditCog(Cog, name="Reddit", description="Reddit utilities"):
     def __init__(self, bot):
         self.bot = bot
         self.blacklisted_subreddits = app.config.get("reddit", "blacklist", "").split(
@@ -83,7 +83,7 @@ class RedditCog(Cog, name='Reddit', description='Reddit utilities'):
                 answer_embed = Embed(
                     title="Here're the subreddits you mentioned",
                     color=self.bot.default_color,
-                    description='\n'.join(subreddit_links),
+                    description="\n".join(subreddit_links),
                 )
 
                 await ctx.reply(embed=answer_embed)

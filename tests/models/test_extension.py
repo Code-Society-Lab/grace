@@ -6,7 +6,7 @@ def test_create_extension():
     """Test creating an extension"""
     extension = Extension.create(module_name="test_extension", state=State.ENABLED)
 
-    assert extension.module_name == 'test_extension'
+    assert extension.module_name == "test_extension"
     assert extension.state == State.ENABLED
 
 

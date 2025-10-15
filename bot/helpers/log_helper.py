@@ -13,22 +13,22 @@ def notice(title, description):
 
 
 def warning(title, description):
-    return LogHelper(title, description, 'warning')
+    return LogHelper(title, description, "warning")
 
 
 def danger(title, description):
-    return LogHelper(title, description, 'danger')
+    return LogHelper(title, description, "danger")
 
 
 class LogHelper:
     __DEFAULT_COLOR = Color.from_rgb(0, 123, 255)
     COLORS_BY_LOG_LEVEL = {
-        'danger': Color.from_rgb(220, 53, 69),
-        'warning': Color.from_rgb(255, 193, 7),
-        'info': __DEFAULT_COLOR,
+        "danger": Color.from_rgb(220, 53, 69),
+        "warning": Color.from_rgb(255, 193, 7),
+        "info": __DEFAULT_COLOR,
     }
 
-    def __init__(self, title, description, log_level='info'):
+    def __init__(self, title, description, log_level="info"):
         self.embed = Embed(
             title=title,
             description=description,

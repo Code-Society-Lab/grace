@@ -4,6 +4,7 @@ from bot.classes.recurrence import Recurrence
 from grace.model import Field, Model
 from lib.fields import EnumField
 
+
 class Thread(Model):
     __tablename__ = "threads"
 

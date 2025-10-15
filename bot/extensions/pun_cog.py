@@ -68,7 +68,7 @@ class PunCog(
                 await message.channel.send(embed=embed)
                 pun.save_last_invoked(invoked_at)
 
-    @hybrid_group(name='puns', help='Commands to manage puns')
+    @hybrid_group(name="puns", help="Commands to manage puns")
     @has_permissions(administrator=True)
     async def puns_group(self, ctx: Context) -> None:
         """A command group that allows administrators to manage puns words.
@@ -77,7 +77,7 @@ class PunCog(
         :type ctx: discord.ext.commands.Context
         """
 
-    @puns_group.command(name='list', help='List all puns')
+    @puns_group.command(name="list", help="List all puns")
     @has_permissions(administrator=True)
     async def list_puns(self, ctx: Context) -> None:
         if ctx.invoked_subcommand is None:
@@ -93,7 +93,7 @@ class PunCog(
 
             await ctx.send(embed=embed)
 
-    @puns_group.command(name='add', help='Add a pun', usage='{pun_text}')
+    @puns_group.command(name="add", help="Add a pun", usage="{pun_text}")
     @has_permissions(administrator=True)
     async def add_pun(self, ctx: Context, pun_text: str) -> None:
         """Add a new pun word.
@@ -105,9 +105,9 @@ class PunCog(
         """
         Pun.create(text=pun_text)
 
-        await ctx.send('Pun added.')
+        await ctx.send("Pun added.")
 
-    @puns_group.command(name='remove', help='Remove a pun', usage='{pun_id}')
+    @puns_group.command(name="remove", help="Remove a pun", usage="{pun_id}")
     @has_permissions(administrator=True)
     async def remove_pun(self, ctx: Context, pun_id: int) -> None:
         """Remove an old pun word.
@@ -120,11 +120,11 @@ class PunCog(
         pun = Pun.find(pun_id)
 
         if pun:
-            await ctx.send('Pun removed.')
+            await ctx.send("Pun removed.")
         else:
-            await ctx.send(f'Pun with id **{pun.id}** does not exist.')
+            await ctx.send(f"Pun with id **{pun.id}** does not exist.")
 
-    @puns_group.command(name='add-word', help='Add a pun word to a pun')
+    @puns_group.command(name="add-word", help="Add a pun word to a pun")
     @has_permissions(administrator=True)
     async def add_pun_word(
         self, ctx: Context, pun_id: int, pun_word: str, emoji: str
@@ -144,14 +144,14 @@ class PunCog(
 
         if pun:
             if pun.has_word(pun_word):
-                await ctx.send(f'Pun word **{pun_word}** already exists.')
+                await ctx.send(f"Pun word **{pun_word}** already exists.")
             else:
                 pun.add_pun_word(pun_word, demojize(emoji))
-                await ctx.send('Pun word added.')
+                await ctx.send("Pun word added.")
         else:
-            await ctx.send(f'Pun with id {pun.id} does not exist.')
+            await ctx.send(f"Pun with id {pun.id} does not exist.")
 
-    @puns_group.command(name='remove-word', help='Remove a pun from a pun word')
+    @puns_group.command(name="remove-word", help="Remove a pun from a pun word")
     @has_permissions(administrator=True)
     async def remove_pun_word(self, ctx: Context, id: int, pun_word: str) -> None:
         """Remove a new pun word.
@@ -167,12 +167,12 @@ class PunCog(
 
         if pun:
             if not pun.has_word(pun_word):
-                await ctx.send(f'Pun word **{pun_word}** does not exist.')
+                await ctx.send(f"Pun word **{pun_word}** does not exist.")
             else:
                 pun.remove_pun_word(pun_word)
-                await ctx.send('Pun word removed.')
+                await ctx.send("Pun word removed.")
         else:
-            await ctx.send(f'Pun with id **{pun.id}** does not exist.')
+            await ctx.send(f"Pun with id **{pun.id}** does not exist.")
 
     @hybrid_command(name="cooldown", help="Set cooldown for puns feature in minutes.")
     async def set_puns_cooldown_command(
@@ -182,7 +182,7 @@ class PunCog(
         settings.puns_cooldown = cooldown_minutes
         settings.save()
 
-        await ctx.send(f'Updated cooldown to {cooldown_minutes} minutes.')
+        await ctx.send(f"Updated cooldown to {cooldown_minutes} minutes.")
 
 
 async def setup(bot):

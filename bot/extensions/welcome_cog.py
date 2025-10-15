@@ -6,10 +6,10 @@ from discord.ext.commands import Cog, hybrid_command
 from bot.models.channel import Channel
 
 
-class WelcomeCog(Cog, name='Welcome', description='Welcomes new members'):
+class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
     """A cog that sends a welcome message to new members when they join the server."""
 
-    BASE_WELCOME_MESSAGE = 'Hi **{member_name}**!'
+    BASE_WELCOME_MESSAGE = "Hi **{member_name}**!"
 
     def __init__(self, bot):
         self.bot = bot
@@ -26,8 +26,8 @@ class WelcomeCog(Cog, name='Welcome', description='Welcomes new members'):
     @property
     def project_section(self):
         return self.__build_section(
-            ['code-society-lab'],
-            '### Looking for projects?\n'
+            ["code-society-lab"],
+            "### Looking for projects?\n"
             "If you're interested in contributing to open-source projects, "
             "feel free to come chat with us in <#{}> or visite our [GitHub](<https://github.com/Code-Society-Lab>).\n"
             "\n**Our latest projects**:\n"
@@ -96,16 +96,16 @@ class WelcomeCog(Cog, name='Welcome', description='Welcomes new members'):
         :type after: discord.Member
         """
         if not before.bot and (before.pending and not after.pending):
-            info(f'{after.display_name} accepted the rules!')
+            info(f"{after.display_name} accepted the rules!")
 
             embed = Embed(color=self.bot.default_color)
-            welcome_channel = self.bot.get_channel_by_name('welcome')
+            welcome_channel = self.bot.get_channel_by_name("welcome")
 
             if not welcome_channel:
                 welcome_channel = before.guild.system_channel
 
             embed.add_field(
-                name='Welcome to **The Code Society Server**',
+                name="Welcome to **The Code Society Server**",
                 value=self.get_welcome_message(after),
                 inline=False,
             )
@@ -114,7 +114,7 @@ class WelcomeCog(Cog, name='Welcome', description='Welcomes new members'):
                 icon_url="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png",
             )
 
-            await welcome_channel.send(f'<@{after.id}>', embed=embed)
+            await welcome_channel.send(f"<@{after.id}>", embed=embed)
 
     @Cog.listener()
     async def on_member_join(self, member):
@@ -123,7 +123,7 @@ class WelcomeCog(Cog, name='Welcome', description='Welcomes new members'):
         :param member: The member who joined the server.
         :type member: discord.Member
         """
-        info(f'{member.display_name} joined the server!')
+        info(f"{member.display_name} joined the server!")
 
     @hybrid_command(
         name="welcome", description="Welcomes the person who issues the command"
@@ -134,11 +134,11 @@ class WelcomeCog(Cog, name='Welcome', description='Welcomes new members'):
         :param ctx: The context in which the command was invoked.
         :type ctx: Context
         """
-        info(f'{ctx.author.display_name} asked to get welcomed!')
+        info(f"{ctx.author.display_name} asked to get welcomed!")
 
         embed = Embed(
             color=self.bot.default_color,
-            title='Welcome to **The Code Society Server**',
+            title="Welcome to **The Code Society Server**",
             description=self.get_welcome_message(ctx.author),
         )
         embed.set_footer(

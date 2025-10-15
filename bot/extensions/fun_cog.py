@@ -10,7 +10,7 @@ from bot.extensions.command_error_handler import send_command_help
 from bot.models.extensions.fun.answer import Answer
 
 
-class FunCog(Cog, name='Fun', description='Collection of fun commands'):
+class FunCog(Cog, name="Fun", description="Collection of fun commands"):
     """A cog containing fun commands."""
 
     def __init__(self, bot):
@@ -21,7 +21,7 @@ class FunCog(Cog, name='Fun', description='Collection of fun commands'):
             "https://media.tenor.com/GDkgAup55_0AAAAC/duck-bite.gif",
         ]
 
-    @hybrid_group(name='fun', help='Fun commands')
+    @hybrid_group(name="fun", help="Fun commands")
     async def fun_group(self, ctx: Context) -> None:
         """Group of fun commands.
 
@@ -49,7 +49,7 @@ class FunCog(Cog, name='Fun', description='Collection of fun commands'):
         if question:
             answer = random_choice(Answer.all())
         else:
-            answer = 'You need to ask me a question!'
+            answer = "You need to ask me a question!"
 
         answer_embed = Embed(
             title=f"{ctx.author.name}, Grace says: ",
@@ -94,7 +94,7 @@ class FunCog(Cog, name='Fun', description='Collection of fun commands'):
 
             await ctx.send(embed=embed)
         else:
-            await ctx.send('Unable to fetch a quote! Try again later.')
+            await ctx.send("Unable to fetch a quote! Try again later.")
 
 
 async def setup(bot):
