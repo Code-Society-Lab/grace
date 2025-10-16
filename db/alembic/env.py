@@ -3,9 +3,8 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
-from grace.application import Application
+from bot import app
 
-app = Application()
 config = context.config
 target_metadata = app.metadata
 
