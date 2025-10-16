@@ -11,7 +11,9 @@ class Thread(Model):
     id: int | None = Field(default=None, primary_key=True)
     title: str
     content: str = Field(sa_type=Text)
-    recurrence: Recurrence = EnumField(Recurrence, default=Recurrence.NONE)
+    recurrence: Recurrence = EnumField(
+        Recurrence, default=Recurrence.NONE, nullable=False
+    )
     latest_thread: int
     daily_reminder: bool
 
