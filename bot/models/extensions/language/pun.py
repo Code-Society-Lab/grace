@@ -10,7 +10,7 @@ class Pun(Model):
     __tablename__ = "puns"
 
     id: int | None = Field(default=None, primary_key=True)
-    text: str = Field(sa_column_kwargs={"unique": True})
+    text: str | None = Field(unique=True)
     last_invoked: datetime | None = Field(default=None)
     pun_words: List["PunWord"] = Relationship(
         back_populates="pun", sa_relationship_kwargs={"lazy": "selectin"}

@@ -78,7 +78,8 @@ class ModerationCog(
             case _:
                 return None
 
-        # Grace also reacts and log the reaction because some people remove their reaction afterward
+        # Grace also reacts and log the reaction
+        # because some people remove their reaction afterward
         await message.add_reaction(reaction)
 
         log = notice(

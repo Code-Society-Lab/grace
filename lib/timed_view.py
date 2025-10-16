@@ -9,10 +9,13 @@ from discord.ui import View
 class TimedView(View):
     """A discord.ui.View class that implements a timer.
 
-    The view will call an event (`on_time_update`) each seconds until the timer elapsed. Once the timer elapsed,
-    another event (`on_timer_elapsed`) is called.
+    The view will call an event (`on_time_update`)
+    each seconds until the timer elapsed.
+    Once the timer elapsed, another event (`on_timer_elapsed`) is called.
 
-    :param seconds: The time in seconds to display the view, default to 900 seconds (15 minutes).
+    :param seconds: The time in seconds to display the view,
+    default to 900 seconds (15 minutes).
+
     :type seconds: int
     """
 
@@ -74,14 +77,16 @@ class TimedView(View):
     async def on_timer_update(self):
         """A callback that is called at each timer update.
 
-        This callback does nothing by default but can be overriden to change its behaviour.
+        This callback does nothing by default but can be
+        overriden to change its behaviour.
         """
         pass
 
     async def on_timer_elapsed(self):
         """A callback that is called when the timer elapsed.
 
-        By default, the callback calls `self.stop()` but can be overriden to change its behaviour.
+        By default, the callback calls `self.stop()` but can be
+        overriden to change its behaviour.
         """
         self.stop()
 

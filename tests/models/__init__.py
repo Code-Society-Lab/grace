@@ -13,8 +13,6 @@ app.drop_tables()
 app.drop_database()
 
 app.create_database()
-app.create_tables()
-
 up_migration(app, "head")
 
 for seed_module in get_seed_modules():

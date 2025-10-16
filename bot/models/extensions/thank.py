@@ -10,7 +10,7 @@ class Thank(Model):
 
     id: int | None = Field(default=None, primary_key=True)
     member_id: int = Field(unique=True)
-    count: int = Field(default=0)
+    count: int | None = Field(default=0)
 
     @property
     def rank(self) -> Optional[str]:

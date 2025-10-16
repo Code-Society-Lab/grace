@@ -32,7 +32,8 @@ class PunCog(
         await self.pun_react(message)
 
     async def pun_react(self, message: Message) -> None:
-        """Add reactions and send a message in the channel if the message content contains any pun words.
+        """Add reactions and send a message in the channel
+        if the message content contains any pun words.
 
         :param message: The message to be checked for pun words.
         :type message: discord.Message

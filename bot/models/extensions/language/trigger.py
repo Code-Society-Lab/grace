@@ -10,7 +10,7 @@ class Trigger(Model):
     __tablename__ = "triggers"
 
     id: int | None = Field(default=None, primary_key=True)
-    name: str = Field(max_length=255, unique=True)
+    name: str | None = Field(max_length=255, unique=True)
     positive_emoji_code: str = Field(max_length=255)
     negative_emoji_code: str = Field(max_length=255)
 
