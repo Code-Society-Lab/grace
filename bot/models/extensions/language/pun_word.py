@@ -12,7 +12,7 @@ class PunWord(Model):
     __tablename__ = "pun_words"
 
     id: int | None = Field(default=None, primary_key=True)
-    pun_id: int = Field(foreign_key="puns.id")
+    pun_id: int | None = Field(foreign_key="puns.id")
     word: str = Field(max_length=255)
     emoji_code: str | None = Field(default=None, max_length=255)
     pun: "Pun" = Relationship(

@@ -25,5 +25,15 @@ class IntEnumType(TypeDecorator):
 
 
 def EnumField(enum_cls: Type, **kwargs):
-    sa_column = Column(IntEnumType(enum_cls))
+    """
+    Wrapper around sqlmodel.Field for integer-backed enums.
+    Allows passing nullable, default, etc.
+    """
+    column_args = {}
+
+    for key in ("nullable", "default", "server_default", "primary_key"):
+        if key in kwargs:
+            column_args[key] = kwargs.pop(key)
+
+    sa_column = Column(IntEnumType(enum_cls), **column_args)
     return Field(sa_column=sa_column, **kwargs)
