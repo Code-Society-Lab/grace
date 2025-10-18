@@ -23,7 +23,7 @@ class ReminderCog(
         for job in self.jobs:
             self.bot.scheduler.remove_job(job.id)
 
-    def __build_embed(self, title: str, message: str, author: str) -> Embed:
+    def _build_embed(self, title: str, message: str, author: str) -> Embed:
         """Builds a Discord embed with the given description.
 
         :param title: The title of the embed.
@@ -49,7 +49,7 @@ class ReminderCog(
         )
         return embed
 
-    def __build_timer(self, match: Match[str]) -> timedelta:
+    def _build_timer(self, match: Match[str]) -> timedelta:
         """Converts the parsed time format into a timedelta.
 
         :param match: The timer from the user containing amount and unit.
@@ -89,7 +89,7 @@ class ReminderCog(
             )
             return
 
-        reminder_delta = self.__build_timer(match)
+        reminder_delta = self._build_timer(match)
         reminder_time = datetime.now(self.timezone) + reminder_delta
 
         self.jobs.append(
@@ -106,7 +106,7 @@ class ReminderCog(
             datetime.now() + reminder_delta  # convert to the user timezone
         )
         reminder_at = reminder_time.strftime("%H:%M:%S on %D")
-        embed = self.__build_embed(
+        embed = self._build_embed(
             "Reminder Set",
             f"Reminder set for {timer} from now!\n"
             f"You will be reminded at **{reminder_at}**.",
@@ -120,7 +120,7 @@ class ReminderCog(
         :param ctx: Command context.
         :param message: The reminder message.
         """
-        embed = self.__build_embed("Your Reminder", message, ctx.author.display_name)
+        embed = self._build_embed("Your Reminder", message, ctx.author.display_name)
         await ctx.send(f"<@{ctx.author.id}>", embed=embed)
 
 
