@@ -49,7 +49,7 @@ class ReminderCog(
         )
         return embed
 
-    def _build_timer(self, match: Match[str]) -> timedelta:
+    def _convert_to_timedelta(self, match: Match[str]) -> timedelta:
         """Converts the parsed time format into a timedelta.
 
         :param match: The timer from the user containing amount and unit.
@@ -89,7 +89,7 @@ class ReminderCog(
             )
             return
 
-        reminder_delta = self._build_timer(match)
+        reminder_delta = self._convert_to_timedelta(match)
         reminder_time = datetime.now(self.timezone) + reminder_delta
 
         self.jobs.append(

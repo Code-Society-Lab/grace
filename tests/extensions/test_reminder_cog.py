@@ -29,7 +29,7 @@ def test_valid_timer(reminder_cog):
     match = time_pattern.fullmatch(timer)
     assert match is not None
 
-    result = reminder_cog._build_timer(match)
+    result = reminder_cog._convert_to_timedelta(match)
     assert isinstance(result, timedelta)
 
 
