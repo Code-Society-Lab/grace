@@ -89,7 +89,7 @@ class ThreadsCog(Cog, name="Threads"):
         self.timezone = timezone("US/Eastern")
 
     def cog_load(self):
-        # Runs everyday at 18:30
+        # Runs every day at 18:30
         self.jobs.append(
             self.bot.scheduler.add_job(
                 self.daily_post, "cron", hour=18, minute=30, timezone=self.timezone
