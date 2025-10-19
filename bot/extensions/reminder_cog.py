@@ -103,13 +103,13 @@ class ReminderCog(
         )
 
         reminder_time = (
-            datetime.now() + reminder_delta  # convert to the user timezone
+            ctx.message.created_at + reminder_delta  # convert to the user timezone
         )
-        reminder_at = reminder_time.strftime("%H:%M:%S on %D")
+        timestamp = int(reminder_time.timestamp())
         embed = self._build_embed(
             "Reminder Set",
             f"Reminder set for {timer} from now!\n"
-            f"You will be reminded at **{reminder_at}**.",
+            f"You will be reminded on **<t:{timestamp}:F>**.",
             ctx.author.display_name,
         )
         await ctx.send(embed=embed, ephemeral=True)
