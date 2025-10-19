@@ -1,15 +1,16 @@
 import traceback
 from logging import info
+from pytz import timezone
 
 from discord import Embed, Interaction, TextStyle
 from discord.app_commands import Choice, autocomplete
-from discord.ext.commands import Cog, Context, has_permissions, hybrid_group
-from discord.ui import Modal, TextInput
-from pytz import timezone
 
+from discord.ui import Modal, TextInput
+from discord.ext.commands import Cog, has_permissions, hybrid_group, Context
+
+from bot.models.extensions.thread import Thread
 from bot.classes.recurrence import Recurrence
 from bot.extensions.command_error_handler import send_command_help
-from bot.models.extensions.thread import Thread
 from lib.config_required import cog_config_required
 
 
@@ -28,7 +29,12 @@ class ThreadModal(Modal, title="Thread"):
         style=TextStyle.paragraph,
     )
 
-    def __init__(self, recurrence: Recurrence, thread: Thread = None):
+    def __init__(
+        self,
+        recurrence: Recurrence,
+        reminder: bool = None,
+        thread: Thread = None,
+    ):
         super().__init__()
 
         if thread:
@@ -36,6 +42,7 @@ class ThreadModal(Modal, title="Thread"):
             self.thread_content.default = thread.content
 
         self.thread = thread
+        self.thread_reminder = reminder
         self.thread_recurrence = recurrence
 
     async def on_submit(self, interaction: Interaction):
@@ -49,17 +56,20 @@ class ThreadModal(Modal, title="Thread"):
             title=self.thread_title.value,
             content=self.thread_content.value,
             recurrence=self.thread_recurrence,
+            daily_reminder=self.thread_reminder,
         )
+
         await interaction.response.send_message(
             f"Thread __**{thread.id}**__ created!", ephemeral=True
         )
 
     async def update_thread(self, interaction: Interaction):
-        self.thread.title = (self.thread_title.value,)
-        self.thread.content = (self.thread_content.value,)
-        self.thread.recurrence = self.thread_recurrence
-
-        self.thread.save()
+        self.thread.update(
+            title=self.thread_title.value,
+            content=self.thread_content.value,
+            recurrence=self.thread_recurrence,
+            daily_reminder=self.thread_reminder,
+        )
 
         await interaction.response.send_message(
             f"Thread __**{self.thread.id}**__ updated!", ephemeral=True
@@ -72,7 +82,10 @@ class ThreadModal(Modal, title="Thread"):
         traceback.print_exception(type(error), error, error.__traceback__)
 
 
-async def thread_autocomplete(_: Interaction, current: str) -> list[Choice[str]]:
+async def thread_autocomplete(
+    _: Interaction,
+    current: str,
+) -> list[Choice[str]]:
     return [
         Choice(name=t.title, value=str(t.id))
         for t in Thread.all()
@@ -120,6 +133,42 @@ class ThreadsCog(Cog, name="Threads"):
             )
         )
 
+        # Runs reminders everyday at 12:30
+        self.jobs.append(
+            self.bot.scheduler.add_job(
+                self.daily_reminder, "cron", hour=12, minute=30, timezone=self.timezone
+            )
+        )
+
+    async def daily_reminder(self):
+        """Send a daily reminder for active threads."""
+        info("Posting daily threads's reminder")
+
+        embed = Embed(
+            color=self.bot.default_color,
+            title="🔔 Daily Reminder",
+            description="Join the discussion in the latest active threads:",
+        )
+
+        if threads := Thread.where(
+            Thread.latest_thread_id.isnot(None), daily_reminder=True
+        ).all():
+            for thread in threads:
+                discord_thread = await self.bot.fetch_channel(
+                    int(thread.latest_thread_id)
+                )
+                if discord_thread.archived or discord_thread.locked:
+                    continue  # Skip archieved and locked threads
+
+                embed.add_field(
+                    name="", value=f"- <#{thread.latest_thread_id}>", inline=False
+                )
+
+        if embed.fields:
+            channel = self.bot.get_channel(self.threads_channel_id)
+            if channel:
+                await channel.send(embed=embed)
+
     def cog_unload(self):
         for job in self.jobs:
             self.bot.scheduler.remove_job(job.id)
@@ -153,7 +202,10 @@ class ThreadsCog(Cog, name="Threads"):
 
         if channel:
             message = await channel.send(content=content, embed=embed)
-            await message.create_thread(name=thread.title)
+            discord_thread = await message.create_thread(name=thread.title)
+
+            if thread.daily_reminder:
+                thread.update(latest_thread_id=discord_thread.id)
 
     @hybrid_group(name="threads", help="Commands to manage threads")
     @has_permissions(administrator=True)
@@ -170,7 +222,10 @@ class ThreadsCog(Cog, name="Threads"):
             for thread in threads:
                 embed.add_field(
                     name=f"[{thread.id}] {thread.title}",
-                    value=f"**Recurrence**: {thread.recurrence}",
+                    value=(
+                        f"**Recurrence**: {thread.recurrence}\n"
+                        f"**Reminder**: {thread.daily_reminder}"
+                    ),
                     inline=False,
                 )
         else:
@@ -180,8 +235,13 @@ class ThreadsCog(Cog, name="Threads"):
 
     @threads_group.command(help="Creates a new thread")
     @has_permissions(administrator=True)
-    async def create(self, ctx: Context, recurrence: Recurrence):
-        modal = ThreadModal(recurrence)
+    async def create(
+        self,
+        ctx: Context,
+        recurrence: Recurrence,
+        reminder: bool,
+    ):
+        modal = ThreadModal(recurrence, reminder=reminder)
         await ctx.interaction.response.send_modal(modal)
 
     @threads_group.command(help="Deletes a given thread")
@@ -197,9 +257,15 @@ class ThreadsCog(Cog, name="Threads"):
     @threads_group.command(help="Update a thread")
     @has_permissions(administrator=True)
     @autocomplete(thread=thread_autocomplete)
-    async def update(self, ctx: Context, thread: int, recurrence: Recurrence):
+    async def update(
+        self,
+        ctx: Context,
+        thread: int,
+        recurrence: Recurrence,
+        reminder: bool,
+    ):
         if thread := Thread.find(thread):
-            modal = ThreadModal(recurrence, thread=thread)
+            modal = ThreadModal(recurrence, reminder=reminder, thread=thread)
             await ctx.interaction.response.send_modal(modal)
         else:
             await ctx.send("Thread not found!", ephemeral=True)

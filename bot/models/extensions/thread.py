@@ -12,7 +12,11 @@ class Thread(Model):
     id: int | None = Field(default=None, primary_key=True)
     title: str
     content: str = Field(sa_type=Text)
-    recurrence: Recurrence = EnumField(Recurrence, default=Recurrence.NONE, nullable=False)
+    recurrence: Recurrence = EnumField(
+        Recurrence, default=Recurrence.NONE, nullable=False
+    )
+    latest_thread_id: int
+    daily_reminder: bool
 
     @classmethod
     def find_by_recurrence(cls, recurrence: Recurrence) -> List[Self]:
