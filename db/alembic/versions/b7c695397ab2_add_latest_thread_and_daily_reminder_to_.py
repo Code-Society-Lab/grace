@@ -18,10 +18,12 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.add_column("threads", sa.Column("latest_thread", sa.BigInteger(), nullable=True))
+    op.add_column(
+        "threads", sa.Column("latest_thread_id", sa.BigInteger(), nullable=True)
+    )
     op.add_column("threads", sa.Column("daily_reminder", sa.Boolean()))
 
 
 def downgrade() -> None:
-    op.drop_column("threads", "latest_thread")
+    op.drop_column("threads", "latest_thread_id")
     op.drop_column("threads", "daily_reminder")

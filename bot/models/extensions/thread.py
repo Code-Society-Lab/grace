@@ -14,7 +14,7 @@ class Thread(Model):
     recurrence: Recurrence = EnumField(
         Recurrence, default=Recurrence.NONE, nullable=False
     )
-    latest_thread: int
+    latest_thread_id: int
     daily_reminder: bool
 
     @classmethod
