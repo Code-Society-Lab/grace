@@ -150,24 +150,19 @@ class ThreadsCog(Cog, name="Threads"):
             description="Join the discussion in the latest active threads:",
         )
 
-        if threads := Thread.all():
+        if threads := Thread.where(
+            Thread.latest_thread_id.isnot(None), daily_reminder=True
+        ).all():
             for thread in threads:
-                if (
-                    hasattr(thread, "latest_thread")
-                    and thread.latest_thread
-                    and thread.daily_reminder
-                ):
-                    discord_thread = await self.bot.fetch_channel(
-                        int(thread.latest_thread)
-                    )
-                    if getattr(discord_thread, "archived", False) or getattr(
-                        discord_thread, "locked", False
-                    ):
-                        continue  # Skip archieved and locked threads
+                discord_thread = await self.bot.fetch_channel(
+                    int(thread.latest_thread_id)
+                )
+                if discord_thread.archived or discord_thread.locked:
+                    continue  # Skip archieved and locked threads
 
-                    embed.add_field(
-                        name="", value=f"- <#{thread.latest_thread}>", inline=False
-                    )
+                embed.add_field(
+                    name="", value=f"- <#{thread.latest_thread_id}>", inline=False
+                )
 
         if embed.fields:
             channel = self.bot.get_channel(self.threads_channel_id)
@@ -210,8 +205,7 @@ class ThreadsCog(Cog, name="Threads"):
             discord_thread = await message.create_thread(name=thread.title)
 
             if thread.daily_reminder:
-                thread.latest_thread = discord_thread.id
-                thread.save()
+                thread.update(latest_thread_id=discord_thread.id)
 
     @hybrid_group(name="threads", help="Commands to manage threads")
     @has_permissions(administrator=True)
