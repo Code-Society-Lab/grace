@@ -1,9 +1,11 @@
 import re
-from datetime import datetime, timedelta
-from discord import Embed
-from discord.ext.commands import Cog, hybrid_command
+from datetime import datetime, timedelta, tzinfo
+from discord import Embed, File
+from discord.ext.commands import Cog, hybrid_command, Context
 from pytz import timezone
 from typing import Match
+from io import BytesIO
+from bot.grace import Grace
 
 
 class ReminderCog(
@@ -13,15 +15,28 @@ class ReminderCog(
 ):
     """A Discord Cog that manages user reminders."""
 
-    def __init__(self, bot):
-        self.bot = bot
-        self.jobs = []
-        self.timezone = timezone("US/Eastern")
+    def __init__(self, bot: Grace):
+        self.bot: Grace = bot
+        self.jobs: list = []
+        self.timezone: tzinfo = timezone("US/Eastern")
+        with open("assets/stopwatch.png", "rb") as f:
+            # Load the image bytes once during init is
+            # faster than reading from disk each time.
+            self.image_bytes: bytes = f.read()
 
     def cog_unload(self):
         """Clean up any jobs this cog created."""
         for job in self.jobs:
             self.bot.scheduler.remove_job(job.id)
+
+    def __get_embed_image__(self) -> File:
+        """Returns the stopwatch image as a Discord File for embeds.
+
+        The image is read from the in-memory bytes loaded during init.
+
+        :return: A Discord File object containing the stopwatch image.
+        """
+        return File(BytesIO(self.image_bytes), filename="stopwatch.png")
 
     def _build_embed(self, title: str, message: str, author: str) -> Embed:
         """Builds a Discord embed with the given description.
@@ -40,14 +55,7 @@ class ReminderCog(
         )
 
         embed.set_author(name=author)
-        embed.set_thumbnail(
-            url=(
-                "https://external-content.duckduckgo.com/iu/?u="
-                "https%3A%2F%2Fstatic.vecteezy.com%2Fsystem%2Fresources%2Fpreviews"
-                "%2F012%2F067%2F332%2Foriginal%2Fhand-holding-a-stopwatch-timer-png.png"
-                "&f=1&nofb=1"
-            )
-        )
+        embed.set_thumbnail(url="attachment://stopwatch.png")
 
         return embed
 
@@ -75,7 +83,7 @@ class ReminderCog(
     @hybrid_command(
         name="reminder", help="Set a reminder with a message", usage="{timer} {message}"
     )
-    async def reminder(self, ctx, timer: str, *, message: str) -> None:
+    async def reminder(self, ctx: Context, timer: str, *, message: str) -> None:
         """
         Set a reminder for the user.
 
@@ -120,17 +128,19 @@ class ReminderCog(
             inline=False,
         )
 
-        await ctx.send(embed=embed, ephemeral=True)
+        await ctx.send(embed=embed, ephemeral=True, file=self.__get_embed_image__())
 
-    async def send_reminder(self, ctx, message: str) -> None:
+    async def send_reminder(self, ctx: Context, message: str) -> None:
         """Sends the reminder to the user when the scheduler triggers it.
 
         :param ctx: Command context.
         :param message: The reminder message.
         """
         embed = self._build_embed("Your Reminder", message, ctx.author.display_name)
-        await ctx.send(f"<@{ctx.author.id}>", embed=embed)
+        await ctx.send(
+            f"<@{ctx.author.id}>", embed=embed, file=self.__get_embed_image__()
+        )
 
 
-async def setup(bot):
+async def setup(bot: Grace):
     await bot.add_cog(ReminderCog(bot))
