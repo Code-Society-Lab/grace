@@ -38,6 +38,7 @@ class ReminderCog(
             description=message,
             timestamp=datetime.now(),
         )
+
         embed.set_author(name=author)
         embed.set_thumbnail(
             url=(
@@ -47,6 +48,7 @@ class ReminderCog(
                 "&f=1&nofb=1"
             )
         )
+
         return embed
 
     def _convert_to_timedelta(self, match: Match[str]) -> timedelta:
@@ -112,6 +114,12 @@ class ReminderCog(
             f"You will be reminded on **<t:{timestamp}:F>**.",
             ctx.author.display_name,
         )
+        embed.add_field(
+            name="",
+            value="_⚠️ Reminders are not saved and will be cleared on restart [read more](https://github.com/Code-Society-Lab/grace/issues/151)._",
+            inline=False,
+        )
+
         await ctx.send(embed=embed, ephemeral=True)
 
     async def send_reminder(self, ctx, message: str) -> None:
