@@ -80,9 +80,7 @@ def test_valid_embed(reminder_cog):
         assert result.description == message
         assert result.author.name == author
 
-        assert result.thumbnail.url.startswith(
-            "https://external-content.duckduckgo.com/iu/"
-        )
+        assert result.thumbnail.url == "attachment://stopwatch.png"
 
 
 @pytest.mark.asyncio
@@ -92,18 +90,35 @@ def test_valid_embed(reminder_cog):
 )
 async def test_reminder_valid_input(reminder_cog, timer):
     """Verify that reminder works with valid input."""
-    ctx = AsyncMock()
+    with freeze_time("2025-02-20 12:00:01"):
+        ctx = AsyncMock()
+        ctx.author.display_name = "Astra Al-Maarifa"
 
-    message = "Time for a break!"
-    await reminder_cog.reminder.callback(
-        reminder_cog,
-        ctx,
-        timer=timer,
-        message=message,
-    )
+        message = "Time for a break!"
+        await reminder_cog.reminder.callback(
+            reminder_cog,
+            ctx,
+            timer=timer,
+            message=message,
+        )
 
-    ctx.send.assert_awaited_once()
-    reminder_cog.bot.scheduler.add_job.assert_called_once()
+        ctx.send.assert_awaited_once()
+        assert ctx.send.await_count == 1, "ctx.send should be awaited once"
+
+        sent_Embed = ctx.send.call_args[1]["embed"]
+        assert isinstance(sent_Embed, Embed), f"Expected Embed, got {type(sent_Embed)}"
+        assert f"Reminder set for {timer} from now!" in sent_Embed.description
+        assert "You will be reminded on" in sent_Embed.description
+        assert sent_Embed.author.name == ctx.author.display_name
+
+        reminder_cog.bot.scheduler.add_job.assert_called_once()
+        _, kwargs = reminder_cog.bot.scheduler.add_job.call_args
+        assert kwargs["args"][0] == ctx
+        assert kwargs["args"][1] == message
+        assert kwargs["id"].startswith(
+            f"reminder_{ctx.author.id}_{datetime.now().timestamp()}"
+        )
+        assert kwargs["run_date"] >= datetime.now(tz=tzlocal())
 
 
 @pytest.mark.asyncio
