@@ -1,6 +1,6 @@
 from discord import Embed, Interaction
 from discord.app_commands import Choice, autocomplete
-from discord.ext.commands import Cog, Context, hybrid_command
+from discord.ext.commands import Cog, Context, hybrid_command, has_permissions
 from discord.ui import Button
 from emoji import emojize
 
@@ -112,6 +112,13 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
 
         await ctx.send(embed=embed)
 
+    @hybrid_command(name="sync", help="Sync application commands")
+    @has_permissions(manage_messages=True)
+    async def sync_command(self, ctx: Context) -> None:
+        """Sync application commands"""
+        await self.bot.sync_commands()
+        await ctx.send("Application commands synced successfully!", ephemeral=True)
+
     @hybrid_command(name="hopper", help="The legend of Grace Hopper")
     async def hopper_command(self, ctx: Context) -> None:
         """Show a link to a comic about Grace Hopper.
@@ -136,11 +143,11 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
         :param project: The project's name to get contributors.
         :type project: str
         """
-        if ctx.interaction:
-            await ctx.interaction.response.defer()
+        await ctx.defer()
 
         if project not in available_project_names():
-            return await send_error(ctx, f"Project '_{project}_' not found.")
+            await send_error(ctx, f"Project '_{project}_' not found.")
+            return
 
         repository = GithubService().get_code_society_lab_repo(project)
         embeds = create_contributors_embeds(repository)
