@@ -6,6 +6,7 @@ on:
 
 jobs:
   deploy:
+    # if the PR is merged, don't run the deployment
     if: github.event.pull_request.merged != true
     concurrency:
       group: staging-${{ github.event.pull_request.number }}
