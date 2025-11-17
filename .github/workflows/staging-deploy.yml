@@ -2,10 +2,15 @@ name: Staging Deployment
 
 on:
   pull_request_target:
-    types: [opened, reopened, synchronize]
+    types: [opened, reopened, synchronize, closed]
 
 jobs:
   deploy:
+    # if the PR is merged, don't run the deployment
+    if: github.event.pull_request.merged != true
+    concurrency:
+      group: staging-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     environment: staging
     steps:
