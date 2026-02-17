@@ -103,41 +103,41 @@ class ThreadsCog(Cog, name="Threads"):
         self.timezone = timezone("US/Eastern")
 
     def cog_load(self):
-        # Runs every day at 18:30
+        # Runs every day at 12:30
         self.jobs.append(
             self.bot.scheduler.add_job(
-                self.daily_post, "cron", hour=18, minute=30, timezone=self.timezone
+                self.daily_post, "cron", hour=12, minute=30, timezone=self.timezone
             )
         )
 
-        # Runs every monday at 18:30
+        # Runs every monday at 12:30
         self.jobs.append(
             self.bot.scheduler.add_job(
                 self.weekly_post,
                 "cron",
                 day_of_week="mon",
-                hour=18,
+                hour=12,
                 minute=30,
                 timezone=self.timezone,
             )
         )
 
-        # Runs on the 1st of every month at 18:30
+        # Runs on the 1st of every month at 12:30
         self.jobs.append(
             self.bot.scheduler.add_job(
                 self.monthly_post,
                 "cron",
                 day=1,
-                hour=18,
+                hour=12,
                 minute=30,
                 timezone=self.timezone,
             )
         )
 
-        # Runs reminders everyday at 12:30
+        # Runs reminders everyday at 18:30
         self.jobs.append(
             self.bot.scheduler.add_job(
-                self.daily_reminder, "cron", hour=12, minute=30, timezone=self.timezone
+                self.daily_reminder, "cron", hour=18, minute=30, timezone=self.timezone
             )
         )
 
