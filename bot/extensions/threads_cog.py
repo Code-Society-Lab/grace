@@ -1,6 +1,7 @@
 import traceback
 from logging import info
 from pytz import timezone
+from datetime import datetime
 
 from discord import Embed, Interaction, TextStyle
 from discord.app_commands import Choice, autocomplete
@@ -200,6 +201,7 @@ class ThreadsCog(Cog, name="Threads"):
             color=self.bot.default_color,
             title=thread.title,
             description=thread.content,
+            timestamp=datetime.now()
         )
 
         if channel:
