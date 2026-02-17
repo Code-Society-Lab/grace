@@ -197,15 +197,22 @@ class ThreadsCog(Cog, name="Threads"):
         content = f"<@&{role_id}>" if role_id else None
 
         embed = Embed(
-            color=self.bot.default_color, title=thread.title, description=thread.content
+            color=self.bot.default_color,
+            title=thread.title,
+            description=thread.content,
         )
 
         if channel:
             message = await channel.send(content=content, embed=embed)
-            discord_thread = await message.create_thread(name=thread.title)
+            new_discord_thread = await message.create_thread(name=thread.title)
 
-            if thread.daily_reminder:
-                thread.update(latest_thread_id=discord_thread.id)
+            if old_discord_thread := self.bot.get_channel(
+                thread.latest_thread_id
+            ):
+                await old_discord_thread.send(new_discord_thread.jump_url)
+                await old_discord_thread.edit(archived=True, locked=True)
+
+            thread.update(latest_thread_id=new_discord_thread.id)
 
     @hybrid_group(name="threads", help="Commands to manage threads")
     @has_permissions(administrator=True)
