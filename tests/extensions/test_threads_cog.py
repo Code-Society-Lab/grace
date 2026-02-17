@@ -158,33 +158,47 @@ async def test_daily_reminder_skips_archived_and_locked(threads_cog, mock_bot):
 
 
 @pytest.mark.asyncio
-async def test_post_thread(threads_cog, mock_bot):
-    """Test post_thread creates a thread in the specified channel."""
+async def test_post_thread_with_old_thread(threads_cog, mock_bot):
+    """Test post_thread archives old thread when one exists."""
     thread = Thread.create(
         title="Test Thread",
         content="This is a test thread.",
         recurrence=None,
         daily_reminder=False,
-        latest_thread_id=None,
+        latest_thread_id=987654321,  # Old thread ID
     )
 
     mock_channel = MagicMock()
     mock_channel.send = AsyncMock()
-    mock_bot.get_channel.return_value = mock_channel
+
+    mock_old_thread = MagicMock()
+    mock_old_thread.send = AsyncMock()
+    mock_old_thread.edit = AsyncMock()
+
+    mock_thread = MagicMock()
+    mock_thread.id = 123456789
+    mock_thread.jump_url = "https://discord.com/channels/123/456/789"
+
+    def get_channel_side_effect(channel_id):
+        if channel_id == threads_cog.threads_channel_id:
+            return mock_channel
+        elif channel_id == 987654321:
+            return mock_old_thread
+        return None
+
+    mock_bot.get_channel.side_effect = get_channel_side_effect
 
     message_mock = MagicMock()
-    message_mock.create_thread = AsyncMock()
+    message_mock.create_thread = AsyncMock(return_value=mock_thread)
     mock_channel.send.return_value = message_mock
 
     await threads_cog.post_thread(thread)
 
-    mock_channel.send.assert_awaited_once()
-    args, kwargs = mock_channel.send.await_args
-    embed = kwargs.get("embed")
-    assert embed is not None
-    assert embed.title == thread.title
-    assert embed.description == thread.content
+    # Verify old thread was archived
+    mock_old_thread.send.assert_awaited_once_with(mock_thread.jump_url)
+    mock_old_thread.edit.assert_awaited_once_with(archived=True, locked=True)
 
+    # Verify new thread was created
     message_mock.create_thread.assert_awaited_once_with(name=thread.title)
 
 
