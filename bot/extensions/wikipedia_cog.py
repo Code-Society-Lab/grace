@@ -1,11 +1,16 @@
 from json import loads
 from typing import Any, List
 from urllib.parse import quote_plus
-from urllib.request import urlopen
+from urllib.request import Request, urlopen
 
 from discord import Button, ButtonStyle, Embed, Interaction, ui
 from discord.ext.commands import Cog, Context, hybrid_command
 from discord.ui import View
+
+# Wikimedia requires a descriptive User-Agent identifying the application
+# and a way to contact the operator. See:
+# https://foundation.wikimedia.org/wiki/Policy:Wikimedia_Foundation_User-Agent_Policy
+USER_AGENT = "grace-bot/1.0 (https://github.com/Code-Society-Lab/grace)"
 
 
 def search_results(search: str) -> List[Any]:
@@ -20,7 +25,8 @@ def search_results(search: str) -> List[Any]:
     url_encode: str = quote_plus(search)
     base_url: str = f"https://en.wikipedia.org/w/api.php?action=opensearch&format=json&limit=3&namespace=0&search={url_encode}"
 
-    with urlopen(base_url) as url:
+    request = Request(base_url, headers={"User-Agent": USER_AGENT})
+    with urlopen(request) as url:
         return loads(url.read())
 
 
