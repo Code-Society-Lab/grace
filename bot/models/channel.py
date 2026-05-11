@@ -1,6 +1,5 @@
-from sqlalchemy import UniqueConstraint
-
 from grace.model import Field, Model
+from sqlalchemy import UniqueConstraint
 
 
 class Channel(Model):

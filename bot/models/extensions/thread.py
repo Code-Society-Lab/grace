@@ -1,8 +1,9 @@
+from typing import Self
+
+from grace.model import Field, Model
 from sqlalchemy import Text
 
-from typing import List, Self
 from bot.classes.recurrence import Recurrence
-from grace.model import Field, Model
 from lib.fields import EnumField
 
 
@@ -19,5 +20,5 @@ class Thread(Model):
     daily_reminder: bool
 
     @classmethod
-    def find_by_recurrence(cls, recurrence: Recurrence) -> List[Self]:
+    def find_by_recurrence(cls, recurrence: Recurrence) -> list[Self]:
         return cls.where(recurrence=recurrence.value).all()

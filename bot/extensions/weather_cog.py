@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime
 from string import capwords
 
@@ -72,8 +73,8 @@ class WeatherCog(
         :rtype: dict
         """
         # complete_url to retreive weather info
-        response = get(
-            f"{self.OPENWEATHER_BASE_URL}/weather?appid={self.api_key}&q={city}"
+        response = await asyncio.to_thread(
+            get, f"{self.OPENWEATHER_BASE_URL}/weather?appid={self.api_key}&q={city}"
         )
 
         # code 200 means the city is found otherwise, city is not found

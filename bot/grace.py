@@ -1,11 +1,13 @@
-from logging import info, warning
+import logging
+
+logger = logging.getLogger(__name__)
 
 from discord import Activity, ActivityType, Colour, Intents
+from grace.bot import Bot
 from pretty_help import PrettyHelp
 
 from bot.models.channel import Channel
 from bot.models.extension import Extension
-from grace.bot import Bot
 
 
 class Grace(Bot):
@@ -34,17 +36,17 @@ class Grace(Bot):
             extension = Extension.where(module_name=module).first()
 
             if not extension:
-                warning(f"{module} is not registered. Registering the extension.")
+                logger.warning(f"{module} is not registered. Registering the extension.")
                 extension = Extension.create(module_name=module)
 
             if not extension.should_be_loaded():
                 extension.disable()
 
             if extension.is_enabled():
-                info(f"Loading {module}")
+                logger.info(f"Loading {module}")
                 await self.load_extension(module)
             else:
-                info(f"{module} is disabled, it will not be loaded.")
+                logger.info(f"{module} is disabled, it will not be loaded.")
 
     async def on_ready(self):
-        info(f"{self.user.name}#{self.user.id} is online and ready to use!")
+        logger.info(f"{self.user.name}#{self.user.id} is online and ready to use!")

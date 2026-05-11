@@ -1,7 +1,9 @@
 import base64
 import json
+import logging
 import zlib
-from logging import critical, info
+
+logger = logging.getLogger(__name__)
 
 import requests
 
@@ -50,10 +52,10 @@ def _is_valid_diagram(url: str) -> bool:
     """
     try:
         response = requests.get(url, timeout=5)
-        info(f"url: {url} - code: {response.status_code}")
+        logger.info(f"url: {url} - code: {response.status_code}")
         return response.status_code == 200
     except requests.RequestException as e:
-        critical(e)
+        logger.critical(e)
         return False
 
 

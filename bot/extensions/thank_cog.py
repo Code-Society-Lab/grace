@@ -1,4 +1,3 @@
-from typing import List, Optional
 
 from discord import Embed, Member
 from discord.ext.commands import BucketType, Cog, Context, cooldown, hybrid_group
@@ -76,7 +75,7 @@ class ThankCog(Cog):
             )
             return
 
-        helpers: List[Thank] = Thank.order_by(count="desc").limit(top).all()
+        helpers: list[Thank] = Thank.order_by(count="desc").limit(top).all()
 
         if not helpers:
             await ctx.reply("No helpers found.", ephemeral=True)
@@ -91,16 +90,14 @@ class ThankCog(Cog):
         for position, helper in enumerate(helpers):
             member = await self.bot.fetch_user(helper.member_id)
             leaderboard_embed.description += (
-                "{}. **{}**: **{}** with {} thank(s).\n".format(
-                    position + 1, member.display_name, helper.rank, helper.count
-                )
+                f"{position + 1}. **{member.display_name}**: **{helper.rank}** with {helper.count} thank(s).\n"
             )
 
         await ctx.reply(embed=leaderboard_embed, ephemeral=True)
 
     @thank_group.command(name="rank", description="Shows your current thank rank.")
     async def thank_rank(
-        self, ctx: Context, *, member: Optional[Member] = None
+        self, ctx: Context, *, member: Member | None = None
     ) -> None:
         """Show the current rank of the member who issue this command.
 

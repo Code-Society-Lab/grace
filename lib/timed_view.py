@@ -1,7 +1,6 @@
 from asyncio import Task, create_task
 from asyncio import sleep as async_sleep
 from datetime import timedelta
-from typing import Optional
 
 from discord.ui import View
 
@@ -23,7 +22,7 @@ class TimedView(View):
         super().__init__(timeout=None)
 
         self.seconds: int = seconds
-        self.__timer_task: Optional[Task[None]] = None
+        self.__timer_task: Task[None] | None = None
 
     @property
     def seconds(self) -> int:
@@ -80,7 +79,6 @@ class TimedView(View):
         This callback does nothing by default but can be
         overriden to change its behaviour.
         """
-        pass
 
     async def on_timer_elapsed(self):
         """A callback that is called when the timer elapsed.

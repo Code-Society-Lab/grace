@@ -1,3 +1,4 @@
+import asyncio
 from json import loads
 from random import choice as random_choice
 
@@ -80,8 +81,8 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
         :param ctx: The context in which the command was called.
         :type ctx: Context
         """
-        response = get(
-            "https://api.forismatic.com/api/1.0/?method=getQuote&format=json&lang=en"
+        response = await asyncio.to_thread(
+            get, "https://api.forismatic.com/api/1.0/?method=getQuote&format=json&lang=en"
         )
 
         if response.ok:

@@ -1,9 +1,9 @@
 from datetime import datetime, timedelta
-from typing import List
+
+from grace.model import Field, Model, Relationship
 
 from bot.models.bot import BotSettings
 from bot.models.extensions.language.pun_word import PunWord
-from grace.model import Field, Model, Relationship
 
 
 class Pun(Model):
@@ -12,7 +12,7 @@ class Pun(Model):
     id: int | None = Field(default=None, primary_key=True)
     text: str | None = Field(unique=True)
     last_invoked: datetime | None = Field(default=None)
-    pun_words: List["PunWord"] = Relationship(
+    pun_words: list["PunWord"] = Relationship(
         back_populates="pun", sa_relationship_kwargs={"lazy": "selectin"}
     )
 

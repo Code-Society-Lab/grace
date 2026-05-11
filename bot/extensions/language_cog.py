@@ -1,4 +1,6 @@
-from logging import warning
+import logging
+
+logger = logging.getLogger(__name__)
 
 from discord import Embed, Message
 from discord.ext.commands import Cog, Context, has_permissions, hybrid_group
@@ -55,7 +57,7 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
         """
         grace_trigger = Trigger.find_by(name="Grace")
         if grace_trigger is None:
-            warning('Missing trigger entry for "Grace"')
+            logger.warning('Missing trigger entry for "Grace"')
             return
 
         if self.bot.user.mentioned_in(message) and not message.content.startswith(
@@ -82,11 +84,11 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
         """
         linus_trigger = Trigger.find_by(name="Linus")
         if linus_trigger is None:
-            warning('Missing trigger entry for "Linus"')
+            logger.warning('Missing trigger entry for "Linus"')
             return
 
         message_tokens = self.tokenizer.tokenize(message.content)
-        tokenlist = list(map(lambda s: s.lower(), message_tokens))
+        tokenlist = [s.lower() for s in message_tokens]
         linustarget = [i for i, x in enumerate(tokenlist) if x in linus_trigger.words]
         # Get the indices of all linuses in the message
 
@@ -97,9 +99,7 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
                     if (
                         tokenlist[linusindex + 1] == "tech"
                         and tokenlist[linusindex + 2] == "tips"
-                    ):
-                        fail = True
-                    elif (
+                    ) or (
                         tokenlist[linusindex + 1] == "and"
                         and tokenlist[linusindex + 2] == "lucy"
                     ):
@@ -143,7 +143,7 @@ class LanguageCog(Cog, name="Language", description="Analyze and reacts to messa
         if ctx.invoked_subcommand is None:
             trigger = Trigger.find_by(name="Linus")
             if trigger is None:
-                warning('Missing trigger entry for "Linus"')
+                logger.warning('Missing trigger entry for "Linus"')
                 return
 
             embed = Embed(

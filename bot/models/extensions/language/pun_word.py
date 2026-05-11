@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING
 
 from emoji import emojize
-
 from grace.model import Field, Model, Relationship
 
 if TYPE_CHECKING:

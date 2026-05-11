@@ -1,5 +1,4 @@
 import re
-from typing import Optional
 
 from discord import Embed, Message
 from discord.ext.commands import Cog, Context, command
@@ -83,7 +82,7 @@ class MermaidCog(Cog, name="Mermaid", description="Generates mermaid diagrams"):
         help="Generate a diagram from mermaid script",
         usage="՝՝՝\nMermaid script goes here...\n՝՝՝",
     )
-    async def mermaid(self, ctx: Context, *, content: Optional[str]):
+    async def mermaid(self, ctx: Context, *, content: str | None):
         """Generates a mermaid diagram
 
         Reply with this command to a message that contains a code block with

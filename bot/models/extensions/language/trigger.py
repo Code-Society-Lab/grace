@@ -1,9 +1,8 @@
-from typing import List
 
 from emoji import emojize
+from grace.model import Field, Model, Relationship
 
 from bot.models.extensions.language.trigger_word import TriggerWord
-from grace.model import Field, Model, Relationship
 
 
 class Trigger(Model):
@@ -14,7 +13,7 @@ class Trigger(Model):
     positive_emoji_code: str = Field(max_length=255)
     negative_emoji_code: str = Field(max_length=255)
 
-    trigger_words: List[TriggerWord] = Relationship(
+    trigger_words: list[TriggerWord] = Relationship(
         back_populates="trigger", sa_relationship_kwargs={"lazy": "selectin"}
     )
 

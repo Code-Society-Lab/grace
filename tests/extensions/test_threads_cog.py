@@ -1,7 +1,8 @@
+from unittest.mock import AsyncMock, MagicMock
+
 import pytest
 
 from bot.extensions.threads_cog import ThreadsCog
-from unittest.mock import AsyncMock, MagicMock
 from bot.models.extensions.thread import Thread
 
 
@@ -131,7 +132,7 @@ async def test_daily_reminder_with_active_threads(threads_cog, mock_bot):
     await threads_cog.daily_reminder()
     mock_channel.send.assert_awaited_once()
 
-    args, kwargs = mock_channel.send.await_args
+    _args, kwargs = mock_channel.send.await_args
     embed = kwargs.get("embed")
     assert embed is not None
 

@@ -1,12 +1,13 @@
 import re
-import pytest
+from datetime import datetime, timedelta
+from unittest.mock import AsyncMock, MagicMock
 
-from datetime import timedelta, datetime
-from freezegun import freeze_time
-from unittest.mock import MagicMock, AsyncMock
-from discord import Embed
-from bot.extensions.reminder_cog import ReminderCog
+import pytest
 from dateutil.tz import tzlocal
+from discord import Embed
+from freezegun import freeze_time
+
+from bot.extensions.reminder_cog import ReminderCog
 
 
 @pytest.fixture
@@ -116,7 +117,7 @@ async def test_reminder_valid_input(reminder_cog, timer):
         assert kwargs["args"][0] == ctx
         assert kwargs["args"][1] == message
         assert kwargs["id"].startswith(
-            f"reminder_{ctx.author.id}_{datetime.now().timestamp()}"
+            f"reminder_{ctx.author.id}_{datetime.now(tz=tzlocal()).timestamp()}"
         )
         assert kwargs["run_date"] >= datetime.now(tz=tzlocal())
 

@@ -35,7 +35,7 @@ dev = [
     "pytest-asyncio",
     "flake8",
     "mypy",
-    "ruff",
+    "ruff==0.15.12",
     "freezegun",
 ]
 

@@ -1,17 +1,18 @@
+import logging
 import traceback
-from logging import info
-from pytz import timezone
-from datetime import datetime
+from datetime import UTC, datetime
+
+logger = logging.getLogger(__name__)
 
 from discord import Embed, Interaction, TextStyle
 from discord.app_commands import Choice, autocomplete
-
+from discord.ext.commands import Cog, Context, has_permissions, hybrid_group
 from discord.ui import Modal, TextInput
-from discord.ext.commands import Cog, has_permissions, hybrid_group, Context
+from pytz import timezone
 
-from bot.models.extensions.thread import Thread
 from bot.classes.recurrence import Recurrence
 from bot.extensions.command_error_handler import send_command_help
+from bot.models.extensions.thread import Thread
 from lib.config_required import cog_config_required
 
 
@@ -33,8 +34,8 @@ class ThreadModal(Modal, title="Thread"):
     def __init__(
         self,
         recurrence: Recurrence,
-        reminder: bool = None,
-        thread: Thread = None,
+        reminder: bool | None = None,
+        thread: Thread | None = None,
     ):
         super().__init__()
 
@@ -143,7 +144,7 @@ class ThreadsCog(Cog, name="Threads"):
 
     async def daily_reminder(self):
         """Send a daily reminder for active threads."""
-        info("Posting daily threads's reminder")
+        logger.info("Posting daily threads's reminder")
 
         embed = Embed(
             color=self.bot.default_color,
@@ -175,19 +176,19 @@ class ThreadsCog(Cog, name="Threads"):
             self.bot.scheduler.remove_job(job.id)
 
     async def daily_post(self):
-        info("Posting daily threads")
+        logger.info("Posting daily threads")
 
         for thread in Thread.find_by_recurrence(Recurrence.DAILY):
             await self.post_thread(thread)
 
     async def weekly_post(self):
-        info("Posting weekly threads")
+        logger.info("Posting weekly threads")
 
         for thread in Thread.find_by_recurrence(Recurrence.WEEKLY):
             await self.post_thread(thread)
 
     async def monthly_post(self):
-        info("Posting monthly threads")
+        logger.info("Posting monthly threads")
 
         for thread in Thread.find_by_recurrence(Recurrence.MONTHLY):
             await self.post_thread(thread)
@@ -201,7 +202,7 @@ class ThreadsCog(Cog, name="Threads"):
             color=self.bot.default_color,
             title=thread.title,
             description=thread.content,
-            timestamp=datetime.now()
+            timestamp=datetime.now(tz=UTC)
         )
 
         if channel:

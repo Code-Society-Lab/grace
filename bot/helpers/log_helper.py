@@ -1,4 +1,5 @@
-from datetime import datetime
+from datetime import UTC, datetime
+from typing import ClassVar
 
 from discord import Color, Embed
 
@@ -22,7 +23,7 @@ def danger(title, description):
 
 class LogHelper:
     __DEFAULT_COLOR = Color.from_rgb(0, 123, 255)
-    COLORS_BY_LOG_LEVEL = {
+    COLORS_BY_LOG_LEVEL: ClassVar[dict] = {
         "danger": Color.from_rgb(220, 53, 69),
         "warning": Color.from_rgb(255, 193, 7),
         "info": __DEFAULT_COLOR,
@@ -33,7 +34,7 @@ class LogHelper:
             title=title,
             description=description,
             color=self.COLORS_BY_LOG_LEVEL.get(log_level, self.__DEFAULT_COLOR),
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(tz=UTC),
         )
 
     def add_field(self, name, value):
