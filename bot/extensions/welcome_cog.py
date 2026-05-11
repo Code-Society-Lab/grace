@@ -1,4 +1,6 @@
-from logging import info
+import logging
+
+logger = logging.getLogger(__name__)
 
 from discord import Embed, Member
 from discord.ext.commands import Cog, hybrid_command
@@ -117,7 +119,7 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
         :type after: discord.Member
         """
         if not before.bot and (before.pending and not after.pending):
-            info(f"{after.display_name} accepted the rules!")
+            logger.info(f"{after.display_name} accepted the rules!")
 
             embed = self.__build_embed(after)
             welcome_channel = self.bot.get_channel_by_name("welcome")
@@ -134,7 +136,7 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
         :param member: The member who joined the server.
         :type member: discord.Member
         """
-        info(f"{member.display_name} joined the server!")
+        logger.info(f"{member.display_name} joined the server!")
 
     @hybrid_command(
         name="welcome", description="Welcomes the person who issues the command"
@@ -145,7 +147,7 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
         :param ctx: The context in which the command was invoked.
         :type ctx: Context
         """
-        info(f"{ctx.author.display_name} asked to get welcomed!")
+        logger.info(f"{ctx.author.display_name} asked to get welcomed!")
 
         embed = self.__build_embed(ctx.author)
         await ctx.send(embed=embed, ephemeral=True)

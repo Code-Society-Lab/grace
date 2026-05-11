@@ -1,10 +1,12 @@
 import re
-from datetime import datetime, timedelta, tzinfo
-from discord import Embed, File
-from discord.ext.commands import Cog, hybrid_command, Context
-from pytz import timezone
-from typing import Match
+from datetime import UTC, datetime, timedelta, tzinfo
 from io import BytesIO
+from re import Match
+
+from discord import Embed, File
+from discord.ext.commands import Cog, Context, hybrid_command
+from pytz import timezone
+
 from bot.grace import Grace
 
 
@@ -51,7 +53,7 @@ class ReminderCog(
             color=self.bot.default_color,
             title=f"**{title}**",
             description=message,
-            timestamp=datetime.now(),
+            timestamp=datetime.now(tz=UTC),
         )
 
         embed.set_author(name=author)
@@ -108,7 +110,7 @@ class ReminderCog(
                 "date",
                 run_date=reminder_time,
                 args=[ctx, message],
-                id=f"reminder_{ctx.author.id}_{datetime.now().timestamp()}",
+                id=f"reminder_{ctx.author.id}_{datetime.now(tz=UTC).timestamp()}",
             )
         )
 

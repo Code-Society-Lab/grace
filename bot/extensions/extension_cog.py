@@ -1,4 +1,3 @@
-from typing import List
 
 from discord import Embed
 from discord.app_commands import Choice, autocomplete
@@ -25,7 +24,7 @@ def extension_autocomplete(state: bool):
     :return: An autocomplete function.
     """
 
-    async def inner_autocomplete(_, current: str) -> List[Choice]:
+    async def inner_autocomplete(_, current: str) -> list[Choice]:
         """Autocomplete function for extensions.
 
         :param current: The current word being autocompleted.

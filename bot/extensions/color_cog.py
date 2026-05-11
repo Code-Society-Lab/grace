@@ -1,5 +1,4 @@
 import os
-from typing import Tuple, Union
 
 from discord import Color, Embed, File
 from discord.ext.commands import (
@@ -14,7 +13,7 @@ from PIL import Image
 from bot.helpers.error_helper import send_command_error
 
 
-def get_embed_color(color: Union[Tuple[int, int, int], str]) -> Color:
+def get_embed_color(color: tuple[int, int, int] | str) -> Color:
     """Convert a color to an Embed Color object.
 
     :param color: A tuple of 3 integers in the range 0-255 representing an RGB
@@ -60,7 +59,7 @@ class ColorCog(
             await ctx.send_help(ctx.command)
 
     async def display_color(
-        self, ctx: Context, color: Union[Tuple[int, int, int], str]
+        self, ctx: Context, color: tuple[int, int, int] | str
     ) -> None:
         """Display a color in an embed message.
 
@@ -114,9 +113,7 @@ class ColorCog(
         :param error: The error that was raised during command execution.
         :type error: Exception
         """
-        if isinstance(error, HybridCommandError) or isinstance(
-            error, CommandInvokeError
-        ):
+        if isinstance(error, (HybridCommandError, CommandInvokeError)):
             await send_command_error(
                 ctx, "Expected rgb color", ctx.command, "244 195 8"
             )
@@ -149,9 +146,7 @@ class ColorCog(
         :param error: The error that was raised during command execution.
         :type error: Exception
         """
-        if isinstance(error, HybridCommandError) or isinstance(
-            error, CommandInvokeError
-        ):
+        if isinstance(error, (HybridCommandError, CommandInvokeError)):
             await send_command_error(
                 ctx, "Expected hexadecimal color", ctx.command, "#F4C308"
             )

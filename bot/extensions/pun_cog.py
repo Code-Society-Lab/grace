@@ -45,7 +45,7 @@ class PunCog(
         tokenlist = set(map(str.lower, message_tokens))
 
         pun_words = PunWord.distinct().all()
-        word_set = set(map(lambda pun_word: pun_word.word, pun_words))
+        word_set = {pun_word.word for pun_word in pun_words}
 
         matches = tokenlist.intersection(word_set)
         invoked_at = message.created_at.replace(tzinfo=None)
@@ -54,7 +54,7 @@ class PunCog(
             matched_pun_words = filter(
                 lambda pun_word: pun_word.word in matches, pun_words
             )
-            puns = map(lambda pun_word: Pun.find(pun_word.pun_id), matched_pun_words)
+            puns = (Pun.find(pun_word.pun_id) for pun_word in matched_pun_words)
             puns = list(filter(lambda pun: pun.can_invoke_at_time(invoked_at), puns))
 
             for pun_word in matched_pun_words:
@@ -81,9 +81,7 @@ class PunCog(
     @has_permissions(administrator=True)
     async def list_puns(self, ctx: Context) -> None:
         if ctx.invoked_subcommand is None:
-            pun_texts_with_ids = map(
-                lambda pun: "{}.\t{}".format(pun.id, pun.text), Pun.all()
-            )
+            pun_texts_with_ids = (f"{pun.id}.\t{pun.text}" for pun in Pun.all())
 
             embed = Embed(
                 color=self.bot.default_color,

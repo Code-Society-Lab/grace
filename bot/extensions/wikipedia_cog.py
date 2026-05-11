@@ -1,5 +1,5 @@
 from json import loads
-from typing import Any, List
+from typing import Any
 from urllib.parse import quote_plus
 from urllib.request import Request, urlopen
 
@@ -13,7 +13,7 @@ from discord.ui import View
 USER_AGENT = "grace-bot/1.0 (https://github.com/Code-Society-Lab/grace)"
 
 
-def search_results(search: str) -> List[Any]:
+def search_results(search: str) -> list[Any]:
     """Return search results from Wikipedia for the given search query.
 
     :param search: The search query to be used to search Wikipedia.
@@ -31,11 +31,11 @@ def search_results(search: str) -> List[Any]:
 
 
 class Buttons(View):
-    def __init__(self, search: str, result: List[Any]) -> None:
+    def __init__(self, search: str, result: list[Any]) -> None:
         super().__init__()
 
         self.search: str = search
-        self.result: List[Any] = result
+        self.result: list[Any] = result
 
     async def wiki_result(
         self, interaction: Interaction, _: Button, index: int
@@ -52,9 +52,7 @@ class Buttons(View):
         """
         if len(self.result[3]) >= index:
             await interaction.response.send_message(
-                "{mention} requested:\n {request}".format(
-                    mention=interaction.user.mention, request=self.result[3][index - 1]
-                )
+                f"{interaction.user.mention} requested:\n {self.result[3][index - 1]}"
             )
             self.stop()
         else:
@@ -89,7 +87,7 @@ class Wikipedia(Cog, name="Wikipedia", description="Search on Wikipedia."):
         :param search: The search query to be used to search Wikipedia.
         :type search: str
         """
-        result: List[Any] = search_results(search)
+        result: list[Any] = search_results(search)
         view: Buttons = Buttons(search, result)
 
         if len(result[1]) == 0:
@@ -98,10 +96,8 @@ class Wikipedia(Cog, name="Wikipedia", description="Search on Wikipedia."):
             )
         else:
             result_view = ""
-            search_count = 1
-            for result in result[1]:
-                result_view += f"{str(search_count)}: {result}\n"
-                search_count += 1
+            for search_count, item in enumerate(result[1], start=1):
+                result_view += f"{search_count!s}: {item}\n"
 
             embed = Embed(
                 color=0x2376FF,

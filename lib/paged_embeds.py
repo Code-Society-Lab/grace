@@ -1,4 +1,5 @@
-from typing import Any, Callable, List, Optional
+from collections.abc import Callable
+from typing import Any
 
 from discord import Embed, Interaction, Message
 from discord.ext.commands import Context
@@ -21,12 +22,12 @@ class EmbedButton(Button):
 
 
 class PagedEmbedView(View):
-    def __init__(self, embeds: List[Embed]):
+    def __init__(self, embeds: list[Embed]):
         super().__init__()
 
-        self.__message: Optional[Message] = None
+        self.__message: Message | None = None
         self.__embeds: BidirectionalIterator[Embed] = BidirectionalIterator(embeds)
-        self.__arrow_button: List[EmbedButton] = [
+        self.__arrow_button: list[EmbedButton] = [
             EmbedButton(
                 self.__embeds.previous, emoji=emojize(":left_arrow:"), disabled=True
             ),

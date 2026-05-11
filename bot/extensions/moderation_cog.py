@@ -1,6 +1,7 @@
-from datetime import datetime
-from logging import info
-from typing import Optional
+import logging
+from datetime import UTC, datetime
+
+logger = logging.getLogger(__name__)
 
 from discord import Member, Message, Reaction
 from discord.ext.commands import Cog, Context, has_permissions, hybrid_command
@@ -24,7 +25,7 @@ class ModerationCog(
     @hybrid_command(name="purge", help="Deletes n amount of messages.")
     @has_permissions(manage_messages=True)
     async def purge(
-        self, ctx: Context, limit: int, reason: Optional[str] = "No reason given"
+        self, ctx: Context, limit: int, reason: str | None = "No reason given"
     ) -> None:
         """Purge a specified number of messages from the channel.
 
@@ -60,7 +61,7 @@ class ModerationCog(
         )
 
         if author.bot or is_already_reacted:
-            return None
+            return
 
         match demojize(str(reaction.emoji)):
             case ":SOS_button:":
@@ -76,7 +77,7 @@ class ModerationCog(
                         f"If you need some help, read the <#{guidelines.channel_id}> and open a post in <#{help.channel_id}>!"
                     )
             case _:
-                return None
+                return
 
         # Grace also reacts and log the reaction
         # because some people remove their reaction afterward
@@ -98,11 +99,11 @@ class ModerationCog(
         """
         minimum_account_age = app.config.get("moderation", "minimum_account_age")
         account_age_in_days = (
-            datetime.now().replace(tzinfo=None) - member.created_at.replace(tzinfo=None)
+            datetime.now(tz=UTC) - member.created_at.astimezone(UTC)
         ).days
 
         if account_age_in_days < minimum_account_age:
-            info(f"{member} kicked due to account age restriction!")
+            logger.info(f"{member} kicked due to account age restriction!")
 
             log = danger("KICK", f"{member} has been kicked.")
             log.add_field(

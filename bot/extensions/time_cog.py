@@ -1,5 +1,8 @@
+import logging
 import re
 from datetime import datetime, timedelta
+
+logger = logging.getLogger(__name__)
 
 import pytz
 from dateutil import parser
@@ -148,7 +151,7 @@ class TimeCog(
             timestamp = self._build_timestamp(utc, time_str)
             await message.reply(f"<t:{timestamp}:F>")
         except Exception:
-            pass
+            logger.debug("Could not parse time string", exc_info=True)
 
 
 async def setup(bot):

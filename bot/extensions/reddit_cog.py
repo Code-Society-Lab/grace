@@ -1,5 +1,4 @@
 import re
-from typing import List
 
 from discord import Embed, Message
 from discord.ext.commands import Cog
@@ -20,7 +19,7 @@ class RedditCog(Cog, name="Reddit", description="Reddit utilities"):
         """Returns the moderation channel"""
         return self.bot.get_channel_by_name("moderation_logs")
 
-    async def notify_moderation(self, message: Message, blacklisted: List[str]):
+    async def notify_moderation(self, message: Message, blacklisted: list[str]):
         """Notifies moderators about a blacklisted subreddit mention
 
         :param message: Message that contained blacklisted subreddits
@@ -35,7 +34,7 @@ class RedditCog(Cog, name="Reddit", description="Reddit utilities"):
             )
             await log.send(self.moderation_channel)
 
-    async def extract_subreddits(self, message: Message) -> List[List]:
+    async def extract_subreddits(self, message: Message) -> list[list]:
         """Extracts and filters all mentioned subreddits from a message
 
         :param message: Message from which to extract subreddits

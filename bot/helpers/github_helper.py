@@ -1,5 +1,5 @@
+from collections.abc import Iterable
 from math import ceil
-from typing import Iterable, List
 
 from discord import Color, Embed
 from discord.ui import Button
@@ -11,16 +11,16 @@ from bot.services.github_service import GithubService
 
 def available_project_names() -> Iterable[str]:
     organization: Organization = GithubService().get_code_society_lab()
-    return map(lambda r: r.name, organization.get_repos())
+    return (r.name for r in organization.get_repos())
 
 
-def create_contributors_embeds(repository: Repository) -> List[Embed]:
+def create_contributors_embeds(repository: Repository) -> list[Embed]:
     """Get an embed with a list of contributors for the Cursif repository.
 
     :return: An embed with a list of contributors.
     :rtype: Embed
     """
-    embeds: List[Embed] = []
+    embeds: list[Embed] = []
 
     contributors = repository.get_contributors()
     page_count: int = ceil(contributors.totalCount / 25)

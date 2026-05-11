@@ -1,6 +1,9 @@
+import logging
+from collections.abc import Coroutine
 from datetime import timedelta
-from logging import warning
-from typing import Any, Coroutine, Optional
+from typing import Any
+
+logger = logging.getLogger(__name__)
 
 from discord import Interaction
 from discord.ext.commands import (
@@ -33,7 +36,7 @@ class CommandErrorHandler(Cog):
         :param error: The error that was raised during command execution.
         :type error: Exception
         """
-        warning(f"Error: {error}. Issued by {ctx.author}")
+        logger.warning(f"Error: {error}. Issued by {ctx.author}")
 
         if isinstance(error, CommandNotFound):
             await send_command_help(ctx)
@@ -57,7 +60,7 @@ class CommandErrorHandler(Cog):
 
     @Cog.listener("on_app_command_error")
     async def get_app_command_error(
-        self, interaction: Optional[Interaction], _: Exception
+        self, interaction: Interaction | None, _: Exception
     ) -> None:
         """Event listener for command errors that occurred during an interaction.
         It sends an error message to the user.

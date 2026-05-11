@@ -1,4 +1,3 @@
-from typing import Optional
 
 from grace.model import Field, Model
 
@@ -13,7 +12,7 @@ class Thank(Model):
     count: int | None = Field(default=0)
 
     @property
-    def rank(self) -> Optional[str]:
+    def rank(self) -> str | None:
         """Returns the rank of the member based on the number of times they
         have been thanked.
 

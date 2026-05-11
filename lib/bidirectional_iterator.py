@@ -1,9 +1,7 @@
-from typing import Generic, Iterator, List, Optional, TypeVar
-
-T = TypeVar("T")
+from collections.abc import Iterator
 
 
-class BidirectionalIterator(Generic[T]):
+class BidirectionalIterator[T]:
     """An iterator allows to go forward and backward in a list,
     modify the list during iteration and obtain the item at the
     current position in the list.
@@ -12,8 +10,8 @@ class BidirectionalIterator(Generic[T]):
     :type collection: Optional[List[T]]
     """
 
-    def __init__(self, collection: Optional[List[T]]):
-        self.__collection: List[T] = collection or []
+    def __init__(self, collection: list[T] | None):
+        self.__collection: list[T] = collection or []
         self.__position: int = 0
 
     @property

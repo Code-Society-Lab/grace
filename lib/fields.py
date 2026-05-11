@@ -1,4 +1,3 @@
-from typing import Type
 
 from sqlalchemy import Column
 from sqlalchemy.types import Integer, TypeDecorator
@@ -24,7 +23,7 @@ class IntEnumType(TypeDecorator):
         return self.enumtype(value) if value is not None else None
 
 
-def EnumField(enum_cls: Type, **kwargs):
+def EnumField(enum_cls: type, **kwargs):
     """
     Wrapper around sqlmodel.Field for integer-backed enums.
     Allows passing nullable, default, etc.

@@ -1,5 +1,6 @@
-from bot import app
 from grace.database import up_migration
+
+from bot import app
 
 app.load("test")
 

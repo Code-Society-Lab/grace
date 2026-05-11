@@ -10,7 +10,7 @@ authors = [
     { name = "Code Society Lab" }
 ]
 license = { text = "GNU General Public License v3.0" }
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 readme = "README.md"
 
 dependencies = [
@@ -35,7 +35,7 @@ dev = [
     "pytest-asyncio",
     "flake8",
     "mypy",
-    "ruff",
+    "ruff==0.15.12",
     "freezegun",
 ]
 

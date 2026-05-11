@@ -1,4 +1,3 @@
-from typing import List
 
 from discord import Embed, File, Interaction, Message
 from discord.app_commands import ContextMenu
@@ -17,7 +16,7 @@ class BookmarkCog(Cog):
 
         self.bot.tree.add_command(save_message_ctx_menu)
 
-    async def get_message_files(self, message: Message) -> List[File]:
+    async def get_message_files(self, message: Message) -> list[File]:
         """Fetch files from the message attachments
 
         :param message: Message to fetch files from
@@ -26,7 +25,7 @@ class BookmarkCog(Cog):
         :return: List of files
         :rtype: List[File]
         """
-        return list(map(lambda attachment: attachment.to_file(), message.attachments))
+        return [attachment.to_file() for attachment in message.attachments]
 
     async def save_message(self, interaction: Interaction, message: Message) -> None:
         """Saves the message
@@ -37,7 +36,7 @@ class BookmarkCog(Cog):
         :type message: Message
         """
         sent_at: int = int(message.created_at.timestamp())
-        files: List[File] = await self.get_message_files(message)
+        files: list[File] = await self.get_message_files(message)
 
         save_embed: Embed = Embed(title="Bookmark Info", color=self.bot.default_color)
 

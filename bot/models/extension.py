@@ -1,6 +1,7 @@
+from grace.model import Field, Model
+
 from bot import app
 from bot.classes.state import State
-from grace.model import Field, Model
 from lib.fields import EnumField
 
 
