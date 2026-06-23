@@ -34,7 +34,7 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
             "feel free to come chat with us in <#{}> or visite our [GitHub](<https://github.com/Code-Society-Lab>).\n"
             "\n**Our latest projects**:\n"
             "- [Grace Framework](<https://github.com/Code-Society-Lab/grace-framework>)\n"
-            "- [Matrix.py](<https://github.com/Code-Society-Lab/matrixpy>)\n",
+            "- [Matrix.py](<https://github.com/Code-Society-Lab/matrixpy>)",
         )
 
     @property
@@ -42,7 +42,7 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
         return self.__build_section(
             [],
             "### Join our Matrix Server!\n"
-            "You can also join our [matrix server](<https://matrix.to/#/%23codesociety:matrix.org>)"
+            "You can also join our [matrix server](<https://matrix.to/#/%23codesociety:matrix.org>)\n"
         )
 
     def get_welcome_message(self, member: Member) -> str:
