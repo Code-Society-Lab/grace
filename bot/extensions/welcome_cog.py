@@ -17,7 +17,7 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
         self.bot = bot
 
     @property
-    def help_section(self):
+    def help_section(self) -> str:
         return self.__build_section(
             ["posting_guidelines", "help", "resources"],
             "### Looking for help?\n"
@@ -26,7 +26,7 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
         )
 
     @property
-    def project_section(self):
+    def project_section(self) -> str:
         return self.__build_section(
             ["code-society-lab"],
             "### Looking for projects?\n"
@@ -37,7 +37,15 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
             "- [Matrix.py](<https://github.com/Code-Society-Lab/matrixpy>)\n",
         )
 
-    def get_welcome_message(self, member: Member):
+    @property
+    def matrix_section(self) -> str:
+        return self.__build_section(
+            [],
+            "### Join our Matrix Server!\n"
+            "You can also join our [matrix server](<https://matrix.to/#/%23codesociety:matrix.org>)"
+        )
+
+    def get_welcome_message(self, member: Member) -> str:
         """Return the welcome message for the given member.
 
         :param member: The member to welcome.
@@ -54,6 +62,7 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
                         self.BASE_WELCOME_MESSAGE,
                         self.help_section,
                         self.project_section,
+                        self.matrix_section,
                     ],
                 )
             )
@@ -61,7 +70,7 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
             .format(member_name=member.display_name)
         )
 
-    def __build_section(self, channel_names, message):
+    def __build_section(self, channel_names: list[str], message: str):
         """Builds a section of the welcome message by replacing
         placeholders with corresponding channel IDs.
 
