@@ -5,17 +5,6 @@ import pytest
 from bot.extensions.threads_cog import ThreadsCog
 from bot.models.extensions.thread import Thread
 
-
-@pytest.fixture
-def mock_bot():
-    """Create a mock Discord bot instance."""
-    bot = MagicMock()
-    bot.default_color = 0xFFFFFF
-    bot.app.config.get = MagicMock(return_value=None)
-    bot.scheduler = MagicMock()
-    return bot
-
-
 @pytest.fixture
 def threads_cog(mock_bot):
     """Instantiate the ThreadsCog with a mock bot."""

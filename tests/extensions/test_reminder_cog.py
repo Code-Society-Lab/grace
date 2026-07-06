@@ -1,6 +1,6 @@
 import re
 from datetime import UTC, datetime, timedelta
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock
 
 import pytest
 from dateutil.tz import tzlocal
@@ -8,17 +8,6 @@ from discord import Embed
 from freezegun import freeze_time
 
 from bot.extensions.reminder_cog import ReminderCog
-
-
-@pytest.fixture
-def mock_bot():
-    """Create a mock Discord bot instance."""
-    bot = MagicMock()
-    bot.default_color = 0xFFFFFF
-    bot.app.config.get = MagicMock(return_value=None)
-    bot.scheduler = MagicMock()
-    return bot
-
 
 @pytest.fixture
 def reminder_cog(mock_bot):
