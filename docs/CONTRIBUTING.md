@@ -119,6 +119,7 @@ You should always review your own PR first.
 #### How to self review my code?
 - Confirm that the changes meet the user experience and goals of the bot.
 - Ensure that your code is **clean** and follows Python's [PEP-0008](https://www.python.org/dev/peps/pep-0008/).
+- Format your code with [black](https://black.readthedocs.io/en/stable/) by running `black .` (this is checked in CI with `black --check .`).
 - Verify your code for grammar and spelling mistakes (The code and the text must be in **English**).
 - Test your changes to ensure there's no bugs.
 
