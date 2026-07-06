@@ -36,7 +36,9 @@ class Grace(Bot):
             extension = Extension.where(module_name=module).first()
 
             if not extension:
-                logger.warning(f"{module} is not registered. Registering the extension.")
+                logger.warning(
+                    f"{module} is not registered. Registering the extension."
+                )
                 extension = Extension.create(module_name=module)
 
             if not extension.should_be_loaded():

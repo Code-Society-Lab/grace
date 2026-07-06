@@ -14,7 +14,6 @@ class ConfigRequiredError(DisabledCommand):
     """
 
 
-
 class MissingRequiredConfigError(ConfigRequiredError):
     """Exception raised when a required configuration is missing.
 

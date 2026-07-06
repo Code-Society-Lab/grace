@@ -1,4 +1,3 @@
-
 from emoji import emojize
 from grace.model import Field, Model, Relationship
 

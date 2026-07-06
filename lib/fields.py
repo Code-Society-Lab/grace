@@ -1,4 +1,3 @@
-
 from sqlalchemy import Column
 from sqlalchemy.types import Integer, TypeDecorator
 from sqlmodel import Field

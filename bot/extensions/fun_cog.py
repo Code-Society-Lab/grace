@@ -82,7 +82,8 @@ class FunCog(Cog, name="Fun", description="Collection of fun commands"):
         :type ctx: Context
         """
         response = await asyncio.to_thread(
-            get, "https://api.forismatic.com/api/1.0/?method=getQuote&format=json&lang=en"
+            get,
+            "https://api.forismatic.com/api/1.0/?method=getQuote&format=json&lang=en",
         )
 
         if response.ok:

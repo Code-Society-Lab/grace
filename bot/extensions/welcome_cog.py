@@ -42,7 +42,7 @@ class WelcomeCog(Cog, name="Welcome", description="Welcomes new members"):
         return self.__build_section(
             [],
             "### Join our Matrix Server!\n"
-            "You can also join our [matrix server](<https://matrix.to/#/%23codesociety:matrix.org>)\n"
+            "You can also join our [matrix server](<https://matrix.to/#/%23codesociety:matrix.org>)\n",
         )
 
     def get_welcome_message(self, member: Member) -> str:
