@@ -1,5 +1,5 @@
 import re
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
@@ -76,7 +76,7 @@ def test_valid_embed(reminder_cog):
         result = reminder_cog._build_embed(title, message, author)
 
         assert isinstance(result, Embed), f"Expected Embed, got {type(result)}"
-        assert result.timestamp == datetime(2025, 2, 20, 12, 0, 1, tzinfo=tzlocal())
+        assert result.timestamp == datetime(2025, 2, 20, 12, 0, 1, tzinfo=UTC)
         assert result.title == f"**{title}**"
         assert result.description == message
         assert result.author.name == author
