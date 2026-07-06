@@ -1,4 +1,3 @@
-
 from discord import Embed, Member
 from discord.ext.commands import BucketType, Cog, Context, cooldown, hybrid_group
 
@@ -89,16 +88,12 @@ class ThankCog(Cog):
 
         for position, helper in enumerate(helpers):
             member = await self.bot.fetch_user(helper.member_id)
-            leaderboard_embed.description += (
-                f"{position + 1}. **{member.display_name}**: **{helper.rank}** with {helper.count} thank(s).\n"
-            )
+            leaderboard_embed.description += f"{position + 1}. **{member.display_name}**: **{helper.rank}** with {helper.count} thank(s).\n"
 
         await ctx.reply(embed=leaderboard_embed, ephemeral=True)
 
     @thank_group.command(name="rank", description="Shows your current thank rank.")
-    async def thank_rank(
-        self, ctx: Context, *, member: Member | None = None
-    ) -> None:
+    async def thank_rank(self, ctx: Context, *, member: Member | None = None) -> None:
         """Show the current rank of the member who issue this command.
 
         :param ctx: The context of the command invocation.

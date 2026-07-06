@@ -202,16 +202,14 @@ class ThreadsCog(Cog, name="Threads"):
             color=self.bot.default_color,
             title=thread.title,
             description=thread.content,
-            timestamp=datetime.now(tz=UTC)
+            timestamp=datetime.now(tz=UTC),
         )
 
         if channel:
             message = await channel.send(content=content, embed=embed)
             new_discord_thread = await message.create_thread(name=thread.title)
 
-            if old_discord_thread := self.bot.get_channel(
-                thread.latest_thread_id
-            ):
+            if old_discord_thread := self.bot.get_channel(thread.latest_thread_id):
                 await old_discord_thread.send(new_discord_thread.jump_url)
                 await old_discord_thread.edit(archived=True, locked=True)
 
