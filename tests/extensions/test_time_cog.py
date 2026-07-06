@@ -6,6 +6,7 @@ import pytz
 
 from bot.extensions.time_cog import TimeCog
 
+
 @pytest.fixture
 def time_cog(mock_bot):
     """Instantiate the TimeCog with a mock bot."""

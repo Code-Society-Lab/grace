@@ -5,6 +5,7 @@ import pytest
 from bot.extensions.threads_cog import ThreadsCog
 from bot.models.extensions.thread import Thread
 
+
 @pytest.fixture
 def threads_cog(mock_bot):
     """Instantiate the ThreadsCog with a mock bot."""

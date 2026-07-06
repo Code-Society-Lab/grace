@@ -1,10 +1,10 @@
-from discord import Embed
-from discord.app_commands import Choice
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
+from discord import Embed
+from discord.app_commands import Choice
 
-from bot.extensions.translator_cog import language_autocomplete, TranslatorCog
+from bot.extensions.translator_cog import TranslatorCog, language_autocomplete
 
 
 @pytest.fixture

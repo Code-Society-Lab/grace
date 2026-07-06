@@ -9,6 +9,7 @@ from freezegun import freeze_time
 
 from bot.extensions.reminder_cog import ReminderCog
 
+
 @pytest.fixture
 def reminder_cog(mock_bot):
     """Instantiate the ReminderCog with a mock bot."""
