@@ -13,6 +13,7 @@ def translator_cog(mock_bot):
 
     return TranslatorCog(mock_bot)
 
+
 @pytest.mark.asyncio
 async def test_translator(translator_cog, mock_bot):
     ctx = MagicMock()
@@ -25,11 +26,11 @@ async def test_translator(translator_cog, mock_bot):
     translated_text = "مضحك"
 
     await translator_cog.translator(
-        translator_cog, 
-        ctx, 
-        sentence="Funny", 
-        translate_from="English", 
-        translate_into="Arabic"
+        translator_cog,
+        ctx,
+        sentence="Funny",
+        translate_from="English",
+        translate_into="Arabic",
     )
 
     result = Embed(color=mock_bot.default_color)
@@ -53,21 +54,24 @@ async def test_language_autocomplete_empty_input():
     empty = await language_autocomplete(None, "")
     assert len(empty) == 25
 
+
 @pytest.mark.asyncio
 async def test_language_autocomplete_invalid_input():
     invalid = await language_autocomplete(None, "1232")
     assert invalid == []
 
+
 @pytest.mark.asyncio
 async def test_language_autocomplete_ara_input():
     ara = await language_autocomplete(None, "ara")
     assert ara == [
-        Choice(name='Arabic', value='arabic'), 
-        Choice(name='Gujarati', value='gujarati'), 
-        Choice(name='Marathi', value='marathi')
+        Choice(name="Arabic", value="arabic"),
+        Choice(name="Gujarati", value="gujarati"),
+        Choice(name="Marathi", value="marathi"),
     ]
+
 
 @pytest.mark.asyncio
 async def test_language_autocomplete_zu_input():
     zu = await language_autocomplete(None, "zu")
-    assert zu == [Choice(name='Zulu', value='zulu')]
+    assert zu == [Choice(name="Zulu", value="zulu")]

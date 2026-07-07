@@ -37,7 +37,14 @@ class TranslatorCog(
     )
     @autocomplete(translate_into=language_autocomplete)
     @autocomplete(translate_from=language_autocomplete)
-    async def translator(self, ctx: Context, *, sentence: str, translate_from: str | None = "auto", translate_into: str):
+    async def translator(
+        self,
+        ctx: Context,
+        *,
+        sentence: str,
+        translate_from: str | None = "auto",
+        translate_into: str,
+    ):
         """Translate a sentence or word from any language into any languages.
 
         :param ctx: The context object.
@@ -45,7 +52,7 @@ class TranslatorCog(
         :param sentence: The sentence or word to be translated.
         :type sentence: str
         :param translate_from: The language code for the source language.
-        :type translate_from: str | None 
+        :type translate_from: str | None
         :param translate_into: The language code for the target language.
         :type translate_into: str
         :return: Embed with original input and its translation
@@ -53,7 +60,9 @@ class TranslatorCog(
         await ctx.defer()
 
         text_translator = Translator()
-        translated_text = text_translator.translate(sentence, src=translate_from, dest=translate_into)
+        translated_text = text_translator.translate(
+            sentence, src=translate_from, dest=translate_into
+        )
 
         embed = Embed(color=self.bot.default_color)
 
