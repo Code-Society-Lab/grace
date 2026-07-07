@@ -1,4 +1,3 @@
-
 from discord import Embed, File, Interaction, Message
 from discord.app_commands import ContextMenu
 from discord.ext.commands import Cog

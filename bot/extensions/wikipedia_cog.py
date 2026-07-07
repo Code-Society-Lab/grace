@@ -23,7 +23,9 @@ def search_results(search: str) -> list[Any]:
     :rtype: list
     """
     url_encode: str = quote_plus(search)
-    base_url: str = f"https://en.wikipedia.org/w/api.php?action=opensearch&format=json&limit=3&namespace=0&search={url_encode}"
+    base_url: str = (
+        f"https://en.wikipedia.org/w/api.php?action=opensearch&format=json&limit=3&namespace=0&search={url_encode}"
+    )
 
     request = Request(base_url, headers={"User-Agent": USER_AGENT})
     with urlopen(request) as url:

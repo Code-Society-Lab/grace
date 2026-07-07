@@ -1,4 +1,3 @@
-
 from discord import Embed
 from discord.app_commands import Choice, autocomplete
 from discord.ext.commands import (
