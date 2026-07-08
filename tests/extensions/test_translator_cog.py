@@ -52,7 +52,9 @@ async def test_translator__with_all_input__expect_translation_with_embed(
     mock_translator, translator_cog, mock_ctx, embed_factory
 ):
     instance = mock_translator.return_value
-    instance.translate.return_value = SimpleNamespace(text="مضحك", src="en") #translated text
+    instance.translate.return_value = SimpleNamespace(
+        text="مضحك", src="en"
+    )  # translated text
 
     await translator_cog.translator(
         translator_cog,
