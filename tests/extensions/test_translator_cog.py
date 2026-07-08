@@ -1,4 +1,5 @@
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
+from types import SimpleNamespace
 
 import pytest
 from discord import Embed
@@ -16,7 +17,10 @@ def translator_cog(mock_bot):
 
 
 @pytest.mark.asyncio
-async def test_translator__expect_translation_with_embed(translator_cog, mock_bot):
+@patch("bot.extensions.translator_cog.Translator")
+async def test_translator__expect_translation_with_embed(
+    mock_translator, translator_cog, mock_bot
+):
     ctx = MagicMock()
     ctx.defer = AsyncMock()
     ctx.send = AsyncMock()
@@ -25,6 +29,9 @@ async def test_translator__expect_translation_with_embed(translator_cog, mock_bo
     translate_into = "Arabic"
     sentence = "Funny"
     translated_text = "مضحك"
+
+    instance = mock_translator.return_value
+    instance.translate.return_value = SimpleNamespace(text=translated_text, src="en")
 
     await translator_cog.translator(
         translator_cog,
@@ -47,6 +54,9 @@ async def test_translator__expect_translation_with_embed(translator_cog, mock_bo
         inline=False,
     )
 
+    instance.translate.assert_called_once_with(
+        sentence, src=translate_from, dest=translate_into
+    )
     ctx.send.assert_awaited_once_with(embed=result)
 
 
