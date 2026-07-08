@@ -42,8 +42,8 @@ class TranslatorCog(
         ctx: Context,
         *,
         sentence: str,
-        translate_from: str | None = "auto",
-        translate_into: str,
+        translate_from: str = "auto",
+        translate_into: str = "english",
     ):
         """Translate a sentence or word from any language into any languages.
 
@@ -52,7 +52,7 @@ class TranslatorCog(
         :param sentence: The sentence or word to be translated.
         :type sentence: str
         :param translate_from: The language code for the source language.
-        :type translate_from: str | None
+        :type translate_from: str
         :param translate_into: The language code for the target language.
         :type translate_into: str
         :return: Embed with original input and its translation
