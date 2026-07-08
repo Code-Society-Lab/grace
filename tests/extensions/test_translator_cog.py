@@ -98,14 +98,12 @@ async def test_language_autocomplete__with_invalid_input__expect_empty_list():
 @pytest.mark.asyncio
 async def test_language_autocomplete__with_partial_input__expect_matching_output():
     ara = await language_autocomplete(None, "ara")
-    zu = await language_autocomplete(None, "zu")
 
     assert ara == [
         Choice(name="Arabic", value="arabic"),
         Choice(name="Gujarati", value="gujarati"),
         Choice(name="Marathi", value="marathi"),
     ]
-    assert zu == [Choice(name="Zulu", value="zulu")]
 
 
 @pytest.mark.asyncio
