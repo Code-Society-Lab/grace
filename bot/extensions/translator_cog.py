@@ -68,12 +68,12 @@ class TranslatorCog(
 
         embed.add_field(
             name=f"{LANGUAGES[translated_text.src].capitalize()} Original",
-            value=sentence.capitalize(),
+            value=sentence,
             inline=False,
         )
         embed.add_field(
             name=f"{translate_into.capitalize()} Translation",
-            value=translated_text.text.capitalize(),
+            value=translated_text.text,
             inline=False,
         )
 
