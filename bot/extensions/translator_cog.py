@@ -20,9 +20,9 @@ async def language_autocomplete(_: Interaction, current: str) -> list[Choice[str
 
     return [
         Choice(name=language.capitalize(), value=language)
-        for language in languages[:25]
+        for language in languages
         if current.lower() in language.lower()
-    ]
+    ][:25]
 
 
 class TranslatorCog(
@@ -36,13 +36,23 @@ class TranslatorCog(
         usage="sentence={sentence}",
     )
     @autocomplete(translate_into=language_autocomplete)
-    async def translator(self, ctx: Context, *, sentence: str, translate_into: str):
+    @autocomplete(translate_from=language_autocomplete)
+    async def translator(
+        self,
+        ctx: Context,
+        *,
+        sentence: str,
+        translate_from: str = "auto",
+        translate_into: str = "english",
+    ):
         """Translate a sentence or word from any language into any languages.
 
         :param ctx: The context object.
         :type ctx: Context
         :param sentence: The sentence or word to be translated.
         :type sentence: str
+        :param translate_from: The language code for the source language.
+        :type translate_from: str
         :param translate_into: The language code for the target language.
         :type translate_into: str
         :return: Embed with original input and its translation
@@ -50,17 +60,19 @@ class TranslatorCog(
         await ctx.defer()
 
         text_translator = Translator()
-        translated_text = text_translator.translate(sentence, dest=translate_into)
+        translated_text = text_translator.translate(
+            sentence, src=translate_from, dest=translate_into
+        )
 
         embed = Embed(color=self.bot.default_color)
 
         embed.add_field(
             name=f"{LANGUAGES[translated_text.src].capitalize()} Original",
-            value=sentence.capitalize(),
+            value=sentence,
             inline=False,
         )
         embed.add_field(
-            name=f"{translate_into} Translation",
+            name=f"{translate_into.capitalize()} Translation",
             value=translated_text.text,
             inline=False,
         )

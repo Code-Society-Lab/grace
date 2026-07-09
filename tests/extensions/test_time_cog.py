@@ -8,12 +8,6 @@ from bot.extensions.time_cog import TimeCog
 
 
 @pytest.fixture
-def mock_bot():
-    """Create a mock Discord bot instance."""
-    return MagicMock()
-
-
-@pytest.fixture
 def time_cog(mock_bot):
     """Instantiate the TimeCog with a mock bot."""
     return TimeCog(mock_bot)
