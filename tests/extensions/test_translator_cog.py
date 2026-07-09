@@ -194,16 +194,15 @@ async def test_language_autocomplete__with_invalid_input__expect_empty_list():
     invalid = await language_autocomplete(None, "1232")
     assert invalid == []
 
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "input_str",
-    [
-        "ara",
-        "Ara",
-        "ARA"
-    ],
+    ["ara", "Ara", "ARA"],
 )
-async def test_language_autocomplete__with_partial_input__expect_matching_output(input_str):
+async def test_language_autocomplete__with_partial_input__expect_matching_output(
+    input_str,
+):
     ara = await language_autocomplete(None, input_str)
 
     assert ara == [
