@@ -194,27 +194,23 @@ async def test_language_autocomplete__with_invalid_input__expect_empty_list():
     invalid = await language_autocomplete(None, "1232")
     assert invalid == []
 
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "input_str",
+    [
+        "ara",
+        "Ara",
+        "ARA"
+    ],
+)
+async def test_language_autocomplete__with_partial_input__expect_matching_output(input_str):
+    ara = await language_autocomplete(None, input_str)
 
-def ara_input():
-    return [
+    assert ara == [
         Choice(name="Arabic", value="arabic"),
         Choice(name="Gujarati", value="gujarati"),
         Choice(name="Marathi", value="marathi"),
     ]
-
-
-@pytest.mark.asyncio
-async def test_language_autocomplete__with_partial_input__expect_matching_output():
-    ara = await language_autocomplete(None, "ara")
-
-    assert ara == ara_input()
-
-
-@pytest.mark.asyncio
-async def test_language_autocomplete__with_uppercase_input__expect_case_insensitive_match():
-    ara = await language_autocomplete(None, "ARA")
-
-    assert ara == ara_input()
 
 
 @pytest.mark.asyncio
