@@ -23,12 +23,13 @@ def mock_ctx():
     return ctx
 
 
-
 @pytest.mark.asyncio
 @patch("bot.extensions.name_cog.notice")
 @patch("bot.extensions.name_cog.make_random_name")
 @patch("bot.extensions.name_cog.slice_name")
-async def test_name_on_member_join__with_normal_name__expect_nothing(mock_slice, mock_random, mock_notice, name_cog):
+async def test_name_on_member_join__with_normal_name__expect_nothing(
+    mock_slice, mock_random, mock_notice, name_cog
+):
     member = AsyncMock()
     member.display_name = "Normal Name"
 
@@ -48,7 +49,9 @@ async def test_name_on_member_join__with_normal_name__expect_nothing(mock_slice,
 @patch("bot.extensions.name_cog.notice")
 @patch("bot.extensions.name_cog.make_random_name")
 @patch("bot.extensions.name_cog.slice_name")
-async def test_name_on_member_join__with_bad_name__expect_change_and_message(mock_slice, mock_random, mock_notice, name_cog):
+async def test_name_on_member_join__with_bad_name__expect_change_and_message(
+    mock_slice, mock_random, mock_notice, name_cog
+):
     member = AsyncMock()
     member.display_name = "Bad Name"
 
@@ -68,16 +71,23 @@ async def test_name_on_member_join__with_bad_name__expect_change_and_message(moc
     mock_random.assert_called_once()
 
     member.edit.assert_awaited_once_with(nick="Good Name")
-    member.send.assert_awaited_once_with("Your name has an inappropriate word in it, thus it was changed from Bad Name to Good Name.")
+    member.send.assert_awaited_once_with(
+        "Your name has an inappropriate word in it, thus it was changed from Bad Name to Good Name."
+    )
 
     mock_notice.assert_called_once_with("NAME", "Username of Bad Name was changed.")
-    mock_log.add_field.assert_called_once_with("Reason: ", "User Bad Name joined with an inappropriate name, thus it was changed to Good Name.")
+    mock_log.add_field.assert_called_once_with(
+        "Reason: ",
+        "User Bad Name joined with an inappropriate name, thus it was changed to Good Name.",
+    )
     mock_log.send.assert_awaited_once_with("Mod room")
 
 
 @pytest.mark.asyncio
 @patch("bot.extensions.name_cog.make_random_name")
-async def test_name_give_random_name__expect_random_name(mock_random, mock_bot, mock_ctx, name_cog):
+async def test_name_give_random_name__expect_random_name(
+    mock_random, mock_bot, mock_ctx, name_cog
+):
     mock_ctx.author.display_name = "Old name"
     mock_ctx.author.edit = AsyncMock()
     mock_random.return_value = "New name"
@@ -99,7 +109,7 @@ async def test_name_give_random_name__expect_random_name(mock_random, mock_bot, 
         [["Name"], {"Name"}, True],
         [["Name"], {"Stuff", "Name"}, True],
         [["Stuff", "Name"], {"Stuff", "Name"}, True],
-    ]
+    ],
 )
 def test_check_slices__expecgtg_matching_output(slices, bad_word_set, output, name_cog):
     name_cog.BAD_WORDS = bad_word_set
@@ -114,10 +124,10 @@ def test_check_slices__expecgtg_matching_output(slices, bad_word_set, output, na
         ["ab", []],
         ["abc", ["abc"]],
         ["🐔b1%", ["🐔b1", "🐔b1%", "b1%"]],
-    ]
+    ],
 )
 def test_slice_name__with_normal_input__expect_matching_output(input_name, output_list):
-    assert slice_name(input_name) ==  output_list
+    assert slice_name(input_name) == output_list
 
 
 @pytest.mark.parametrize(
@@ -128,7 +138,9 @@ def test_slice_name__with_normal_input__expect_matching_output(input_name, outpu
         ["ABc", ["abc"]],
         ["ABC", ["abc"]],
         ["AB1🐔", ["ab1", "ab1🐔", "b1🐔"]],
-    ]
+    ],
 )
-def test_slice_name__with_uppercase_input__expect_case_insensitive_output(input_name, output_list):
-    assert slice_name(input_name) ==  output_list
+def test_slice_name__with_uppercase_input__expect_case_insensitive_output(
+    input_name, output_list
+):
+    assert slice_name(input_name) == output_list

@@ -61,7 +61,10 @@ class NameCog(Cog, name="Names", description="Checks and changes user's nickname
         await member.edit(nick=good_name)
 
         log = notice("NAME", f"Username of {NAME} was changed.")
-        log.add_field("Reason: ", f"User {NAME} joined with an inappropriate name, thus it was changed to {good_name}.")
+        log.add_field(
+            "Reason: ",
+            f"User {NAME} joined with an inappropriate name, thus it was changed to {good_name}.",
+        )
 
         if self.moderation_channel:
             await log.send(self.moderation_channel)
