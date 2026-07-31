@@ -30,7 +30,9 @@ def slice_name(name: str) -> list[str]:
     ]
 
 
-class NameCog(Cog, name="Names", description="Checks and changes user's nickname."):
+class NameModerationCog(
+    Cog, name="Names", description="Checks and changes user's nickname."
+):
     """A cog that checks when a member joins if they have a bad word in their name, and changes their name in case they do."""
 
     BAD_WORDS = set(app.config.get("reddit", "blacklist", "").split(";"))
@@ -113,4 +115,4 @@ class NameCog(Cog, name="Names", description="Checks and changes user's nickname
 
 
 async def setup(bot: Grace):
-    await bot.add_cog(NameCog(bot))
+    await bot.add_cog(NameModerationCog(bot))

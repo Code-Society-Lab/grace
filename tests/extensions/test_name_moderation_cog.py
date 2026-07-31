@@ -2,16 +2,16 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from discord import Embed
-from bot.extensions.name_cog import *
+from bot.extensions.name_moderation_cog import *
 
 
 @pytest.fixture
-def name_cog(mock_bot):
-    """Instantiate the NameCog with a mock bot."""
+def name_moderation_cog(mock_bot):
+    """Instantiate the NameModerationCog with a mock bot."""
 
     mock_bot.get_channel_by_name.return_value = "Mod room"
 
-    return NameCog(mock_bot)
+    return NameModerationCog(mock_bot)
 
 
 @pytest.fixture
@@ -24,19 +24,19 @@ def mock_ctx():
 
 
 @pytest.mark.asyncio
-@patch("bot.extensions.name_cog.notice")
-@patch("bot.extensions.name_cog.make_random_name")
-@patch("bot.extensions.name_cog.slice_name")
-async def test_name_on_member_join__with_normal_name__expect_nothing(
-    mock_slice, mock_random, mock_notice, name_cog
+@patch("bot.extensions.name_moderation_cog.notice")
+@patch("bot.extensions.name_moderation_cog.make_random_name")
+@patch("bot.extensions.name_moderation_cog.slice_name")
+async def test_name_moderation_on_member_join__with_normal_name__expect_nothing(
+    mock_slice, mock_random, mock_notice, name_moderation_cog
 ):
     member = AsyncMock()
     member.display_name = "Normal Name"
 
     mock_slice.return_value = ["Name"]
 
-    name_cog.BAD_WORDS = ["Nothing"]
-    await name_cog.on_member_join(member)
+    name_moderation_cog.BAD_WORDS = ["Nothing"]
+    await name_moderation_cog.on_member_join(member)
 
     mock_slice.assert_called_once_with("Normal Name")
     mock_random.assert_not_called()
@@ -46,11 +46,11 @@ async def test_name_on_member_join__with_normal_name__expect_nothing(
 
 
 @pytest.mark.asyncio
-@patch("bot.extensions.name_cog.notice")
-@patch("bot.extensions.name_cog.make_random_name")
-@patch("bot.extensions.name_cog.slice_name")
-async def test_name_on_member_join__with_bad_name__expect_change_and_message(
-    mock_slice, mock_random, mock_notice, name_cog
+@patch("bot.extensions.name_moderation_cog.notice")
+@patch("bot.extensions.name_moderation_cog.make_random_name")
+@patch("bot.extensions.name_moderation_cog.slice_name")
+async def test_name_moderation_on_member_join__with_bad_name__expect_change_and_message(
+    mock_slice, mock_random, mock_notice, name_moderation_cog
 ):
     member = AsyncMock()
     member.display_name = "Bad Name"
@@ -62,9 +62,9 @@ async def test_name_on_member_join__with_bad_name__expect_change_and_message(
     mock_slice.return_value = ["Bad"]
     mock_random.return_value = "Good Name"
 
-    name_cog.BAD_WORDS = ["Bad"]
+    name_moderation_cog.BAD_WORDS = ["Bad"]
 
-    await name_cog.on_member_join(member)
+    await name_moderation_cog.on_member_join(member)
 
     mock_slice.assert_called_once_with("Bad Name")
 
@@ -84,15 +84,15 @@ async def test_name_on_member_join__with_bad_name__expect_change_and_message(
 
 
 @pytest.mark.asyncio
-@patch("bot.extensions.name_cog.make_random_name")
-async def test_name_give_random_name__expect_random_name(
-    mock_random, mock_bot, mock_ctx, name_cog
+@patch("bot.extensions.name_moderation_cog.make_random_name")
+async def test_name_moderation_give_random_name__expect_random_name(
+    mock_random, mock_bot, mock_ctx, name_moderation_cog
 ):
     mock_ctx.author.display_name = "Old name"
     mock_ctx.author.edit = AsyncMock()
     mock_random.return_value = "New name"
 
-    await name_cog.give_random_name(name_cog, mock_ctx)
+    await name_moderation_cog.give_random_name(name_moderation_cog, mock_ctx)
 
     result = Embed(title="Name Changed!", color=mock_bot.default_color)
     result.description = "Your name was changed from Old name to New name!"
@@ -111,10 +111,12 @@ async def test_name_give_random_name__expect_random_name(
         [["Stuff", "Name"], {"Stuff", "Name"}, True],
     ],
 )
-def test_check_slices__expecgtg_matching_output(slices, bad_word_set, output, name_cog):
-    name_cog.BAD_WORDS = bad_word_set
+def test_check_slices__expecgtg_matching_output(
+    slices, bad_word_set, output, name_moderation_cog
+):
+    name_moderation_cog.BAD_WORDS = bad_word_set
 
-    assert name_cog.check_slices_against_bad_words(slices) == output
+    assert name_moderation_cog.check_slices_against_bad_words(slices) == output
 
 
 @pytest.mark.parametrize(

@@ -12,7 +12,10 @@ build/
 env/
 lib64
 .mypy_cache/
+.ruff_cache/
 .pytest_cache
 tmp
 .coverage
+.python-version
 .venv
+.vscode
