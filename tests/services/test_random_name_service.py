@@ -4,7 +4,7 @@ from bot.services.random_name_service import make_random_name
 
 
 @patch("random.choice")
-def test_random_name_service__expect_normal_output(mock_random):
+def test_random_name_service__expect_two_capitalized_words(mock_random):
     mock_random.side_effect = ["good", "grace"]
 
     assert make_random_name() == "Good Grace"
