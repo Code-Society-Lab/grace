@@ -1,9 +1,15 @@
+import logging
+
+from discord import Member
+from discord.errors import Forbidden
+from discord.ext.commands import Cog
+
 from bot import app
 from bot.grace import Grace
-from discord import Member
-from discord.ext.commands import Cog
-from bot.services.random_name_service import make_random_name
 from bot.helpers.log_helper import notice
+from bot.services.random_name_service import make_random_name
+
+logger = logging.getLogger(__name__)
 
 
 class NameModerationCog(
@@ -13,7 +19,7 @@ class NameModerationCog(
 
     def __init__(self, bot: Grace):
         self.bot: Grace = bot
-        self.BAD_WORDS = set(app.config.get("blacklisted", "names", ""))
+        self.BAD_WORDS = set(app.config.get("name_moderation", "blacklist", ""))
 
     @property
     def moderation_channel(self):
@@ -32,21 +38,25 @@ class NameModerationCog(
         if not self.contains_bad_word(name):
             return
 
-        good_name = make_random_name()
-        await member.edit(nick=good_name)
+        try:
+            good_name = make_random_name()
+            await member.edit(nick=good_name)
 
-        log = notice("NAME", f"Username of {name} was changed.")
-        log.add_field(
-            "Reason: ",
-            f"User {name} joined with an inappropriate name, thus it was changed to {good_name}.",
-        )
+            log = notice("NAME", f"Username of {name} was changed.")
+            log.add_field(
+                "Reason: ",
+                f"User {name} joined with an inappropriate name, thus it was changed to {good_name}.",
+            )
 
-        if self.moderation_channel:
-            await log.send(self.moderation_channel)
+            if self.moderation_channel:
+                await log.send(self.moderation_channel)
 
-        await member.send(
-            f"Your name has an inappropriate word in it, thus it was changed from {name} to {good_name}."
-        )
+            await member.send(
+                f"Your name has an inappropriate word in it, thus it was changed from {name} to {good_name}."
+            )
+
+        except Forbidden:
+            logger.info("User left before we could send them a message.")
 
     def contains_bad_word(self, name: str) -> bool:
         """Checks if a name has a bad word in it.

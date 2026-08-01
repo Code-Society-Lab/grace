@@ -1,6 +1,7 @@
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+
 from bot.extensions.name_moderation_cog import NameModerationCog
 
 
