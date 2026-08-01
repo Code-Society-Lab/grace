@@ -16,7 +16,7 @@ class NameModerationCog(
     Cog, name="Names", description="Checks and changes user's nickname."
 ):
     """
-    A cog that checks when a member joins if they have a bad word in their name, 
+    A cog that checks when a member joins if they have a bad word in their name,
     and changes their name in case they do.
 
     Configure in the .env file like this:
