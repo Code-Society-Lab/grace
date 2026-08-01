@@ -32,7 +32,7 @@ async def test_name_moderation_on_member_join__with_none_blacklisted_name__expec
     member = AsyncMock()
     member.display_name = "Normal Name"
 
-    name_moderation_cog.BAD_WORDS = ["nothing"]
+    name_moderation_cog.bad_words = ["nothing"]
     await name_moderation_cog.on_member_join(member)
 
     mock_random.assert_not_called()
@@ -56,7 +56,7 @@ async def test_name_moderation_on_member_join__with_blacklisted_name__expect_cha
 
     mock_random.return_value = "Good Name"
 
-    name_moderation_cog.BAD_WORDS = ["bad"]
+    name_moderation_cog.bad_words = ["bad"]
 
     await name_moderation_cog.on_member_join(member)
 

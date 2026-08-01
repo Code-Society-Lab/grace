@@ -359,6 +359,6 @@ def make_random_name() -> str:
     :rtype: str
     """
 
-    name = f"{random.choice(_LEFT).capitalize()} {random.choice(_RIGHT).capitalize()}"
+    name = f"{random.choice(_LEFT)} {random.choice(_RIGHT)}".title()
 
     return name

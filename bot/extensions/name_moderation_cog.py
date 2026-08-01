@@ -15,11 +15,17 @@ logger = logging.getLogger(__name__)
 class NameModerationCog(
     Cog, name="Names", description="Checks and changes user's nickname."
 ):
-    """A cog that checks when a member joins if they have a bad word in their name, and changes their name in case they do."""
+    """
+    A cog that checks when a member joins if they have a bad word in their name, 
+    and changes their name in case they do.
+
+    Configure in the .env file like this:
+        BLACKLISTED_NAMES = bad_word1, bad_word2, bad_word3,...
+    """
 
     def __init__(self, bot: Grace):
         self.bot: Grace = bot
-        self.BAD_WORDS = set(app.config.get("name_moderation", "blacklist", ""))
+        self.bad_words = set(app.config.get("name_moderation", "blacklist", []))
 
     @property
     def moderation_channel(self):
@@ -69,7 +75,7 @@ class NameModerationCog(
         """
         lowered = name.lower()
 
-        return any(bad_word in lowered for bad_word in self.BAD_WORDS)
+        return any(bad_word in lowered for bad_word in self.bad_words)
 
 
 async def setup(bot: Grace):
