@@ -27,6 +27,8 @@ dependencies = [
     "pygithub",
     "googletrans==4.0.0-rc1",
     "openai==0.26.1",
+    # TODO: point at a tagged release once dachshund stabilizes
+    "dachshund @ git+https://github.com/PenguinBoi12/dachshund.git@poc",
 ]
 
 [project.optional-dependencies]

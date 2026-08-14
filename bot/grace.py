@@ -1,4 +1,5 @@
 import logging
+import dachshund
 
 logger = logging.getLogger(__name__)
 
@@ -8,6 +9,16 @@ from pretty_help import PrettyHelp
 
 from bot.models.channel import Channel
 from bot.models.extension import Extension
+
+
+def _init_dachshund():
+    dachshund.shutdown()
+
+    dachshund.init(
+        "Grace",
+        description="Code Society's Discord Bot",
+        host="0.0.0.0",
+    )
 
 
 class Grace(Bot):
@@ -50,5 +61,14 @@ class Grace(Bot):
             else:
                 logger.info(f"{module} is disabled, it will not be loaded.")
 
+    async def setup_hook(self):
+        await super().setup_hook()
+        _init_dachshund()
+
     async def on_ready(self):
         logger.info(f"{self.user.name}#{self.user.id} is online and ready to use!")
+        # dachshund.emit(...)
+
+    async def on_reload(self):
+        await super().on_reload()
+        _init_dachshund()

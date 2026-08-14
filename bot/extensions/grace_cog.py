@@ -1,3 +1,6 @@
+import logging
+import dachshund
+
 from discord import Embed, Interaction
 from discord.app_commands import Choice, autocomplete
 from discord.ext.commands import Cog, Context, has_permissions, hybrid_command
@@ -13,6 +16,8 @@ from bot.helpers.github_helper import (
 from bot.services.github_service import GithubService
 from lib.config_required import command_config_required
 from lib.paged_embeds import PagedEmbedView
+
+logger = logging.getLogger(__name__)
 
 
 async def project_autocomplete(_: Interaction, current: str) -> list[Choice[str]]:
@@ -43,6 +48,32 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
 
     def __init__(self, bot):
         self.bot = bot
+        self.jobs = []
+        self.highest_latency_ms = 0
+
+    def cog_load(self):
+        self.jobs.append(
+            self.bot.scheduler.add_job(self.check_latency, "cron", minute="*/1")
+        )
+
+    def cog_unload(self):
+        for job in self.jobs:
+            self.bot.scheduler.remove_job(job.id)
+
+    def check_latency(self, *, is_from_command: bool = False) -> int:
+        latency_ms = round(self.bot.latency * 1000)
+        command_latency_ms = latency_ms if is_from_command else None
+
+        logger.debug(
+            f"[CHECK LATENCY] check:'{latency_ms}', command:'{is_from_command}'"
+        )
+        dachshund.emit("latency", check=latency_ms, command=command_latency_ms)
+
+        if latency_ms > self.highest_latency_ms:
+            self.highest_latency_ms = latency_ms
+            dachshund.emit("highest_latency", value=self.highest_latency_ms)
+
+        return latency_ms
 
     @hybrid_command(name="info", help="Show information about the bot")
     async def info_command(self, ctx: Context, ephemeral=True) -> None:
@@ -105,9 +136,11 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
         :param ctx: The context in which the command was called.
         :type ctx: Context
         """
+        latency_ms = self.check_latency(is_from_command=True)
+
         embed = Embed(
             color=self.bot.default_color,
-            description=f"pong :ping_pong:  {round(self.bot.latency * 1000)}ms",
+            description=f"pong :ping_pong:  {latency_ms}ms",
         )
 
         await ctx.send(embed=embed)
@@ -157,6 +190,14 @@ class GraceCog(Cog, name="Grace", description="Default grace commands"):
         view.add_item(create_repository_button(repository))
 
         await view.send(ctx)
+
+    @Cog.listener()
+    async def on_message(self, message) -> None:
+        dachshund.emit("on_message")
+
+    @Cog.listener()
+    async def on_command(self, ctx):
+        dachshund.emit("on_command", name=ctx.command.qualified_name, value=1)
 
 
 async def setup(bot):
