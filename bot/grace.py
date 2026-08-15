@@ -1,5 +1,4 @@
 import logging
-import dachshund
 
 logger = logging.getLogger(__name__)
 
@@ -7,18 +6,10 @@ from discord import Activity, ActivityType, Colour, Intents
 from grace.bot import Bot
 from pretty_help import PrettyHelp
 
+from lib.dashboard import dashboard
 from bot.models.channel import Channel
 from bot.models.extension import Extension
-
-
-def _init_dachshund():
-    dachshund.shutdown()
-
-    dachshund.init(
-        "Grace",
-        description="Code Society's Discord Bot",
-        host="0.0.0.0",
-    )
+from bot.services.dashboard_metrics_service import DashboardMetrics
 
 
 class Grace(Bot):
@@ -30,10 +21,15 @@ class Grace(Bot):
         )
 
         self.help_command = PrettyHelp(color=self.default_color)
+        self.metrics = DashboardMetrics()
 
     @property
     def default_color(self):
         return Colour.from_str(self.config.get("default_color"))
+
+    @property
+    def latency_ms(self):
+        return round(self.latency * 1000)
 
     def get_channel_by_name(self, name):
         channel = Channel.find_by(channel_name=name)
@@ -63,7 +59,8 @@ class Grace(Bot):
 
     async def setup_hook(self):
         await super().setup_hook()
-        _init_dachshund()
+        dashboard.init_dachshund()
+        dashboard.build_dashboard()
 
     async def on_ready(self):
         logger.info(f"{self.user.name}#{self.user.id} is online and ready to use!")
@@ -71,4 +68,4 @@ class Grace(Bot):
 
     async def on_reload(self):
         await super().on_reload()
-        _init_dachshund()
+        dashboard.init_dachshund()

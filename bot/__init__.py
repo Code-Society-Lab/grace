@@ -14,9 +14,6 @@ def _create_bot(app):
     Import is deferred to avoid circular dependency.
     """
     from bot.grace import Grace
-    from bot.dashboard import dashboard
-
-    dashboard.build_dashboard()
 
     return Grace(app)
 

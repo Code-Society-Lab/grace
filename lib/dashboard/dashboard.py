@@ -1,12 +1,24 @@
 import dachshund
 
+from bot import app
+from lib.dashboard.sqlmodel_storage import SQLModelStorage
+
+DACHSHUND_EVENT_STORE = app.config.get("dachshund", "event_store") or "dachshund.db"
+
+
+def init_dachshund():
+    dachshund.shutdown()
+
+    dachshund.init(
+        "Grace",
+        description="Code Society's Discord Bot",
+        host="0.0.0.0",
+        path=DACHSHUND_EVENT_STORE,
+        storage=SQLModelStorage(),
+    )
+
 
 def build_dashboard() -> None:
-    """Register every chart shown on the dashboard.
-
-    Called once, at bot construction, so registration never re-runs on
-    cog/extension reload (dachshund raises if a widget name is added twice).
-    """
     dachshund.chart(
         "latency",
         type="timeseries",
@@ -28,4 +40,5 @@ def build_dashboard() -> None:
         title="Calls Per Command",
         x="name",
         size=3,
+        persist=True,
     )

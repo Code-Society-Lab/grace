@@ -7,6 +7,8 @@ venv
 channel_store
 build/
 *.db
+*.db-shm
+*.db-wal
 *.log
 *.log.*
 env/

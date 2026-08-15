@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import dachshund
 
-from bot.dashboard.dashboard import build_dashboard
+from lib.dashboard.dashboard import build_dashboard
 
 
 @patch.object(dachshund, "chart")
@@ -24,3 +24,4 @@ def test_build_dashboard__with_on_command_chart__expect_bar_chart_by_name(mock_c
     )
     assert on_command_call.kwargs["type"] == "bar"
     assert on_command_call.kwargs["x"] == "name"
+    assert on_command_call.kwargs["persist"] is True
