@@ -1,0 +1,49 @@
+.card-content.gauge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.gauge-arc {
+  width: 100%;
+  max-width: 220px;
+  height: auto;
+}
+
+.gauge-zone-good {
+  stroke: var(--online);
+}
+
+.gauge-zone-warning {
+  stroke: var(--warning);
+}
+
+.gauge-zone-critical {
+  stroke: var(--offline);
+}
+
+.gauge-needle {
+  stroke: var(--text);
+  stroke-width: 2;
+}
+
+.gauge-reading {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.gauge-value {
+  font-family: var(--font-ui);
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.gauge-unit {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  color: var(--text-muted);
+}
