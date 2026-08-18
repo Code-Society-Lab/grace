@@ -39,10 +39,14 @@ class DashboardCog(
 
     def _reset_minutely_count(self) -> None:
         self._minutely_message_count = 0
+        dachshund.emit("minutely_message_rate", value=self._minutely_message_count)
+
         self._minutely_command_count = 0
+        dachshund.emit("minutely_command_rate", value=self._minutely_command_count)
 
     def _reset_daily_count(self) -> None:
         self._daily_message_count = 0
+        dachshund.emit("daily_message_rate", value=self._daily_message_count)
 
     def _report_member_count(self) -> None:
         dachshund.emit(
