@@ -87,14 +87,32 @@ class DashboardCog(
         self._save_counts()
 
     def _report_member_count(self) -> None:
-        dachshund.emit(
-            "member_count",
-            value=sum(guild.member_count or 0 for guild in self.bot.guilds),
-        )
+        # dachshund.emit(
+        #     "member_count",
+        #     value=sum(guild.member_count or 0 for guild in self.bot.guilds),
+        # )
+        guild_id = 1349086642446532639
+        guild = self.bot.get_guild(guild_id)
+
+        if guild:
+            dachshund.emit(
+                "member_count",
+                value=guild.member_count,
+            )
+
+    def _load_users(self) -> None:
+        guild_id = 1349086642446532639
+        guild = self.bot.get_guild(guild_id)
+
+        # for guild in self.bot.guilds:
+        if guild:
+            for member in guild.members:
+                dachshund.emit("members", id=member.id, name=member.name, guild=guild.name, _guild_id=str(guild.id))
 
     @Cog.listener()
     async def on_ready(self) -> None:
         self._report_member_count()
+        self._load_users()
 
     @Cog.listener()
     async def on_member_join(self, _member: Member) -> None:

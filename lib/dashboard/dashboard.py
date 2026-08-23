@@ -6,7 +6,7 @@ from lib.dashboard.widgets.gauge import (
     Gauge,
 )  # registers the "gauge" widget type on import
 
-DACHSHUND_EVENT_STORE = app.config.get("dachshund", "event_store") or "dachshund.db"
+DACHSHUND_EVENT_STORE = app.config.get("dachshund", "event_store", "dachshund.db")
 
 
 def init_dachshund():
@@ -22,8 +22,29 @@ def start_dashboard():
         host="0.0.0.0",
     )
 
+@dachshund.action("ban", label="Ban", confirm=True)
+async def greet_user(name: str, guild_id: str) -> None:
+    from bot import bot
+
+    if guild := bot.get_guild(int(guild_id)):
+        await guild.system_channel.send(f"Hello {name}!")
 
 def build_dashboard() -> None:
+    dachshund.widget(
+        "member_count",
+        type="number",
+        size=1,
+    )
+
+    dachshund.widget(
+        "members",
+        type="table",
+        columns=["id", "name", "guild", "_guild_id"],
+        key="id",
+        actions=["ban"],
+        size=2,
+    )
+
     # latency
     dachshund.chart(
         "latency",
@@ -90,3 +111,4 @@ def build_dashboard() -> None:
         size=3,
         persist=True,
     )
+
