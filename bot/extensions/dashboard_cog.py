@@ -27,7 +27,9 @@ class DashboardCog(
             self.bot.scheduler.add_job(self._reset_minutely_count, "cron", minute="*/1")
         )
         self.jobs.append(
-            self.bot.scheduler.add_job(self._reset_daily_count, "cron", day="*/1")
+            self.bot.scheduler.add_job(
+                self._reset_daily_count, "cron", hour=0, minute=0, second=0
+            )
         )
 
     def cog_unload(self) -> None:

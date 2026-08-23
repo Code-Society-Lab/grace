@@ -197,7 +197,7 @@ def test_cog_load__expect_schedules_cron_jobs(dashboard_cog):
         dashboard_cog._reset_minutely_count, "cron", minute="*/1"
     )
     dashboard_cog.bot.scheduler.add_job.assert_any_call(
-        dashboard_cog._reset_daily_count, "cron", day="*/1"
+        dashboard_cog._reset_daily_count, "cron", hour=0, minute=0, second=0
     )
     assert len(dashboard_cog.jobs) == 3
 
