@@ -1,7 +1,10 @@
+from datetime import datetime, tzinfo
+
 import dachshund
 from apscheduler.job import Job
 from discord import Member, Message
 from discord.ext.commands import Cog, Context
+from pytz import timezone
 
 from bot.grace import Grace
 
@@ -14,6 +17,7 @@ class DashboardCog(
     def __init__(self, bot: Grace):
         self.bot: Grace = bot
         self.jobs: list[Job] = []
+        self.timezone: tzinfo = timezone("US/Eastern")
 
         self._daily_message_count: int = 0
         self._minutely_message_count: int = 0
@@ -21,14 +25,18 @@ class DashboardCog(
 
     def cog_load(self) -> None:
         self.jobs.append(
-            self.bot.scheduler.add_job(self._report_latency, "cron", minute="*/1")
-        )
-        self.jobs.append(
-            self.bot.scheduler.add_job(self._reset_minutely_count, "cron", minute="*/1")
+            self.bot.scheduler.add_job(
+                self._report_latency, "cron", minute="*/1", timezone=self.timezone
+            )
         )
         self.jobs.append(
             self.bot.scheduler.add_job(
-                self._reset_daily_count, "cron", hour=0, minute=0, second=0
+                self._reset_daily_count,
+                "cron",
+                hour=0,
+                minute=0,
+                second=0,
+                timezone=self.timezone,
             )
         )
 
@@ -38,13 +46,6 @@ class DashboardCog(
 
     def _report_latency(self) -> None:
         self.bot.metrics.record_latency(self.bot.latency_ms)
-
-    def _reset_minutely_count(self) -> None:
-        self._minutely_message_count = 0
-        dachshund.emit("minutely_message_rate", value=self._minutely_message_count)
-
-        self._minutely_command_count = 0
-        dachshund.emit("minutely_command_rate", value=self._minutely_command_count)
 
     def _reset_daily_count(self) -> None:
         self._daily_message_count = 0
@@ -75,6 +76,11 @@ class DashboardCog(
 
         self._daily_message_count += 1
         dachshund.emit("daily_message_rate", value=self._daily_message_count)
+        dachshund.emit(
+            "weekly_message_counts",
+            date=datetime.now(self.timezone).date().isoformat(),
+            value=1,
+        )
 
     @Cog.listener()
     async def on_command(self, ctx: Context) -> None:

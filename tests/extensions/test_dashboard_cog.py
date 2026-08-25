@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 import pytest
+from freezegun import freeze_time
 
 from bot.extensions.dashboard_cog import DashboardCog
 
@@ -17,19 +18,6 @@ def test_report_latency__expect_records_latency_from_bot(dashboard_cog):
     dashboard_cog._report_latency()
 
     dashboard_cog.bot.metrics.record_latency.assert_called_once_with(50)
-
-
-def test_reset_minutely_count__expect_resets_message_and_command_counts(dashboard_cog):
-    """Verify _reset_minutely_count resets both minute counters, not the daily one."""
-    dashboard_cog._minutely_message_count = 3
-    dashboard_cog._minutely_command_count = 2
-    dashboard_cog._daily_message_count = 9
-
-    dashboard_cog._reset_minutely_count()
-
-    assert dashboard_cog._minutely_message_count == 0
-    assert dashboard_cog._minutely_command_count == 0
-    assert dashboard_cog._daily_message_count == 9
 
 
 def test_reset_daily_count__expect_resets_daily_message_count(dashboard_cog):
@@ -113,6 +101,19 @@ async def test_on_message__expect_emits_running_minutely_and_daily_counts(
 
 @pytest.mark.asyncio
 @patch("bot.extensions.dashboard_cog.dachshund.emit")
+async def test_on_message__expect_emits_a_same_day_delta_for_the_weekly_chart(
+    mock_emit, dashboard_cog
+):
+    """Verify on_message emits a delta of 1 for today's date, not a running total."""
+    with freeze_time("2025-02-20 12:00:00"):
+        await dashboard_cog.on_message(object())
+        await dashboard_cog.on_message(object())
+
+    mock_emit.assert_any_call("weekly_message_counts", date="2025-02-20", value=1)
+
+
+@pytest.mark.asyncio
+@patch("bot.extensions.dashboard_cog.dachshund.emit")
 async def test_on_command__expect_emits_command_name(mock_emit, dashboard_cog):
     """Verify on_command emits the qualified command name."""
     ctx = type("Ctx", (), {"command": type("Cmd", (), {"qualified_name": "ping"})()})()
@@ -187,19 +188,24 @@ async def test_on_resumed__expect_emits_resume_event(mock_emit, dashboard_cog):
 
 
 def test_cog_load__expect_schedules_cron_jobs(dashboard_cog):
-    """Verify cog_load schedules latency, minute-reset, and day-reset jobs."""
+    """Verify cog_load schedules the latency and day-reset jobs, pinned to the cog's timezone."""
     dashboard_cog.cog_load()
 
     dashboard_cog.bot.scheduler.add_job.assert_any_call(
-        dashboard_cog._report_latency, "cron", minute="*/1"
+        dashboard_cog._report_latency,
+        "cron",
+        minute="*/1",
+        timezone=dashboard_cog.timezone,
     )
     dashboard_cog.bot.scheduler.add_job.assert_any_call(
-        dashboard_cog._reset_minutely_count, "cron", minute="*/1"
+        dashboard_cog._reset_daily_count,
+        "cron",
+        hour=0,
+        minute=0,
+        second=0,
+        timezone=dashboard_cog.timezone,
     )
-    dashboard_cog.bot.scheduler.add_job.assert_any_call(
-        dashboard_cog._reset_daily_count, "cron", hour=0, minute=0, second=0
-    )
-    assert len(dashboard_cog.jobs) == 3
+    assert len(dashboard_cog.jobs) == 2
 
 
 def test_cog_unload__expect_removes_scheduled_jobs(dashboard_cog):

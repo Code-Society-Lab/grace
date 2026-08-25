@@ -46,52 +46,21 @@ def build_dashboard() -> None:
         size=1,
     )
 
-    dachshund.widget(
-        "average_latency",
-        type="number",
-        title="Average Latency",
-        unit="ms",
-        size=1,
-    )
-
-    dachshund.widget(
-        "highest_latency",
-        type="number",
-        title="Highest Latency",
-        unit="ms",
-        size=1,
-    )
-
-    dachshund.widget(
-        "lowest_latency",
-        type="number",
-        title="Lowest Latency",
-        unit="ms",
-        size=1,
-    )
-
-    # member
+    # message
     dachshund.widget(
         "daily_message_rate",
         type="number",
+        title="Today's Messages Rate",
+        size=1,
+    )
+
+    dachshund.chart(
+        "weekly_message_counts",
+        type="bar",
         title="Messages / day",
-        size=1,
-    )
-
-    # message
-    dachshund.widget(
-        "minutely_message_rate",
-        type="number",
-        title="Messages / min",
-        size=1,
-    )
-
-    # commands
-    dachshund.widget(
-        "minutely_command_rate",
-        type="number",
-        title="Commands / min",
-        size=1,
+        x="date",
+        size=2,
+        persist=True,
     )
 
     dachshund.chart(

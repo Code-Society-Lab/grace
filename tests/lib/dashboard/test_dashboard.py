@@ -13,16 +13,14 @@ def test_build_dashboard__expect_all_charts_registered(mock_chart, mock_widget):
 
     chart_names = [call.args[0] for call in mock_chart.call_args_list]
     widget_names = [call.args[0] for call in mock_widget.call_args_list]
-    assert chart_names == ["latency", "on_command", "command_error", "connection_event"]
-    assert widget_names == [
-        "average_latency_gauge",
-        "average_latency",
-        "highest_latency",
-        "lowest_latency",
-        "daily_message_rate",
-        "minutely_message_rate",
-        "minutely_command_rate",
+    assert chart_names == [
+        "latency",
+        "weekly_message_counts",
+        "on_command",
+        "command_error",
+        "connection_event",
     ]
+    assert widget_names == ["average_latency_gauge", "daily_message_rate"]
 
 
 @patch.object(dachshund, "widget")
@@ -43,17 +41,20 @@ def test_build_dashboard__with_on_command_chart__expect_bar_chart_by_name(
 
 @patch.object(dachshund, "widget")
 @patch.object(dachshund, "chart")
-def test_build_dashboard__with_highest_latency__expect_number_widget_in_ms(
+def test_build_dashboard__with_weekly_message_counts_chart__expect_bar_chart_by_date(
     mock_chart, mock_widget
 ):
-    """Verify the highest_latency widget is configured as a number widget in ms."""
+    """Verify the weekly_message_counts chart is configured as a persisted bar chart keyed by date."""
     build_dashboard()
 
-    highest_latency_call = next(
-        call for call in mock_widget.call_args_list if call.args[0] == "highest_latency"
+    weekly_call = next(
+        call
+        for call in mock_chart.call_args_list
+        if call.args[0] == "weekly_message_counts"
     )
-    assert highest_latency_call.kwargs["type"] == "number"
-    assert highest_latency_call.kwargs["unit"] == "ms"
+    assert weekly_call.kwargs["type"] == "bar"
+    assert weekly_call.kwargs["x"] == "date"
+    assert weekly_call.kwargs["persist"] is True
 
 
 @patch.object(dachshund, "widget")
