@@ -7,6 +7,7 @@ from lib.dashboard.widgets.gauge import (
 )  # registers the "gauge" widget type on import
 
 DACHSHUND_EVENT_STORE = app.config.get("dachshund", "event_store", "dachshund.db")
+GUILD_IDS: list[int] = [1349086642446532639]
 
 
 def init_dachshund():
@@ -15,19 +16,44 @@ def init_dachshund():
     dachshund.default(path=DACHSHUND_EVENT_STORE, storage=SQLModelStorage())
 
 
-def start_dashboard():
+def start_dashboard(context: dict):
     dachshund.init(
         "Grace",
         description="Code Society's Discord Bot",
         host="0.0.0.0",
+        context=context
     )
 
-@dachshund.action("ban", label="Ban", confirm=True)
-async def greet_user(name: str, guild_id: str) -> None:
-    from bot import bot
+@dachshund.action("greet", label="Greet")
+async def greet_user(ctx: dict, name: str, guild_id: str) -> None:
+    bot = ctx["bot"]
 
     if guild := bot.get_guild(int(guild_id)):
         await guild.system_channel.send(f"Hello {name}!")
+
+
+def load_members(ctx: dict, cursor: str | None, page_size: int):
+    bot = ctx["bot"]
+    members = []
+
+    for guild_id in GUILD_IDS:
+        if guild := bot.get_guild(guild_id):
+            for member in guild.members:
+                members.append(
+                    {
+                        "id": member.id,
+                        "name": member.name,
+                        "guild": guild.name,
+                        "_guild_id": str(guild.id),
+                    }
+                )
+
+    start = int(cursor) if cursor else 0
+    rows = members[start : start + page_size]
+    next_cursor = str(start + page_size) if start + page_size < len(members) else None
+
+    return rows, next_cursor
+
 
 def build_dashboard() -> None:
     dachshund.widget(
@@ -40,8 +66,8 @@ def build_dashboard() -> None:
         "members",
         type="table",
         columns=["id", "name", "guild", "_guild_id"],
-        key="id",
-        actions=["ban"],
+        actions=["greet"],
+        loader=load_members,
         size=2,
     )
 
@@ -111,4 +137,3 @@ def build_dashboard() -> None:
         size=3,
         persist=True,
     )
-

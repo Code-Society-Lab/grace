@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import dachshund
 
-from lib.dashboard.dashboard import build_dashboard
+from lib.dashboard.dashboard import build_dashboard, load_members
 
 
 @patch.object(dachshund, "widget")
@@ -20,7 +20,12 @@ def test_build_dashboard__expect_all_charts_registered(mock_chart, mock_widget):
         "command_error",
         "connection_event",
     ]
-    assert widget_names == ["average_latency_gauge", "daily_message_rate"]
+    assert widget_names == [
+        "member_count",
+        "members",
+        "average_latency_gauge",
+        "daily_message_rate",
+    ]
 
 
 @patch.object(dachshund, "widget")
@@ -105,3 +110,57 @@ def test_build_dashboard__with_connection_event_chart__expect_bar_chart_by_type(
     assert connection_event_call.kwargs["type"] == "bar"
     assert connection_event_call.kwargs["x"] == "type"
     assert connection_event_call.kwargs["persist"] is True
+
+
+@patch.object(dachshund, "widget")
+@patch.object(dachshund, "chart")
+def test_build_dashboard__with_members_table__expect_a_loader(mock_chart, mock_widget):
+    """Verify the members table fetches its rows through a loader, not a local mirror."""
+    build_dashboard()
+
+    members_call = next(
+        call for call in mock_widget.call_args_list if call.args[0] == "members"
+    )
+    assert members_call.kwargs["type"] == "table"
+    assert members_call.kwargs["loader"] is load_members
+    assert "persist" not in members_call.kwargs
+
+
+def _fake_bot(guild):
+    return type("Bot", (), {"get_guild": staticmethod(lambda guild_id: guild)})()
+
+
+def _fake_member(id, name):
+    return type("Member", (), {"id": id, "name": name})()
+
+
+def test_load_members__expect_every_member_as_a_row():
+    guild = type(
+        "Guild",
+        (),
+        {"id": 1349086642446532639, "name": "Code Society", "members": [_fake_member(1, "ada")]},
+    )()
+    bot = _fake_bot(guild)
+
+    rows, next_cursor = load_members({"bot": bot}, None, 5)
+
+    assert rows == [
+        {"id": 1, "name": "ada", "guild": "Code Society", "_guild_id": "1349086642446532639"}
+    ]
+    assert next_cursor is None
+
+
+def test_load_members__expect_a_next_cursor_when_more_remain():
+    members = [_fake_member(i, f"user{i}") for i in range(3)]
+    guild = type(
+        "Guild", (), {"id": 1349086642446532639, "name": "Code Society", "members": members}
+    )()
+    bot = _fake_bot(guild)
+
+    first_rows, next_cursor = load_members({"bot": bot}, None, 2)
+    second_rows, second_cursor = load_members({"bot": bot}, next_cursor, 2)
+
+    assert [row["id"] for row in first_rows] == [0, 1]
+    assert next_cursor == "2"
+    assert [row["id"] for row in second_rows] == [2]
+    assert second_cursor is None

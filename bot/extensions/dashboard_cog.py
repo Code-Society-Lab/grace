@@ -8,6 +8,7 @@ from pytz import timezone
 
 from bot.grace import Grace
 from bot.models.extensions.widget_state import WidgetState
+from lib.dashboard.dashboard import GUILD_IDS
 
 
 class DashboardCog(
@@ -87,40 +88,27 @@ class DashboardCog(
         self._save_counts()
 
     def _report_member_count(self) -> None:
-        # dachshund.emit(
-        #     "member_count",
-        #     value=sum(guild.member_count or 0 for guild in self.bot.guilds),
-        # )
-        guild_id = 1349086642446532639
-        guild = self.bot.get_guild(guild_id)
-
-        if guild:
-            dachshund.emit(
-                "member_count",
-                value=guild.member_count,
-            )
-
-    def _load_users(self) -> None:
-        guild_id = 1349086642446532639
-        guild = self.bot.get_guild(guild_id)
-
-        # for guild in self.bot.guilds:
-        if guild:
-            for member in guild.members:
-                dachshund.emit("members", id=member.id, name=member.name, guild=guild.name, _guild_id=str(guild.id))
+        for guild_id in GUILD_IDS:
+            if guild := self.bot.get_guild(guild_id):
+                dachshund.emit(
+                    "member_count",
+                    value=guild.member_count,
+                )
 
     @Cog.listener()
     async def on_ready(self) -> None:
         self._report_member_count()
-        self._load_users()
+        dachshund.emit("members")
 
     @Cog.listener()
     async def on_member_join(self, _member: Member) -> None:
         self._report_member_count()
+        dachshund.emit("members")
 
     @Cog.listener()
     async def on_member_remove(self, _member: Member) -> None:
         self._report_member_count()
+        dachshund.emit("members")
 
     @Cog.listener()
     async def on_message(self, _message: Message) -> None:

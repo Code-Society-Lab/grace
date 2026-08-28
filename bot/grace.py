@@ -62,7 +62,7 @@ class Grace(Bot):
         dashboard.init_dachshund()
         self.metrics = await DashboardMetrics.load()
         dashboard.build_dashboard()
-        dashboard.start_dashboard()
+        dashboard.start_dashboard({"bot": self})
 
     async def on_ready(self):
         logger.info(f"{self.user.name}#{self.user.id} is online and ready to use!")
