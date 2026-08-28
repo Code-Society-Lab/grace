@@ -7,6 +7,7 @@ from discord.ext.commands import Cog, Context
 from pytz import timezone
 
 from bot.grace import Grace
+from bot.models.extensions.widget_state import WidgetState
 
 
 class DashboardCog(
@@ -24,9 +25,16 @@ class DashboardCog(
         self._minutely_command_count: int = 0
 
     def cog_load(self) -> None:
+        self._load_counts()
+
         self.jobs.append(
             self.bot.scheduler.add_job(
                 self._report_latency, "cron", minute="*/1", timezone=self.timezone
+            )
+        )
+        self.jobs.append(
+            self.bot.scheduler.add_job(
+                self._save_counts, "cron", minute="*/1", timezone=self.timezone
             )
         )
         self.jobs.append(
@@ -47,9 +55,36 @@ class DashboardCog(
     def _report_latency(self) -> None:
         self.bot.metrics.record_latency(self.bot.latency_ms)
 
+    def _load_counts(self) -> None:
+        self._daily_message_count = self._load_count("daily_message_rate")
+        self._minutely_message_count = self._load_count("minutely_message_rate")
+        self._minutely_command_count = self._load_count("minutely_command_rate")
+
+        dachshund.emit("daily_message_rate", value=self._daily_message_count)
+        dachshund.emit("minutely_message_rate", value=self._minutely_message_count)
+        dachshund.emit("minutely_command_rate", value=self._minutely_command_count)
+
+    def _load_count(self, key: str) -> int:
+        record = WidgetState.find(key)
+        return int(record.value) if record else 0
+
+    def _save_counts(self) -> None:
+        for key, value in (
+            ("daily_message_rate", self._daily_message_count),
+            ("minutely_message_rate", self._minutely_message_count),
+            ("minutely_command_rate", self._minutely_command_count),
+        ):
+            record = WidgetState.find(key)
+            if record is None:
+                WidgetState.create(key=key, value=str(value))
+            else:
+                record.update(value=str(value))
+
     def _reset_daily_count(self) -> None:
         self._daily_message_count = 0
         dachshund.emit("daily_message_rate", value=self._daily_message_count)
+
+        self._save_counts()
 
     def _report_member_count(self) -> None:
         dachshund.emit(
