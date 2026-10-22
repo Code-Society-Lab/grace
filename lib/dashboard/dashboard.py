@@ -57,18 +57,9 @@ def load_members(ctx: dict, cursor: str | None, page_size: int):
 
 def build_dashboard() -> None:
     dachshund.widget(
-        "member_count",
-        type="number",
-        size=1,
-    )
-
-    dachshund.widget(
-        "members",
-        type="table",
-        columns=["id", "name", "guild", "_guild_id"],
-        actions=["greet"],
-        loader=load_members,
-        size=2,
+        "summary",
+        type="text",
+        size=3
     )
 
     # latency
@@ -110,6 +101,23 @@ def build_dashboard() -> None:
         persist=True,
     )
 
+    # members
+    dachshund.widget(
+        "member_count",
+        type="number",
+        size=1,
+    )
+
+    dachshund.widget(
+        "members",
+        type="table",
+        columns=["id", "name", "guild", "_guild_id"],
+        actions=["greet"],
+        loader=load_members,
+        size=2,
+    )
+
+    # commands
     dachshund.chart(
         "on_command",
         type="bar",

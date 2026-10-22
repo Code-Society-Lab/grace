@@ -11,6 +11,16 @@ from bot.models.extensions.widget_state import WidgetState
 from lib.dashboard.dashboard import GUILD_IDS
 
 
+SUMMARY = """
+# Welcome!
+### This dashboard contain various monitoring information about **Grace**, our awesome bot!
+Hopefully, you will find something useful here.
+
+- [Website](https://codesociety.xyz)
+- [Discord](https://discord.gg/FzgwHD7Am3)
+- [Source](https://github.com/Code-Society-Lab/grace)
+"""
+
 class DashboardCog(
     Cog, name="Dashboard", description="Feeds bot telemetry to the live dashboard"
 ):
@@ -27,6 +37,7 @@ class DashboardCog(
 
     def cog_load(self) -> None:
         self._load_counts()
+        dachshund.emit("summary", value=SUMMARY)
 
         self.jobs.append(
             self.bot.scheduler.add_job(
