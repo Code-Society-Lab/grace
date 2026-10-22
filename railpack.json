@@ -1,0 +1,23 @@
+{
+  "$schema": "https://schema.railpack.com",
+  "provider": "python",
+  "buildAptPackages": ["git", "libpq-dev"],
+  "packages": {
+    "python": "3.12"
+  },
+  "steps": {
+    "build": {
+      "commands": [
+        "python -m venv /app/.venv",
+        { "path": "/app/.venv/bin" },
+        "pip install --upgrade build setuptools",
+        "pip install psycopg2-binary nltk",
+        "pip install ."
+      ]
+    }
+  },
+  "deploy": {
+    "paths": ["/app/.venv/bin"],
+    "startCommand": "grace db up && grace --environment production run --sync"
+  }
+}
