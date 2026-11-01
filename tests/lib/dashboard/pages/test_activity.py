@@ -1,32 +1,29 @@
 import pytest
-from dachshund import BarChart, Number
+from dachshund import BarChart, Number, Row
 
 from lib.dashboard.pages.activity import activity_page
 
 
-def test_activity_page__expect_one_tab_per_topic():
-    assert list(activity_page.tabs) == ["messages", "commands", "connections"]
+def test_activity_page__expect_messages_beside_their_rate_then_one_chart_per_row():
+    assert activity_page.rows == [
+        Row(["daily_message_rate", "weekly_message_counts"], (1, 2)),
+        Row(["on_command"]),
+        Row(["command_error"]),
+    ]
+    assert isinstance(activity_page.widgets["daily_message_rate"], Number)
 
 
 @pytest.mark.parametrize(
-    "tab, name, x",
+    "name, x",
     [
-        ("messages", "weekly_message_counts", "date"),
-        ("commands", "on_command", "name"),
-        ("commands", "command_error", "name"),
-        ("connections", "connection_event", "type"),
+        ("weekly_message_counts", "date"),
+        ("on_command", "name"),
+        ("command_error", "name"),
     ],
 )
-def test_activity_page__expect_persisted_bar_charts(tab, name, x):
-    chart = activity_page.tabs[tab].widgets[name]
+def test_activity_page__expect_persisted_bar_charts(name, x):
+    chart = activity_page.widgets[name]
 
     assert isinstance(chart, BarChart)
     assert chart.x == x
     assert chart.persist is True
-
-
-def test_activity_page__with_messages_tab__expect_rate_beside_counts():
-    messages = activity_page.tabs["messages"]
-
-    assert isinstance(messages.widgets["daily_message_rate"], Number)
-    assert messages.rows == [["daily_message_rate", "weekly_message_counts"]]

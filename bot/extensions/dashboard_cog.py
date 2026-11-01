@@ -8,7 +8,6 @@ from pytz import timezone
 
 from bot.grace import Grace
 from bot.models.extensions.widget_state import WidgetState
-from lib.dashboard.pages.overview import GUILD_IDS
 
 
 SUMMARY = """
@@ -20,6 +19,7 @@ Hopefully, you will find something useful here.
 - [Discord](https://discord.gg/FzgwHD7Am3)
 - [Source](https://github.com/Code-Society-Lab/grace)
 """
+
 
 class DashboardCog(
     Cog, name="Dashboard", description="Feeds bot telemetry to the live dashboard"
@@ -40,9 +40,7 @@ class DashboardCog(
         dachshund.emit("summary", value=SUMMARY)
 
         self.jobs.append(
-            self.bot.scheduler.add_job(
-                self._report_latency, "cron", minute="*/1", timezone=self.timezone
-            )
+            self.bot.scheduler.add_job(self._report_latency, "interval", minutes=1)
         )
         self.jobs.append(
             self.bot.scheduler.add_job(
@@ -99,12 +97,10 @@ class DashboardCog(
         self._save_counts()
 
     def _report_member_count(self) -> None:
-        for guild_id in GUILD_IDS:
-            if guild := self.bot.get_guild(guild_id):
-                dachshund.emit(
-                    "member_count",
-                    value=guild.member_count,
-                )
+        guild_id = self.bot.app.config.get("client", "guild_id")
+
+        if guild := self.bot.get_guild(guild_id):
+            dachshund.emit("member_count", value=guild.member_count)
 
     @Cog.listener()
     async def on_ready(self) -> None:

@@ -16,7 +16,7 @@ class Gauge(Widget):
     ## Example
 
     ```python
-    dachshund.add(Gauge("cpu", title="CPU Load", max=100, unit="%"))
+    dachshund.row(Gauge("cpu", title="CPU Load", max=100, unit="%"))
     dachshund.emit("cpu", value=42)
     ```
     """

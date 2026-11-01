@@ -11,13 +11,7 @@ def test_build_dashboard__expect_every_page_and_widget_included(monkeypatch):
 
     build_dashboard()
 
-    assert list(dashboard.pages) == [
-        "overview",
-        "activity",
-        "activity/messages",
-        "activity/commands",
-        "activity/connections",
-    ]
+    assert list(dashboard.pages) == ["overview", "activity"]
     assert sorted(dashboard.widgets) == sorted(
         [
             "summary",

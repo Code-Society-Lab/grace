@@ -19,7 +19,7 @@ def start_dashboard(context: dict):
         "Grace",
         description="Code Society's Discord Bot",
         host="0.0.0.0",
-        context=context
+        context=context,
     )
 
 

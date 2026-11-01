@@ -43,7 +43,7 @@ def test_reset_daily_count__expect_persists_zeroed_count(dashboard_cog):
 def test_report_member_count__expect_emits_member_count_for_configured_guild(
     mock_emit, dashboard_cog
 ):
-    """Verify _report_member_count emits the member count for each guild in GUILD_IDS."""
+    """Verify _report_member_count emits the member count for the configured guild."""
     guild = type("Guild", (), {"member_count": 15})()
     dashboard_cog.bot.get_guild = lambda guild_id: guild
 
@@ -108,7 +108,9 @@ async def test_on_member_remove__expect_reports_member_count(mock_emit, dashboar
 
 @pytest.mark.asyncio
 @patch("bot.extensions.dashboard_cog.dachshund.emit")
-async def test_on_member_remove__expect_a_members_refresh_ping(mock_emit, dashboard_cog):
+async def test_on_member_remove__expect_a_members_refresh_ping(
+    mock_emit, dashboard_cog
+):
     """Verify on_member_remove pings the members table to refetch its loader."""
     await dashboard_cog.on_member_remove(object())
 
@@ -261,14 +263,13 @@ def test_load_counts__expect_emits_restored_counts(mock_emit, dashboard_cog):
 
 
 def test_cog_load__expect_schedules_cron_jobs(dashboard_cog):
-    """Verify cog_load schedules latency, count-persistence, and day-reset jobs, pinned to the cog's timezone."""
+    """Verify cog_load schedules the latency, count-persistence and day-reset jobs."""
     dashboard_cog.cog_load()
 
     dashboard_cog.bot.scheduler.add_job.assert_any_call(
         dashboard_cog._report_latency,
-        "cron",
-        minute="*/1",
-        timezone=dashboard_cog.timezone,
+        "interval",
+        minutes=1,
     )
     dashboard_cog.bot.scheduler.add_job.assert_any_call(
         dashboard_cog._save_counts,
