@@ -8,7 +8,7 @@ from pytz import timezone
 
 from bot.grace import Grace
 from bot.models.extensions.widget_state import WidgetState
-from lib.dashboard.dashboard import GUILD_IDS
+from lib.dashboard.pages.overview import GUILD_IDS
 
 
 SUMMARY = """

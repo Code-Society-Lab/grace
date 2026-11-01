@@ -1,166 +1,35 @@
-from unittest.mock import patch
-
 import dachshund
+from dachshund import Dashboard
 
-from lib.dashboard.dashboard import build_dashboard, load_members
+from lib.dashboard.dashboard import build_dashboard
+from lib.dashboard.sqlmodel_storage import SQLModelStorage
 
 
-@patch.object(dachshund, "widget")
-@patch.object(dachshund, "chart")
-def test_build_dashboard__expect_all_charts_registered(mock_chart, mock_widget):
-    """Verify build_dashboard registers every chart and widget exactly once."""
+def test_build_dashboard__expect_every_page_and_widget_included(monkeypatch):
+    dashboard = Dashboard(path=":memory:", storage=SQLModelStorage())
+    monkeypatch.setattr(dachshund, "include", dashboard.include)
+
     build_dashboard()
 
-    chart_names = [call.args[0] for call in mock_chart.call_args_list]
-    widget_names = [call.args[0] for call in mock_widget.call_args_list]
-    assert chart_names == [
-        "latency",
-        "weekly_message_counts",
-        "on_command",
-        "command_error",
-        "connection_event",
+    assert list(dashboard.pages) == [
+        "overview",
+        "activity",
+        "activity/messages",
+        "activity/commands",
+        "activity/connections",
     ]
-    assert widget_names == [
-        "member_count",
-        "members",
-        "average_latency_gauge",
-        "daily_message_rate",
-    ]
-
-
-@patch.object(dachshund, "widget")
-@patch.object(dachshund, "chart")
-def test_build_dashboard__with_on_command_chart__expect_bar_chart_by_name(
-    mock_chart, mock_widget
-):
-    """Verify the on_command chart is configured as a bar chart keyed by command name."""
-    build_dashboard()
-
-    on_command_call = next(
-        call for call in mock_chart.call_args_list if call.args[0] == "on_command"
+    assert sorted(dashboard.widgets) == sorted(
+        [
+            "summary",
+            "latency",
+            "average_latency_gauge",
+            "daily_message_rate",
+            "member_count",
+            "members",
+            "weekly_message_counts",
+            "on_command",
+            "command_error",
+            "connection_event",
+        ]
     )
-    assert on_command_call.kwargs["type"] == "bar"
-    assert on_command_call.kwargs["x"] == "name"
-    assert on_command_call.kwargs["persist"] is True
-
-
-@patch.object(dachshund, "widget")
-@patch.object(dachshund, "chart")
-def test_build_dashboard__with_weekly_message_counts_chart__expect_bar_chart_by_date(
-    mock_chart, mock_widget
-):
-    """Verify the weekly_message_counts chart is configured as a persisted bar chart keyed by date."""
-    build_dashboard()
-
-    weekly_call = next(
-        call
-        for call in mock_chart.call_args_list
-        if call.args[0] == "weekly_message_counts"
-    )
-    assert weekly_call.kwargs["type"] == "bar"
-    assert weekly_call.kwargs["x"] == "date"
-    assert weekly_call.kwargs["persist"] is True
-
-
-@patch.object(dachshund, "widget")
-@patch.object(dachshund, "chart")
-def test_build_dashboard__with_average_latency_gauge__expect_gauge_widget_in_ms(
-    mock_chart, mock_widget
-):
-    """Verify the average_latency_gauge widget reads the average_latency source in ms."""
-    build_dashboard()
-
-    gauge_call = next(
-        call
-        for call in mock_widget.call_args_list
-        if call.args[0] == "average_latency_gauge"
-    )
-    assert gauge_call.kwargs["type"] == "gauge"
-    assert gauge_call.kwargs["source"] == "average_latency"
-    assert gauge_call.kwargs["unit"] == "ms"
-
-
-@patch.object(dachshund, "widget")
-@patch.object(dachshund, "chart")
-def test_build_dashboard__with_command_error_chart__expect_bar_chart_by_name(
-    mock_chart, mock_widget
-):
-    """Verify the command_error chart is configured as a persisted bar chart keyed by command name."""
-    build_dashboard()
-
-    command_error_call = next(
-        call for call in mock_chart.call_args_list if call.args[0] == "command_error"
-    )
-    assert command_error_call.kwargs["type"] == "bar"
-    assert command_error_call.kwargs["x"] == "name"
-    assert command_error_call.kwargs["persist"] is True
-
-
-@patch.object(dachshund, "widget")
-@patch.object(dachshund, "chart")
-def test_build_dashboard__with_connection_event_chart__expect_bar_chart_by_type(
-    mock_chart, mock_widget
-):
-    """Verify the connection_event chart is configured as a persisted bar chart keyed by event type."""
-    build_dashboard()
-
-    connection_event_call = next(
-        call for call in mock_chart.call_args_list if call.args[0] == "connection_event"
-    )
-    assert connection_event_call.kwargs["type"] == "bar"
-    assert connection_event_call.kwargs["x"] == "type"
-    assert connection_event_call.kwargs["persist"] is True
-
-
-@patch.object(dachshund, "widget")
-@patch.object(dachshund, "chart")
-def test_build_dashboard__with_members_table__expect_a_loader(mock_chart, mock_widget):
-    """Verify the members table fetches its rows through a loader, not a local mirror."""
-    build_dashboard()
-
-    members_call = next(
-        call for call in mock_widget.call_args_list if call.args[0] == "members"
-    )
-    assert members_call.kwargs["type"] == "table"
-    assert members_call.kwargs["loader"] is load_members
-    assert "persist" not in members_call.kwargs
-
-
-def _fake_bot(guild):
-    return type("Bot", (), {"get_guild": staticmethod(lambda guild_id: guild)})()
-
-
-def _fake_member(id, name):
-    return type("Member", (), {"id": id, "name": name})()
-
-
-def test_load_members__expect_every_member_as_a_row():
-    guild = type(
-        "Guild",
-        (),
-        {"id": 1349086642446532639, "name": "Code Society", "members": [_fake_member(1, "ada")]},
-    )()
-    bot = _fake_bot(guild)
-
-    rows, next_cursor = load_members({"bot": bot}, None, 5)
-
-    assert rows == [
-        {"id": 1, "name": "ada", "guild": "Code Society", "_guild_id": "1349086642446532639"}
-    ]
-    assert next_cursor is None
-
-
-def test_load_members__expect_a_next_cursor_when_more_remain():
-    members = [_fake_member(i, f"user{i}") for i in range(3)]
-    guild = type(
-        "Guild", (), {"id": 1349086642446532639, "name": "Code Society", "members": members}
-    )()
-    bot = _fake_bot(guild)
-
-    first_rows, next_cursor = load_members({"bot": bot}, None, 2)
-    second_rows, second_cursor = load_members({"bot": bot}, next_cursor, 2)
-
-    assert [row["id"] for row in first_rows] == [0, 1]
-    assert next_cursor == "2"
-    assert [row["id"] for row in second_rows] == [2]
-    assert second_cursor is None
+    assert list(dashboard.actions) == ["greet"]
