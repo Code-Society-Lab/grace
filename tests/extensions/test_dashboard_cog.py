@@ -40,14 +40,12 @@ def test_reset_daily_count__expect_persists_zeroed_count(dashboard_cog):
 
 
 @patch("bot.extensions.dashboard_cog.dachshund.emit")
-def test_report_member_count__expect_emits_summed_member_count(
+def test_report_member_count__expect_emits_member_count_for_configured_guild(
     mock_emit, dashboard_cog
 ):
-    """Verify _report_member_count sums member_count across every guild."""
-    dashboard_cog.bot.guilds = [
-        type("Guild", (), {"member_count": 10})(),
-        type("Guild", (), {"member_count": 5})(),
-    ]
+    """Verify _report_member_count emits the member count for the configured guild."""
+    guild = type("Guild", (), {"member_count": 15})()
+    dashboard_cog.bot.get_guild = lambda guild_id: guild
 
     dashboard_cog._report_member_count()
 
@@ -58,33 +56,65 @@ def test_report_member_count__expect_emits_summed_member_count(
 @patch("bot.extensions.dashboard_cog.dachshund.emit")
 async def test_on_ready__expect_reports_member_count(mock_emit, dashboard_cog):
     """Verify on_ready reports the current member count."""
-    dashboard_cog.bot.guilds = [type("Guild", (), {"member_count": 7})()]
+    guild = type("Guild", (), {"member_count": 7})()
+    dashboard_cog.bot.get_guild = lambda guild_id: guild
 
     await dashboard_cog.on_ready()
 
-    mock_emit.assert_called_once_with("member_count", value=7)
+    mock_emit.assert_any_call("member_count", value=7)
+
+
+@pytest.mark.asyncio
+@patch("bot.extensions.dashboard_cog.dachshund.emit")
+async def test_on_ready__expect_a_members_refresh_ping(mock_emit, dashboard_cog):
+    """Verify on_ready pings the members table to refetch its loader."""
+    await dashboard_cog.on_ready()
+
+    mock_emit.assert_any_call("members")
 
 
 @pytest.mark.asyncio
 @patch("bot.extensions.dashboard_cog.dachshund.emit")
 async def test_on_member_join__expect_reports_member_count(mock_emit, dashboard_cog):
     """Verify on_member_join reports the current member count."""
-    dashboard_cog.bot.guilds = [type("Guild", (), {"member_count": 8})()]
+    guild = type("Guild", (), {"member_count": 8})()
+    dashboard_cog.bot.get_guild = lambda guild_id: guild
 
     await dashboard_cog.on_member_join(object())
 
-    mock_emit.assert_called_once_with("member_count", value=8)
+    mock_emit.assert_any_call("member_count", value=8)
+
+
+@pytest.mark.asyncio
+@patch("bot.extensions.dashboard_cog.dachshund.emit")
+async def test_on_member_join__expect_a_members_refresh_ping(mock_emit, dashboard_cog):
+    """Verify on_member_join pings the members table to refetch its loader."""
+    await dashboard_cog.on_member_join(object())
+
+    mock_emit.assert_any_call("members")
 
 
 @pytest.mark.asyncio
 @patch("bot.extensions.dashboard_cog.dachshund.emit")
 async def test_on_member_remove__expect_reports_member_count(mock_emit, dashboard_cog):
     """Verify on_member_remove reports the current member count."""
-    dashboard_cog.bot.guilds = [type("Guild", (), {"member_count": 6})()]
+    guild = type("Guild", (), {"member_count": 6})()
+    dashboard_cog.bot.get_guild = lambda guild_id: guild
 
     await dashboard_cog.on_member_remove(object())
 
-    mock_emit.assert_called_once_with("member_count", value=6)
+    mock_emit.assert_any_call("member_count", value=6)
+
+
+@pytest.mark.asyncio
+@patch("bot.extensions.dashboard_cog.dachshund.emit")
+async def test_on_member_remove__expect_a_members_refresh_ping(
+    mock_emit, dashboard_cog
+):
+    """Verify on_member_remove pings the members table to refetch its loader."""
+    await dashboard_cog.on_member_remove(object())
+
+    mock_emit.assert_any_call("members")
 
 
 @pytest.mark.asyncio
@@ -233,14 +263,13 @@ def test_load_counts__expect_emits_restored_counts(mock_emit, dashboard_cog):
 
 
 def test_cog_load__expect_schedules_cron_jobs(dashboard_cog):
-    """Verify cog_load schedules latency, count-persistence, and day-reset jobs, pinned to the cog's timezone."""
+    """Verify cog_load schedules the latency, count-persistence and day-reset jobs."""
     dashboard_cog.cog_load()
 
     dashboard_cog.bot.scheduler.add_job.assert_any_call(
         dashboard_cog._report_latency,
-        "cron",
-        minute="*/1",
-        timezone=dashboard_cog.timezone,
+        "interval",
+        minutes=1,
     )
     dashboard_cog.bot.scheduler.add_job.assert_any_call(
         dashboard_cog._save_counts,

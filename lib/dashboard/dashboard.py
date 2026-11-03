@@ -1,12 +1,11 @@
 import dachshund
 
 from bot import app
+from lib.dashboard.pages.activity import activity_page
+from lib.dashboard.pages.overview import overview_page
 from lib.dashboard.sqlmodel_storage import SQLModelStorage
-from lib.dashboard.widgets.gauge import (
-    Gauge,
-)  # registers the "gauge" widget type on import
 
-DACHSHUND_EVENT_STORE = app.config.get("dachshund", "event_store") or "dachshund.db"
+DACHSHUND_EVENT_STORE = app.config.get("dachshund", "event_store", "dachshund.db")
 
 
 def init_dachshund():
@@ -15,78 +14,15 @@ def init_dachshund():
     dachshund.default(path=DACHSHUND_EVENT_STORE, storage=SQLModelStorage())
 
 
-def start_dashboard():
+def start_dashboard(context: dict):
     dachshund.init(
         "Grace",
         description="Code Society's Discord Bot",
         host="0.0.0.0",
+        context=context,
     )
 
 
 def build_dashboard() -> None:
-    # latency
-    dachshund.chart(
-        "latency",
-        type="timeseries",
-        title="Live Latency",
-        y=["check", "command"],
-        size=2,
-    )
-
-    dachshund.widget(
-        "average_latency_gauge",
-        type="gauge",
-        title="Latency Health",
-        source="average_latency",
-        min=0,
-        max=500,
-        warning_at=150,
-        critical_at=300,
-        unit="ms",
-        size=1,
-    )
-
-    # message
-    dachshund.widget(
-        "daily_message_rate",
-        type="number",
-        title="Today's Messages Rate",
-        size=1,
-    )
-
-    dachshund.chart(
-        "weekly_message_counts",
-        type="bar",
-        title="Messages / day",
-        x="date",
-        size=2,
-        persist=True,
-    )
-
-    dachshund.chart(
-        "on_command",
-        type="bar",
-        title="Calls Per Command",
-        x="name",
-        size=3,
-        persist=True,
-    )
-
-    dachshund.chart(
-        "command_error",
-        type="bar",
-        title="Errors Per Command",
-        x="name",
-        size=3,
-        persist=True,
-    )
-
-    # connection events
-    dachshund.chart(
-        "connection_event",
-        type="bar",
-        title="Connection Events",
-        x="type",
-        size=3,
-        persist=True,
-    )
+    for page in (overview_page, activity_page):
+        dachshund.include(page)

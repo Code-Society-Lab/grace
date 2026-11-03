@@ -9,6 +9,16 @@ from pytz import timezone
 from bot.grace import Grace
 from bot.models.extensions.widget_state import WidgetState
 
+SUMMARY = """
+# Welcome!
+### This dashboard contain various monitoring information about **Grace**, our awesome bot!
+Hopefully, you will find something useful here.
+
+- [Website](https://codesociety.xyz)
+- [Discord](https://discord.gg/FzgwHD7Am3)
+- [Source](https://github.com/Code-Society-Lab/grace)
+"""
+
 
 class DashboardCog(
     Cog, name="Dashboard", description="Feeds bot telemetry to the live dashboard"
@@ -26,11 +36,10 @@ class DashboardCog(
 
     def cog_load(self) -> None:
         self._load_counts()
+        dachshund.emit("summary", value=SUMMARY)
 
         self.jobs.append(
-            self.bot.scheduler.add_job(
-                self._report_latency, "cron", minute="*/1", timezone=self.timezone
-            )
+            self.bot.scheduler.add_job(self._report_latency, "interval", minutes=1)
         )
         self.jobs.append(
             self.bot.scheduler.add_job(
@@ -87,22 +96,25 @@ class DashboardCog(
         self._save_counts()
 
     def _report_member_count(self) -> None:
-        dachshund.emit(
-            "member_count",
-            value=sum(guild.member_count or 0 for guild in self.bot.guilds),
-        )
+        guild_id = self.bot.app.config.get("client", "guild_id")
+
+        if guild := self.bot.get_guild(guild_id):
+            dachshund.emit("member_count", value=guild.member_count)
 
     @Cog.listener()
     async def on_ready(self) -> None:
         self._report_member_count()
+        dachshund.emit("members")
 
     @Cog.listener()
     async def on_member_join(self, _member: Member) -> None:
         self._report_member_count()
+        dachshund.emit("members")
 
     @Cog.listener()
     async def on_member_remove(self, _member: Member) -> None:
         self._report_member_count()
+        dachshund.emit("members")
 
     @Cog.listener()
     async def on_message(self, _message: Message) -> None:

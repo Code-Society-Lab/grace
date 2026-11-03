@@ -59,15 +59,14 @@ class Grace(Bot):
 
     async def setup_hook(self):
         await super().setup_hook()
-        dashboard.init_dachshund()
+
         self.metrics = await DashboardMetrics.load()
+        dashboard.init_dachshund()
         dashboard.build_dashboard()
-        dashboard.start_dashboard()
+        dashboard.start_dashboard({"bot": self})
 
     async def on_ready(self):
         logger.info(f"{self.user.name}#{self.user.id} is online and ready to use!")
 
     async def on_reload(self):
         await super().on_reload()
-        dashboard.init_dachshund()
-        dashboard.start_dashboard()
