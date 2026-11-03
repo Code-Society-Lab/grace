@@ -26,4 +26,4 @@ def test_build_dashboard__expect_every_page_and_widget_included(monkeypatch):
             "connection_event",
         ]
     )
-    assert list(dashboard.actions) == ["greet"]
+    assert list(dashboard.actions) == []
