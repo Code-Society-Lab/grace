@@ -9,7 +9,6 @@ from pytz import timezone
 from bot.grace import Grace
 from bot.models.extensions.widget_state import WidgetState
 
-
 SUMMARY = """
 # Welcome!
 ### This dashboard contain various monitoring information about **Grace**, our awesome bot!

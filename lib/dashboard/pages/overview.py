@@ -16,8 +16,8 @@ def load_members(ctx: dict, cursor: str | None, page_size: int):
                 {
                     "id": member.id,
                     "name": member.name,
-                    "guild": guild.name,
-                    "_guild_id": str(guild.id),
+                    "nickname": member.nick,
+                    "joined at": member.joined_at.strftime("%a %d %b %Y"),
                 }
             )
 
@@ -26,14 +26,6 @@ def load_members(ctx: dict, cursor: str | None, page_size: int):
     next_cursor = str(start + page_size) if start + page_size < len(members) else None
 
     return rows, next_cursor
-
-
-@overview_page.action("greet", label="Greet")
-async def greet_user(ctx: dict, name: str, guild_id: str) -> None:
-    bot = ctx["bot"]
-
-    if guild := bot.get_guild(int(guild_id)):
-        await guild.system_channel.send(f"Hello {name}!")
 
 
 overview_page.row(Text("summary"))
@@ -55,8 +47,7 @@ overview_page.row(
     Number("member_count"),
     Table(
         "members",
-        columns=["id", "name", "guild", "_guild_id"],
-        actions=["greet"],
+        columns=["id", "name", "nickname", "joined at"],
         loader=load_members,
     ),
     widths=(1, 2),
