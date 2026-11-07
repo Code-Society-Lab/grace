@@ -3,7 +3,13 @@
 import asyncio
 from typing import Awaitable, Callable, Mapping
 
-from aiohttp import ClientSession, ClientWebSocketResponse, WSMsgType, web
+from aiohttp import (
+    ClientSession,
+    ClientWebSocketResponse,
+    WSMsgType,
+    WSServerHandshakeError,
+    web,
+)
 from yarl import URL
 
 # Host is kept, so the dashboard builds its URLs, like a login's `next`, with
@@ -65,11 +71,18 @@ def proxy_to(upstream: URL) -> Handler:
 
 async def _websocket(
     request: web.Request, session: ClientSession, target: URL
-) -> web.WebSocketResponse:
+) -> web.StreamResponse:
+    # The dashboard answers first, so a refusal, like a 401 for a private page,
+    # reaches the browser as is.
+    try:
+        server = await session.ws_connect(target, headers=_headers(request.headers))
+    except WSServerHandshakeError as error:
+        return web.Response(status=error.status)
+
     client = web.WebSocketResponse()
     await client.prepare(request)
 
-    async with session.ws_connect(target, headers=_headers(request.headers)) as server:
+    async with server:
         pumps = [
             asyncio.create_task(_pump(client, server)),
             asyncio.create_task(_pump(server, client)),

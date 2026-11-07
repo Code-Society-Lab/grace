@@ -15,9 +15,9 @@ DISCORD_API_URL = "https://discord.com/api/v10"
 class DiscordOAuth:
     """The login, callback and logout routes."""
 
-    LOGIN_PATH = "/auth/login"
+    LOGIN_PATH = "/login"
     CALLBACK_PATH = "/auth/callback"
-    LOGOUT_PATH = "/auth/logout"
+    LOGOUT_PATH = "/logout"
 
     STATE_COOKIE = "grace_oauth_state"
     STATE_TTL = 10 * 60

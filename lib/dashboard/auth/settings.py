@@ -28,6 +28,13 @@ class AuthSettings:
         if missing:
             raise RuntimeError(f"Missing dashboard settings: {', '.join(missing)}.")
 
+        # It goes in the login URL as is, so stray text, like an inline comment
+        # in .env, would break it.
+        if self.enabled and not self.client_id.isdigit():
+            raise RuntimeError(
+                "The dashboard client_id must be the application's numeric id."
+            )
+
     @classmethod
     def from_config(cls, config: Any) -> "AuthSettings":
         def get(key: str) -> str:

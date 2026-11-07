@@ -108,6 +108,10 @@ async def _echo(request):
     )
 
 
+async def _refuse_ws(_request):
+    raise web.HTTPUnauthorized()
+
+
 async def _moved(_request):
     raise web.HTTPFound("/elsewhere")
 
@@ -116,6 +120,7 @@ def _upstream():
     app = web.Application()
     app.router.add_get("/_ws", _echo_ws)
     app.router.add_get("/moved", _moved)
+    app.router.add_get("/_ws_private", _refuse_ws)
     app.router.add_route("*", "/{tail:.*}", _echo)
     return app
 
@@ -148,7 +153,7 @@ def test_dashboard_access__when_enabled__expect_authorize_and_login_url():
 
     assert service.dashboard_access() == {
         "authorize": service.authorize,
-        "login_url": "/auth/login",
+        "login_url": "/login",
     }
 
 
@@ -220,7 +225,7 @@ async def test_secured__private_page__expect_login_redirect_back_to_it(user_id):
 
         location = URL(response.headers["Location"])
         assert response.status == 302
-        assert location.path == "/auth/login"
+        assert location.path == "/login"
         assert safe_next(location.query["next"]) == "/admin"
 
 
@@ -235,7 +240,7 @@ async def test_secured__private_page__with_admin_session__expect_shown():
 @pytest.mark.asyncio
 async def test_secured__login_route__expect_discord():
     async with _dashboard_client() as client:
-        response = await client.get("/auth/login", allow_redirects=False)
+        response = await client.get("/login", allow_redirects=False)
 
         assert response.status == 302
         assert response.headers["Location"].startswith("https://discord.com/")
@@ -270,9 +275,9 @@ async def test_not_secured__expect_proxied_without_session():
 @pytest.mark.asyncio
 async def test_not_secured__login_route__expect_proxied():
     async with _client(secured=False) as client:
-        response = await client.get("/auth/login")
+        response = await client.get("/login")
 
-        assert (await response.json())["path"] == "/auth/login"
+        assert (await response.json())["path"] == "/login"
 
 
 @pytest.mark.asyncio
@@ -309,7 +314,7 @@ async def test_start__expect_no_access_log(caplog, monkeypatch):
     try:
         host, port = service._runner.addresses[0][:2]
         async with ClientSession() as http:
-            async with http.get(f"http://{host}:{port}/auth/login"):
+            async with http.get(f"http://{host}:{port}/login"):
                 pass
         # The access line is written once the response is done.
         await asyncio.sleep(0.05)
@@ -317,3 +322,19 @@ async def test_start__expect_no_access_log(caplog, monkeypatch):
         await service.stop()
 
     assert not [r for r in caplog.records if r.name == "aiohttp.access"]
+
+
+@pytest.mark.asyncio
+async def test_proxy__websocket_refused__expect_status_passed_through():
+    async with _client(secured=False) as client:
+        response = await client.get(
+            "/_ws_private",
+            headers={
+                "Upgrade": "websocket",
+                "Connection": "Upgrade",
+                "Sec-WebSocket-Version": "13",
+                "Sec-WebSocket-Key": "dGhlIHNhbXBsZSBub25jZQ==",
+            },
+        )
+
+        assert response.status == 401

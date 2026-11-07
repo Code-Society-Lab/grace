@@ -59,3 +59,9 @@ def test_enabled__with_missing_setting__expect_error(key):
 
 def test_host__when_enabled__expect_every_interface():
     assert SETTINGS.host == "0.0.0.0"
+
+
+@pytest.mark.parametrize("client_id", ["1234# Developer portal", "abc", "12 34"])
+def test_enabled__with_non_numeric_client_id__expect_error(client_id):
+    with pytest.raises(RuntimeError, match="client_id"):
+        replace(SETTINGS, client_id=client_id)

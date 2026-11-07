@@ -29,7 +29,7 @@ def _request(path="/", cookies=None):
 
 @pytest.mark.asyncio
 async def test_login__expect_redirect_to_discord_with_state_cookie(oauth):
-    response = await oauth.login(_request("/auth/login?next=/activity"))
+    response = await oauth.login(_request("/login?next=/activity"))
 
     location = urlparse(response.headers["Location"])
     query = parse_qs(location.query)
@@ -47,7 +47,7 @@ async def test_login__expect_redirect_to_discord_with_state_cookie(oauth):
 
 @pytest.mark.asyncio
 async def test_login__with_offsite_next__expect_home(oauth):
-    response = await oauth.login(_request("/auth/login?next=//evil.example"))
+    response = await oauth.login(_request("/login?next=//evil.example"))
 
     assert response.cookies[STATE].value.endswith("|/")
 
@@ -101,7 +101,7 @@ async def test_callback__when_discord_fails__expect_bad_gateway(oauth):
 
 @pytest.mark.asyncio
 async def test_logout__expect_session_cleared(oauth):
-    response = await oauth.logout(_request("/auth/logout"))
+    response = await oauth.logout(_request("/logout"))
 
     assert response.status == 302
     assert response.headers["Location"] == "/"
