@@ -28,7 +28,6 @@ def test_build_dashboard__expect_every_page_and_widget_included(monkeypatch):
             "command_error",
             "connection_event",
             "commands_24h",
-            "avg_response_time",
             "worst_latency",
             "commands_per_day",
             "reactions_per_day",

@@ -28,16 +28,6 @@ with overview_page.row():
         )
         overview_page.add(
             Number(
-                "avg_response_time",
-                title="Avg Response (24h)",
-                source="command_duration",
-                aggregate="average",
-                over=timedelta(hours=24),
-                unit="ms",
-            )
-        )
-        overview_page.add(
-            Number(
                 "worst_latency",
                 title="Worst Latency (24h)",
                 source="latency",

@@ -40,9 +40,9 @@ def test_admin_page__expect_health_then_commands_then_moderation_then_tables():
         Row([Column(["command_duration"]), Column(["command_error"])]),
         Row([Column(["recent_commands"]), Column(["recent_moderation"])]),
         Row([Column(["admin_member_count"], 4), Column(["members"])]),
-        Row([Column(["dashboard_logins"])]),
         Row([Column(["enabled_extensions"]), Column(["disabled_extensions"])]),
         Row([Column(["jobs"])]),
+        Row([Column(["dashboard_logins"])]),
     ]
 
 
@@ -129,6 +129,13 @@ def test_admin_page__with_gateway_events__expect_per_minute_counts_over_a_day():
     assert chart.aggregate == "average"
     assert chart.every == timedelta(minutes=10)
     assert chart.over == timedelta(days=1)
+
+
+@pytest.mark.parametrize(
+    "name", ["recent_commands", "recent_moderation", "dashboard_logins"]
+)
+def test_admin_page__recent_tables__expect_times_in_eastern(name):
+    assert admin_page.widgets[name].timezone == "US/Eastern"
 
 
 def test_admin_page__with_logins__expect_newest_hundred():

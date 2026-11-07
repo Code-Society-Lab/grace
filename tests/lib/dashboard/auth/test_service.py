@@ -207,13 +207,13 @@ def _login_bot():
 @pytest.mark.parametrize(
     "result, user_id, expected",
     [
-        ("login", ADMIN, {"result": "login", "user": "ada", "user_id": "42"}),
-        ("login", STRANGER, {"result": "denied", "user": "bob", "user_id": "7"}),
-        ("logout", ADMIN, {"result": "logout", "user": "ada", "user_id": "42"}),
-        ("invalid", None, {"result": "invalid", "user": "", "user_id": ""}),
+        ("login", ADMIN, {"result": "login", "user": "ada", "id": "42"}),
+        ("login", STRANGER, {"result": "denied", "user": "bob", "id": "7"}),
+        ("logout", ADMIN, {"result": "logout", "user": "ada", "id": "42"}),
+        ("invalid", None, {"result": "invalid", "user": "", "id": ""}),
     ],
 )
-@patch("lib.dashboard.auth.service.record_login")
+@patch("lib.dashboard.auth.service.dachshund.emit")
 async def test_record_login__expect_named_row_denied_without_access(
     mock_record, result, user_id, expected
 ):
@@ -221,12 +221,11 @@ async def test_record_login__expect_named_row_denied_without_access(
 
     await _service(_login_bot()).record_login(request, result, user_id)
 
-    expected_result = expected.pop("result")
-    mock_record.assert_called_once_with(expected_result, ip="", **expected)
+    mock_record.assert_called_once_with("dashboard_logins", ip="", **expected)
 
 
 @pytest.mark.asyncio
-@patch("lib.dashboard.auth.service.record_login")
+@patch("lib.dashboard.auth.service.dachshund.emit")
 async def test_record_login__from_another_thread__expect_lookup_on_the_bots_loop(
     mock_record,
 ):
@@ -236,7 +235,8 @@ async def test_record_login__from_another_thread__expect_lookup_on_the_bots_loop
 
     await asyncio.to_thread(asyncio.run, service.record_login(request, "login", ADMIN))
 
-    assert mock_record.call_args.args == ("login",)
+    assert mock_record.call_args.args == ("dashboard_logins",)
+    assert mock_record.call_args.kwargs["result"] == "login"
     assert mock_record.call_args.kwargs["user"] == "ada"
 
 

@@ -217,8 +217,7 @@ async def test_on_command_completion__expect_duration_in_ms(mock_emit, dashboard
     mock_emit.assert_any_call("command_duration", name="ping", value=250.0)
     row = mock_emit.call_args_list[-1]
     assert row.args == ("recent_commands",)
-    assert row.kwargs | {"time": None} == {
-        "time": None,
+    assert row.kwargs == {
         "command": "ping",
         "user": "ada",
         "status": "ok",
@@ -245,22 +244,26 @@ def _moderation_ctx():
 
 
 @pytest.mark.asyncio
-@patch("bot.extensions.dashboard_cog.record_moderation")
 @patch("bot.extensions.dashboard_cog.dachshund.emit")
 async def test_on_command_error__moderation_command__expect_failed_moderation_row(
-    mock_emit, mock_record, dashboard_cog
+    mock_emit, dashboard_cog
 ):
     """Verify a failed moderation command lands in the moderation table, counted too."""
     error = CommandInvokeError(PermissionError("Missing Permissions"))
 
     await dashboard_cog.on_command_error(_moderation_ctx(), error)
 
-    mock_record.assert_called_once_with(
-        "ping (failed)", by="ada", details="PermissionError: Missing Permissions"
+    mock_emit.assert_any_call(
+        "recent_moderation",
+        action="ping (failed)",
+        member="",
+        by="ada",
+        details="PermissionError: Missing Permissions",
     )
     assert [c.args[0] for c in mock_emit.call_args_list] == [
         "command_error",
         "command_outcome",
+        "recent_moderation",
     ]
 
 
@@ -320,7 +323,6 @@ async def test_on_command_error__expect_recent_error_row_unwrapped(
 
     mock_emit.assert_any_call(
         "recent_commands",
-        time="2025-02-20 22:00:00",
         command="ping",
         user="ada",
         status="error",

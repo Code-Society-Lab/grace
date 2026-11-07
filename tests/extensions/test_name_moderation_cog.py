@@ -26,7 +26,7 @@ def mock_ctx():
 @pytest.mark.asyncio
 @patch("bot.extensions.name_moderation_cog.notice")
 @patch("bot.extensions.name_moderation_cog.make_random_name")
-@patch("bot.extensions.name_moderation_cog.record_moderation")
+@patch("bot.extensions.name_moderation_cog.dachshund.emit")
 async def test_name_moderation_on_member_join__with_none_blacklisted_name__expect_nothing(
     mock_emit, mock_random, mock_notice, name_moderation_cog
 ):
@@ -44,7 +44,7 @@ async def test_name_moderation_on_member_join__with_none_blacklisted_name__expec
 
 
 @pytest.mark.asyncio
-@patch("bot.extensions.name_moderation_cog.record_moderation")
+@patch("bot.extensions.name_moderation_cog.dachshund.emit")
 @patch("bot.extensions.name_moderation_cog.notice")
 @patch("bot.extensions.name_moderation_cog.make_random_name")
 async def test_name_moderation_on_member_join__with_blacklisted_name__expect_change_and_message(
@@ -72,7 +72,11 @@ async def test_name_moderation_on_member_join__with_blacklisted_name__expect_cha
 
     mock_notice.assert_called_once_with("NAME", "Username of Bad Name was changed.")
     mock_emit.assert_called_once_with(
-        "rename", member="Bad Name", details="renamed to Good Name"
+        "recent_moderation",
+        action="rename",
+        member="Bad Name",
+        by="auto",
+        details="renamed to Good Name",
     )
     mock_log.add_field.assert_called_once_with(
         "Reason: ",

@@ -22,7 +22,7 @@ def _member(account_age_days):
 @pytest.mark.asyncio
 @patch("bot.extensions.moderation_cog.danger")
 @patch("bot.extensions.moderation_cog.app.config.get", return_value=30)
-@patch("bot.extensions.moderation_cog.record_moderation")
+@patch("bot.extensions.moderation_cog.dachshund.emit")
 async def test_on_member_join__with_young_account__expect_kick_row(
     mock_emit, _config, _danger, moderation_cog
 ):
@@ -32,15 +32,17 @@ async def test_on_member_join__with_young_account__expect_kick_row(
 
     member.guild.kick.assert_awaited_once()
     mock_emit.assert_called_once_with(
-        "kick",
+        "recent_moderation",
+        action="kick",
         member=str(member),
+        by="auto",
         details="account 2 day(s) old, minimum 30",
     )
 
 
 @pytest.mark.asyncio
 @patch("bot.extensions.moderation_cog.app.config.get", return_value=30)
-@patch("bot.extensions.moderation_cog.record_moderation")
+@patch("bot.extensions.moderation_cog.dachshund.emit")
 async def test_on_member_join__with_old_account__expect_no_row(
     mock_emit, _config, moderation_cog
 ):
@@ -54,7 +56,7 @@ async def test_on_member_join__with_old_account__expect_no_row(
 
 @pytest.mark.asyncio
 @patch("bot.extensions.moderation_cog.danger")
-@patch("bot.extensions.moderation_cog.record_moderation")
+@patch("bot.extensions.moderation_cog.dachshund.emit")
 async def test_purge__expect_purge_row_by_its_moderator(
     mock_emit, mock_danger, moderation_cog
 ):
@@ -69,5 +71,9 @@ async def test_purge__expect_purge_row_by_its_moderator(
 
     ctx.channel.purge.assert_awaited_once()
     mock_emit.assert_called_once_with(
-        "purge", by="mod", details="5 message(s) in #general · spam"
+        "recent_moderation",
+        action="purge",
+        member="",
+        by="mod",
+        details="5 message(s) in #general · spam",
     )

@@ -1,6 +1,5 @@
 from datetime import timedelta
 
-import pytest
 from dachshund import Column, Row
 from dachshund.widgets import Number
 
@@ -17,9 +16,7 @@ def test_overview_page__expect_summary_then_latency_then_connections():
         Row([Column(["summary"]), Column(["member_count"], 4)]),
         Row(
             [
-                Column(
-                    ["average_latency_gauge", "avg_response_time", "worst_latency"], 4
-                ),
+                Column(["average_latency_gauge", "worst_latency"], 4),
                 Column(["latency"]),
             ]
         ),
@@ -27,18 +24,11 @@ def test_overview_page__expect_summary_then_latency_then_connections():
     ]
 
 
-@pytest.mark.parametrize(
-    "name, source, y, aggregate",
-    [
-        ("avg_response_time", "command_duration", "value", "average"),
-        ("worst_latency", "latency", "check", "max"),
-    ],
-)
-def test_overview_page__expect_24h_response_numbers_in_ms(name, source, y, aggregate):
-    number = overview_page.widgets[name]
+def test_overview_page__with_worst_latency__expect_max_check_over_24h_in_ms():
+    number = overview_page.widgets["worst_latency"]
 
     assert isinstance(number, Number)
-    assert (number.source, number.y, number.aggregate) == (source, y, aggregate)
+    assert (number.source, number.y, number.aggregate) == ("latency", "check", "max")
     assert number.over == timedelta(hours=24)
     assert number.unit == "ms"
 
