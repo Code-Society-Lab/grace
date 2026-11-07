@@ -14,6 +14,12 @@ from lib.dashboard.auth.settings import AuthSettings
 DISCORD_API_URL = "https://discord.com/api/v10"
 
 Handler = Callable[[web.Request], Awaitable[web.StreamResponse]]
+# Told of each login attempt and logout: the request, its outcome and the user, if known.
+LoginRecorder = Callable[[web.Request, str, int | None], Awaitable[None]]
+
+
+async def _ignore(_request: web.Request, _result: str, _user_id: int | None) -> None:
+    pass
 
 
 class DiscordOAuth:
@@ -22,9 +28,15 @@ class DiscordOAuth:
     STATE_COOKIE = "grace_oauth_state"
     STATE_TTL = 10 * 60
 
-    def __init__(self, settings: AuthSettings, sessions: Sessions) -> None:
+    def __init__(
+        self,
+        settings: AuthSettings,
+        sessions: Sessions,
+        record: LoginRecorder = _ignore,
+    ) -> None:
         self.settings = settings
         self.sessions = sessions
+        self.record = record
 
     def handlers(self) -> dict[str, Handler]:
         """The dashboard's `login`."""
@@ -54,12 +66,16 @@ class DiscordOAuth:
         code = request.query.get("code")
 
         if not expected or not code or not hmac.compare_digest(state, expected):
+            await self.record(request, "invalid", None)
             raise web.HTTPBadRequest(text="Invalid login attempt.")
 
         try:
             user_id = await self.fetch_user_id(code)
         except Exception as exc:
+            await self.record(request, "error", None)
             raise web.HTTPBadGateway(text="Could not reach Discord.") from exc
+
+        await self.record(request, "login", user_id)
 
         response = redirect(safe_next(next_path))
         response.del_cookie(self.STATE_COOKIE, path="/")
@@ -67,8 +83,10 @@ class DiscordOAuth:
 
         return response
 
-    async def logout(self, _request: web.Request) -> web.Response:
+    async def logout(self, request: web.Request) -> web.Response:
         """End the session and return to the dashboard's home."""
+        await self.record(request, "logout", self.sessions.current_user(request))
+
         response = redirect("/")
         response.del_cookie(Sessions.COOKIE, path="/")
 

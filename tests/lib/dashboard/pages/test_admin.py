@@ -12,9 +12,8 @@ from lib.dashboard.pages.admin import admin_page
 
 DEPLOYMENT_FIELDS = [
     "environment",
-    "commit",
     "started",
-    "uptime",
+    "commit",
     "discord_py",
     "python",
 ]
@@ -40,9 +39,10 @@ def test_admin_page__expect_health_then_commands_then_moderation_then_tables():
         Row([Column(["logs"])]),
         Row([Column(["command_duration"]), Column(["command_error"])]),
         Row([Column(["recent_commands"]), Column(["recent_moderation"])]),
+        Row([Column(["admin_member_count"], 4), Column(["members"])]),
+        Row([Column(["dashboard_logins"])]),
         Row([Column(["enabled_extensions"]), Column(["disabled_extensions"])]),
         Row([Column(["jobs"])]),
-        Row([Column(["members"])]),
     ]
 
 
@@ -129,6 +129,14 @@ def test_admin_page__with_gateway_events__expect_per_minute_counts_over_a_day():
     assert chart.aggregate == "average"
     assert chart.every == timedelta(minutes=10)
     assert chart.over == timedelta(days=1)
+
+
+def test_admin_page__with_logins__expect_newest_hundred():
+    table = admin_page.widgets["dashboard_logins"]
+
+    assert isinstance(table, RecentTable)
+    assert table.columns == ["time", "user", "id", "result", "ip"]
+    assert table.keep == 100
 
 
 def test_admin_page__with_logs__expect_logs_widget():

@@ -15,7 +15,7 @@ STATE = DiscordOAuth.STATE_COOKIE
 
 @pytest.fixture
 def oauth():
-    return DiscordOAuth(SETTINGS, SESSIONS)
+    return DiscordOAuth(SETTINGS, SESSIONS, AsyncMock())
 
 
 def _request(path="/", cookies=None):
@@ -106,3 +106,54 @@ async def test_logout__expect_session_cleared(oauth):
     assert response.status == 302
     assert response.headers["Location"] == "/"
     assert response.cookies[Sessions.COOKIE].value == ""
+
+
+@pytest.mark.asyncio
+async def test_callback__expect_the_login_recorded(oauth):
+    oauth.fetch_user_id = AsyncMock(return_value=42)
+    request = _request("/auth/callback?code=abc&state=xyz", cookies={STATE: "xyz|/"})
+
+    await oauth.callback(request)
+
+    oauth.record.assert_awaited_once_with(request, "login", 42)
+
+
+@pytest.mark.asyncio
+async def test_callback__with_bad_state__expect_invalid_recorded(oauth):
+    request = _request("/auth/callback?code=abc&state=wrong", cookies={STATE: "xyz|/"})
+
+    with pytest.raises(web.HTTPBadRequest):
+        await oauth.callback(request)
+
+    oauth.record.assert_awaited_once_with(request, "invalid", None)
+
+
+@pytest.mark.asyncio
+async def test_callback__when_discord_fails__expect_error_recorded(oauth):
+    oauth.fetch_user_id = AsyncMock(side_effect=OSError)
+    request = _request("/auth/callback?code=abc&state=xyz", cookies={STATE: "xyz|/"})
+
+    with pytest.raises(web.HTTPBadGateway):
+        await oauth.callback(request)
+
+    oauth.record.assert_awaited_once_with(request, "error", None)
+
+
+@pytest.mark.asyncio
+async def test_logout__expect_the_sessions_user_recorded(oauth):
+    request = _request(cookies={Sessions.COOKIE: SESSIONS.sign(42)})
+
+    await oauth.logout(request)
+
+    oauth.record.assert_awaited_once_with(request, "logout", 42)
+
+
+@pytest.mark.asyncio
+async def test_without_recorder__expect_logins_still_work():
+    oauth = DiscordOAuth(SETTINGS, SESSIONS)
+    oauth.fetch_user_id = AsyncMock(return_value=42)
+    request = _request("/auth/callback?code=abc&state=xyz", cookies={STATE: "xyz|/"})
+
+    response = await oauth.callback(request)
+
+    assert response.status == 302

@@ -17,7 +17,6 @@ def test_activity_page__expect_counts_then_members_then_messages_then_commands()
     assert activity_page.rows == [
         Row(
             [
-                Column(["member_count"]),
                 Column(["active_members"]),
                 Column(["daily_message_rate"]),
                 Column(["commands_24h"]),

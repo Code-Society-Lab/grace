@@ -3,7 +3,7 @@ from datetime import timedelta
 from dachshund import Page
 from dachshund.widgets import BarChart, Logs, Number, Table, TimeSeriesChart
 
-from bot.helpers.dashboard_helper import MODERATION_SOURCE
+from bot.helpers.dashboard_helper import LOGIN_SOURCE, MODERATION_SOURCE
 from lib.dashboard.handlers import extensions, jobs, members
 from lib.dashboard.widgets.recent_table import RecentTable
 from lib.dashboard.widgets.stat import Stat
@@ -124,6 +124,23 @@ with admin_page.row():
         )
     )
 
+with admin_page.row():
+    with admin_page.column(span=4):
+        # Overview's card is already named "member_count"; names are unique.
+        admin_page.add(
+            Number("admin_member_count", title="Members", source="member_count")
+        )
+
+    admin_page.add(
+        Table(
+            "members",
+            columns=members.COLUMNS,
+            search=True,
+            page_size=5,
+            loader=members.load,
+        )
+    )
+
 
 with admin_page.row():
     admin_page.add(
@@ -160,14 +177,12 @@ with admin_page.row():
         )
     )
 
-
 with admin_page.row():
     admin_page.add(
-        Table(
-            "members",
-            columns=members.COLUMNS,
-            search=True,
-            page_size=5,
-            loader=members.load,
+        RecentTable(
+            LOGIN_SOURCE,
+            title="Dashboard Logins",
+            columns=["time", "user", "id", "result", "ip"],
+            keep=100,
         )
     )

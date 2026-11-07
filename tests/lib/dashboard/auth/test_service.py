@@ -1,7 +1,8 @@
+import asyncio
 from contextlib import asynccontextmanager
 from dataclasses import replace
 from types import SimpleNamespace
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 from aiohttp.test_utils import TestClient, TestServer, make_mocked_request
@@ -10,6 +11,7 @@ from dachshund.widgets import Text
 from yarl import URL
 
 from lib.dashboard.auth import AuthService, AuthSettings
+from lib.dashboard.auth.service import client_ip
 from lib.dashboard.auth.session import Sessions, safe_next
 from tests.lib.dashboard.auth.settings import SETTINGS
 
@@ -178,3 +180,72 @@ async def test_secured__login_route__expect_discord():
 
         assert response.status == 302
         assert response.headers["Location"].startswith("https://discord.com/")
+
+
+class _Named(SimpleNamespace):
+    def __str__(self):
+        return self.name
+
+
+def _login_bot():
+    admin = _Named(
+        name="ada",
+        guild_permissions=SimpleNamespace(administrator=True),
+        roles=[],
+    )
+    stranger = _Named(
+        name="bob", guild_permissions=SimpleNamespace(administrator=False), roles=[]
+    )
+    bot = _bot({ADMIN: admin})
+    # Not in the guild, but still a Discord user the bot can name.
+    bot.get_user.side_effect = {STRANGER: stranger}.get
+    bot.loop = asyncio.get_running_loop()
+    return bot
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "result, user_id, expected",
+    [
+        ("login", ADMIN, {"result": "login", "user": "ada", "user_id": "42"}),
+        ("login", STRANGER, {"result": "denied", "user": "bob", "user_id": "7"}),
+        ("logout", ADMIN, {"result": "logout", "user": "ada", "user_id": "42"}),
+        ("invalid", None, {"result": "invalid", "user": "", "user_id": ""}),
+    ],
+)
+@patch("lib.dashboard.auth.service.record_login")
+async def test_record_login__expect_named_row_denied_without_access(
+    mock_record, result, user_id, expected
+):
+    request = make_mocked_request("GET", "/_auth/callback")
+
+    await _service(_login_bot()).record_login(request, result, user_id)
+
+    expected_result = expected.pop("result")
+    mock_record.assert_called_once_with(expected_result, ip="", **expected)
+
+
+@pytest.mark.asyncio
+@patch("lib.dashboard.auth.service.record_login")
+async def test_record_login__from_another_thread__expect_lookup_on_the_bots_loop(
+    mock_record,
+):
+    """The dashboard serves the login on its own thread and loop."""
+    service = _service(_login_bot())
+    request = make_mocked_request("GET", "/_auth/callback")
+
+    await asyncio.to_thread(asyncio.run, service.record_login(request, "login", ADMIN))
+
+    assert mock_record.call_args.args == ("login",)
+    assert mock_record.call_args.kwargs["user"] == "ada"
+
+
+@pytest.mark.parametrize(
+    "headers, expected",
+    [
+        ({"X-Forwarded-For": "203.0.113.7, 10.0.0.1"}, "203.0.113.7"),
+        ({}, ""),
+    ],
+)
+def test_client_ip__expect_the_first_forwarded_hop(headers, expected):
+    assert client_ip(make_mocked_request("GET", "/", headers=headers)) == expected
