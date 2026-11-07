@@ -3,9 +3,8 @@
 import asyncio
 from typing import Any
 
+import dachshund
 from aiohttp import web
-
-from bot.helpers.dashboard_helper import record_login
 
 from lib.dashboard.auth.oauth import DiscordOAuth
 from lib.dashboard.auth.session import Sessions
@@ -71,10 +70,11 @@ class AuthService:
         if result == "login" and not allowed:
             result = "denied"
 
-        record_login(
-            result,
+        dachshund.emit(
+            "dashboard_logins",
             user=name,
-            user_id="" if user_id is None else str(user_id),
+            id="" if user_id is None else str(user_id),
+            result=result,
             ip=client_ip(request),
         )
 

@@ -1,6 +1,8 @@
 import logging
 from datetime import UTC, datetime
 
+import dachshund
+
 logger = logging.getLogger(__name__)
 
 from discord import Member, Message, Reaction
@@ -8,7 +10,6 @@ from discord.ext.commands import Cog, Context, has_permissions, hybrid_command
 from emoji import demojize
 
 from bot import app
-from bot.helpers.dashboard_helper import record_moderation
 from bot.helpers.log_helper import danger, notice
 from bot.models.channel import Channel
 
@@ -46,8 +47,10 @@ class ModerationCog(
         log.add_field("Reason", reason)
 
         await ctx.channel.purge(limit=int(limit) + 1, bulk=True, reason=reason)
-        record_moderation(
-            "purge",
+        dachshund.emit(
+            "recent_moderation",
+            action="purge",
+            member="",
             by=str(ctx.author),
             details=f"{limit} message(s) in #{ctx.channel} · {reason}",
         )
@@ -120,9 +123,11 @@ class ModerationCog(
                 f"Your account needs to be {minimum_account_age} days old or more to join the server."
             )
             await member.guild.kick(user=member, reason="Account age restriction")
-            record_moderation(
-                "kick",
+            dachshund.emit(
+                "recent_moderation",
+                action="kick",
                 member=str(member),
+                by="auto",
                 details=f"account {account_age_in_days} day(s) old, "
                 f"minimum {minimum_account_age}",
             )

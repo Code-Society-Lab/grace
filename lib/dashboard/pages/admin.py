@@ -3,7 +3,6 @@ from datetime import timedelta
 from dachshund import Page
 from dachshund.widgets import BarChart, Logs, Number, Table, TimeSeriesChart
 
-from bot.helpers.dashboard_helper import LOGIN_SOURCE, MODERATION_SOURCE
 from lib.dashboard.handlers import extensions, jobs, members
 from lib.dashboard.widgets.recent_table import RecentTable
 from lib.dashboard.widgets.stat import Stat
@@ -110,6 +109,7 @@ with admin_page.row():
         RecentTable(
             "recent_commands",
             title="Recent Commands",
+            timezone="US/Eastern",
             columns=["time", "command", "user", "status", "ms", "error"],
             keep=100,
         )
@@ -117,8 +117,9 @@ with admin_page.row():
 
     admin_page.add(
         RecentTable(
-            MODERATION_SOURCE,
+            "recent_moderation",
             title="Recent Moderation",
+            timezone="US/Eastern",
             columns=["time", "action", "member", "by", "details"],
             keep=100,
         )
@@ -180,8 +181,9 @@ with admin_page.row():
 with admin_page.row():
     admin_page.add(
         RecentTable(
-            LOGIN_SOURCE,
+            "dashboard_logins",
             title="Dashboard Logins",
+            timezone="US/Eastern",
             columns=["time", "user", "id", "result", "ip"],
             keep=100,
         )

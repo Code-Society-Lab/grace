@@ -18,9 +18,9 @@ from discord.ext.commands import (
 from pytz import timezone
 
 from bot.grace import Grace
-from bot.helpers.dashboard_helper import record_moderation, timestamp, today
 from bot.services.process_stats_service import ProcessStats
 
+TIMEZONE = timezone("US/Eastern")
 STARTED_AT = "_dashboard_started_at"
 # Bar charts with a bar per date, which keep only the last DAILY_DAYS days.
 DAILY_SOURCES = ("commands_per_day", "reactions_per_day")
@@ -78,6 +78,11 @@ def _commit() -> str:
         return "unknown"
 
 
+def _today() -> str:
+    """Today's date, the day starting at midnight Eastern."""
+    return datetime.now(TIMEZONE).date().isoformat()
+
+
 def _emoji_name(payload: RawReactionActionEvent) -> str:
     """A unicode emoji as is, a custom one as `:name:`."""
     emoji = payload.emoji
@@ -121,7 +126,7 @@ class DashboardCog(
     def __init__(self, bot: Grace):
         self.bot: Grace = bot
         self.jobs: list[Job] = []
-        self.timezone: tzinfo = timezone("US/Eastern")
+        self.timezone: tzinfo = TIMEZONE
         self.process = ProcessStats()
         self.commit = _commit()
         self.gateway_events = 0
@@ -164,7 +169,7 @@ class DashboardCog(
 
     def _trim_daily_charts(self, now: date | None = None) -> None:
         """Remove the bars older than DAILY_DAYS from the per-day charts."""
-        now = now or date.fromisoformat(today())
+        now = now or date.fromisoformat(_today())
 
         for days_ago in range(DAILY_DAYS + 1, DAILY_DAYS + 1 + TRIM_SPAN):
             old = (now - timedelta(days=days_ago)).isoformat()
@@ -212,7 +217,7 @@ class DashboardCog(
         if payload.guild_id is None or (payload.member and payload.member.bot):
             return
 
-        dachshund.emit("reactions_per_day", date=today(), value=1)
+        dachshund.emit("reactions_per_day", date=_today(), value=1)
         dachshund.emit("reaction_emojis", emoji=_emoji_name(payload), value=1)
 
     @Cog.listener()
@@ -235,7 +240,7 @@ class DashboardCog(
 
         if ctx.command:
             dachshund.emit("on_command", name=ctx.command.qualified_name, value=1)
-            dachshund.emit("commands_per_day", date=today(), value=1)
+            dachshund.emit("commands_per_day", date=_today(), value=1)
 
     @Cog.listener()
     async def on_command_completion(self, ctx: Context) -> None:
@@ -265,8 +270,12 @@ class DashboardCog(
         dachshund.emit("command_outcome", failed=100)
 
         if _is_moderation(ctx):
-            record_moderation(
-                f"{name} (failed)", by=str(ctx.author), details=_describe(error)
+            dachshund.emit(
+                "recent_moderation",
+                action=f"{name} (failed)",
+                member="",
+                by=str(ctx.author),
+                details=_describe(error),
             )
         else:
             self._record_command(ctx, "error", _elapsed_ms(ctx), _describe(error))
@@ -277,7 +286,6 @@ class DashboardCog(
         """A row of the recent commands table."""
         dachshund.emit(
             "recent_commands",
-            time=timestamp(),
             command=ctx.command.qualified_name if ctx.command else "unknown",
             user=str(ctx.author),
             status=status,

@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from dachshund import Page
 from dachshund.widgets import BarChart, Number, Text, TimeSeriesChart
 from lib.dashboard.widgets.gauge import Gauge
@@ -21,6 +23,28 @@ with overview_page.row():
                 max=500,
                 warning_at=150,
                 critical_at=300,
+                unit="ms",
+            )
+        )
+        overview_page.add(
+            Number(
+                "avg_response_time",
+                title="Avg Response (24h)",
+                source="command_duration",
+                aggregate="average",
+                over=timedelta(hours=24),
+                unit="ms",
+            )
+        )
+        overview_page.add(
+            Number(
+                "worst_latency",
+                title="Worst Latency (24h)",
+                source="latency",
+                # The minute check, not latency measured by commands.
+                y="check",
+                aggregate="max",
+                over=timedelta(hours=24),
                 unit="ms",
             )
         )

@@ -1,12 +1,12 @@
 import logging
 
+import dachshund
 from discord import Member
 from discord.errors import Forbidden
 from discord.ext.commands import Cog
 
 from bot import app
 from bot.grace import Grace
-from bot.helpers.dashboard_helper import record_moderation
 from bot.helpers.log_helper import notice
 from bot.services.random_name_service import make_random_name
 
@@ -48,7 +48,13 @@ class NameModerationCog(
         try:
             good_name = make_random_name()
             await member.edit(nick=good_name)
-            record_moderation("rename", member=name, details=f"renamed to {good_name}")
+            dachshund.emit(
+                "recent_moderation",
+                action="rename",
+                member=name,
+                by="auto",
+                details=f"renamed to {good_name}",
+            )
 
             log = notice("NAME", f"Username of {name} was changed.")
             log.add_field(
