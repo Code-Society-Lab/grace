@@ -52,5 +52,5 @@ class AuthSettings:
 
     @property
     def host(self) -> str:
-        """Where the service listens: only this machine when the login is off."""
+        """Where the dashboard listens: only this machine when the login is off."""
         return "0.0.0.0" if self.enabled else "127.0.0.1"

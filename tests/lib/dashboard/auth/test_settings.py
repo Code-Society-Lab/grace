@@ -10,7 +10,7 @@ from tests.lib.dashboard.auth.settings import SETTINGS
 DASHBOARD = {
     "client_id": "1234",
     "client_secret": "client-secret",
-    "redirect_uri": "https://grace.example/auth/callback",
+    "redirect_uri": "https://grace.example/_auth/callback",
     "session_secret": "session-secret",
 }
 

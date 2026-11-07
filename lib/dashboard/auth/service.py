@@ -1,35 +1,26 @@
-"""The dashboard's front door: a Discord login, then a proxy to dachshund."""
+"""Who may see the dashboard's private pages, and the Discord login that decides it."""
 
-import logging
 from typing import Any
 
 from aiohttp import web
-from yarl import URL
 
 from lib.dashboard.auth.oauth import DiscordOAuth
-from lib.dashboard.auth.proxy import client_session, proxy_to
 from lib.dashboard.auth.session import Sessions
 from lib.dashboard.auth.settings import AuthSettings
 
-logger = logging.getLogger(__name__)
-
 
 class AuthService:
-    """Serves `upstream` on `PORT`, with a Discord login when enabled.
+    """Lets in guild administrators and members with the configured role.
 
-    The dashboard decides which pages are private and asks `authorize`, which
-    lets in guild administrators and members with the configured role.
+    The dashboard decides which pages are private, asks `authorize`, and serves
+    the Discord login itself.
     """
 
-    PORT = 1212
-
-    def __init__(self, bot: Any, upstream: URL, settings: AuthSettings) -> None:
+    def __init__(self, bot: Any, settings: AuthSettings) -> None:
         self.bot = bot
-        self.upstream = upstream
         self.settings = settings
         self.sessions = Sessions(settings.session_secret)
         self.oauth = DiscordOAuth(settings, self.sessions)
-        self._runner: web.AppRunner | None = None
 
     def is_allowed(self, user_id: int | None) -> bool:
         guild = self.bot.get_guild(self.settings.guild_id)
@@ -49,34 +40,12 @@ class AuthService:
         return self.is_allowed(self.sessions.current_user(request))
 
     def dashboard_access(self) -> dict[str, Any]:
-        """The `authorize` and `login_url` to start the dashboard with, none when the login is off."""
+        """The dashboard's `host`, and its `authorize` and `login` when the login is on."""
         if not self.settings.enabled:
-            return {}
+            return {"host": self.settings.host}
 
-        return {"authorize": self.authorize, "login_url": self.oauth.LOGIN_PATH}
-
-    def build_app(self) -> web.Application:
-        app = web.Application()
-        app.cleanup_ctx.append(client_session)
-
-        if self.settings.enabled:
-            app.add_routes(self.oauth.routes())
-
-        app.add_routes([web.route("*", "/{tail:.*}", proxy_to(self.upstream))])
-
-        return app
-
-    async def start(self) -> None:
-        if not self.settings.enabled:
-            logger.warning("Dashboard login is off, serving it on this machine only.")
-
-        # No access log: dachshund already logs each request, and these lines,
-        # logged on the bot's thread, would feed the Logs widget its own refreshes.
-        self._runner = web.AppRunner(self.build_app(), access_log=None)
-        await self._runner.setup()
-        await web.TCPSite(self._runner, self.settings.host, self.PORT).start()
-
-    async def stop(self) -> None:
-        if self._runner is not None:
-            await self._runner.cleanup()
-            self._runner = None
+        return {
+            "host": self.settings.host,
+            "authorize": self.authorize,
+            "login": self.oauth.handlers(),
+        }

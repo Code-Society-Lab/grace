@@ -29,7 +29,7 @@ def _request(path="/", cookies=None):
 
 @pytest.mark.asyncio
 async def test_login__expect_redirect_to_discord_with_state_cookie(oauth):
-    response = await oauth.login(_request("/login?next=/activity"))
+    response = await oauth.login(_request("/_auth/login?next=/activity"))
 
     location = urlparse(response.headers["Location"])
     query = parse_qs(location.query)
@@ -47,7 +47,7 @@ async def test_login__expect_redirect_to_discord_with_state_cookie(oauth):
 
 @pytest.mark.asyncio
 async def test_login__with_offsite_next__expect_home(oauth):
-    response = await oauth.login(_request("/login?next=//evil.example"))
+    response = await oauth.login(_request("/_auth/login?next=//evil.example"))
 
     assert response.cookies[STATE].value.endswith("|/")
 
@@ -56,7 +56,7 @@ async def test_login__with_offsite_next__expect_home(oauth):
 async def test_callback__with_matching_state__expect_session_and_redirect(oauth):
     oauth.fetch_user_id = AsyncMock(return_value=42)
     request = _request(
-        "/auth/callback?code=abc&state=xyz", cookies={STATE: "xyz|/activity"}
+        "/_auth/callback?code=abc&state=xyz", cookies={STATE: "xyz|/activity"}
     )
 
     response = await oauth.callback(request)
@@ -73,10 +73,10 @@ async def test_callback__with_matching_state__expect_session_and_redirect(oauth)
 @pytest.mark.parametrize(
     "path, cookies",
     [
-        ("/auth/callback?code=abc&state=wrong", {STATE: "xyz|/"}),
-        ("/auth/callback?code=abc&state=xyz", {}),
-        ("/auth/callback?state=xyz", {STATE: "xyz|/"}),
-        ("/auth/callback?code=abc&state=", {STATE: "|/"}),
+        ("/_auth/callback?code=abc&state=wrong", {STATE: "xyz|/"}),
+        ("/_auth/callback?code=abc&state=xyz", {}),
+        ("/_auth/callback?state=xyz", {STATE: "xyz|/"}),
+        ("/_auth/callback?code=abc&state=", {STATE: "|/"}),
     ],
 )
 async def test_callback__with_bad_state_or_code__expect_bad_request(
@@ -93,7 +93,7 @@ async def test_callback__with_bad_state_or_code__expect_bad_request(
 @pytest.mark.asyncio
 async def test_callback__when_discord_fails__expect_bad_gateway(oauth):
     oauth.fetch_user_id = AsyncMock(side_effect=OSError)
-    request = _request("/auth/callback?code=abc&state=xyz", cookies={STATE: "xyz|/"})
+    request = _request("/_auth/callback?code=abc&state=xyz", cookies={STATE: "xyz|/"})
 
     with pytest.raises(web.HTTPBadGateway):
         await oauth.callback(request)
@@ -101,7 +101,7 @@ async def test_callback__when_discord_fails__expect_bad_gateway(oauth):
 
 @pytest.mark.asyncio
 async def test_logout__expect_session_cleared(oauth):
-    response = await oauth.logout(_request("/logout"))
+    response = await oauth.logout(_request("/_auth/logout"))
 
     assert response.status == 302
     assert response.headers["Location"] == "/"

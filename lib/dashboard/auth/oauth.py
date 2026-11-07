@@ -3,6 +3,8 @@
 import hmac
 import secrets
 
+from typing import Awaitable, Callable
+
 from aiohttp import BasicAuth, ClientSession, web
 from discord.utils import oauth_url
 
@@ -11,13 +13,11 @@ from lib.dashboard.auth.settings import AuthSettings
 
 DISCORD_API_URL = "https://discord.com/api/v10"
 
+Handler = Callable[[web.Request], Awaitable[web.StreamResponse]]
+
 
 class DiscordOAuth:
-    """The login, callback and logout routes."""
-
-    LOGIN_PATH = "/login"
-    CALLBACK_PATH = "/auth/callback"
-    LOGOUT_PATH = "/logout"
+    """The login, callback and logout handlers, served by the dashboard at `/_auth/<name>`."""
 
     STATE_COOKIE = "grace_oauth_state"
     STATE_TTL = 10 * 60
@@ -26,12 +26,9 @@ class DiscordOAuth:
         self.settings = settings
         self.sessions = sessions
 
-    def routes(self) -> list[web.RouteDef]:
-        return [
-            web.get(self.LOGIN_PATH, self.login),
-            web.get(self.CALLBACK_PATH, self.callback),
-            web.get(self.LOGOUT_PATH, self.logout),
-        ]
+    def handlers(self) -> dict[str, Handler]:
+        """The dashboard's `login`."""
+        return {"login": self.login, "callback": self.callback, "logout": self.logout}
 
     async def login(self, request: web.Request) -> web.Response:
         """Send the visitor to Discord, remembering `next` and a fresh `state`."""

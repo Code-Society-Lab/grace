@@ -67,16 +67,12 @@ class Grace(Bot):
         self.metrics = await DashboardMetrics.load()
         dashboard.init_dachshund()
         dashboard.build_dashboard()
-        self.auth = AuthService(
-            self, dashboard.DASHBOARD_URL, AuthSettings.from_config(self.app.config)
-        )
-        dashboard.start_dashboard({"bot": self}, **self.auth.dashboard_access())
-        await self.auth.start()
+        self.auth = AuthService(self, AuthSettings.from_config(self.app.config))
 
-    async def close(self):
-        if self.auth:
-            await self.auth.stop()
-        await super().close()
+        if not self.auth.settings.enabled:
+            logger.warning("Dashboard login is off, serving it on this machine only.")
+
+        dashboard.start_dashboard({"bot": self}, **self.auth.dashboard_access())
 
     async def on_ready(self):
         logger.info(f"{self.user.name}#{self.user.id} is online and ready to use!")

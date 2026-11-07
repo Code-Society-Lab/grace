@@ -54,7 +54,7 @@ class Sessions:
 def safe_next(value: str | None) -> str:
     """The path and query of `value`, `/` if that isn't a path on this site.
 
-    The dashboard sends its own full URL, behind the proxy, so only the path is kept.
+    The dashboard sends its own full URL, so only the path is kept.
     """
     parts = urlsplit(value or "")
     path = parts.path

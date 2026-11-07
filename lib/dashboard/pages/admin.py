@@ -18,9 +18,8 @@ admin_page.action("disable_extension", label="Disable", confirm=True)(
 # One "deployment" event, a field per card.
 DEPLOYMENT = [
     ("environment", "Environment"),
-    ("commit", "Commit"),
     ("started", "Started"),
-    ("uptime", "Uptime"),
+    ("commit", "Commit"),
     ("discord_py", "discord.py"),
     ("python", "Python"),
 ]
