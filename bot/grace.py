@@ -7,6 +7,7 @@ from grace.bot import Bot
 from pretty_help import PrettyHelp
 
 from lib.dashboard import dashboard
+from lib.dashboard.auth import AuthService, AuthSettings
 from bot.models.channel import Channel
 from bot.models.extension import Extension
 from bot.services.dashboard_metrics_service import DashboardMetrics
@@ -22,6 +23,7 @@ class Grace(Bot):
 
         self.help_command = PrettyHelp(color=self.default_color)
         self.metrics = DashboardMetrics()
+        self.auth: AuthService | None = None
 
     @property
     def default_color(self):
@@ -64,6 +66,15 @@ class Grace(Bot):
         dashboard.init_dachshund()
         dashboard.build_dashboard()
         dashboard.start_dashboard({"bot": self})
+        self.auth = AuthService(
+            self, dashboard.DASHBOARD_URL, AuthSettings.from_config(self.app.config)
+        )
+        await self.auth.start()
+
+    async def close(self):
+        if self.auth:
+            await self.auth.stop()
+        await super().close()
 
     async def on_ready(self):
         logger.info(f"{self.user.name}#{self.user.id} is online and ready to use!")
