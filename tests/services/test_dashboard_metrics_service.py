@@ -1,7 +1,7 @@
 from unittest.mock import AsyncMock, patch
 
 import pytest
-from dachshund.storage.events import Event
+from dachshund.storage import Event
 
 from bot.services.dashboard_metrics_service import DashboardMetrics
 

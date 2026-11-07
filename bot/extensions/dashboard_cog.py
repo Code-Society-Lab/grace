@@ -7,7 +7,6 @@ from discord.ext.commands import Cog, Context
 from pytz import timezone
 
 from bot.grace import Grace
-from bot.models.extensions.widget_state import WidgetState
 
 SUMMARY = """
 # Welcome!
@@ -30,31 +29,11 @@ class DashboardCog(
         self.jobs: list[Job] = []
         self.timezone: tzinfo = timezone("US/Eastern")
 
-        self._daily_message_count: int = 0
-        self._minutely_message_count: int = 0
-        self._minutely_command_count: int = 0
-
     def cog_load(self) -> None:
-        self._load_counts()
         dachshund.emit("summary", value=SUMMARY)
 
         self.jobs.append(
             self.bot.scheduler.add_job(self._report_latency, "interval", minutes=1)
-        )
-        self.jobs.append(
-            self.bot.scheduler.add_job(
-                self._save_counts, "cron", minute="*/1", timezone=self.timezone
-            )
-        )
-        self.jobs.append(
-            self.bot.scheduler.add_job(
-                self._reset_daily_count,
-                "cron",
-                hour=0,
-                minute=0,
-                second=0,
-                timezone=self.timezone,
-            )
         )
 
     def cog_unload(self) -> None:
@@ -63,37 +42,6 @@ class DashboardCog(
 
     def _report_latency(self) -> None:
         self.bot.metrics.record_latency(self.bot.latency_ms)
-
-    def _load_counts(self) -> None:
-        self._daily_message_count = self._load_count("daily_message_rate")
-        self._minutely_message_count = self._load_count("minutely_message_rate")
-        self._minutely_command_count = self._load_count("minutely_command_rate")
-
-        dachshund.emit("daily_message_rate", value=self._daily_message_count)
-        dachshund.emit("minutely_message_rate", value=self._minutely_message_count)
-        dachshund.emit("minutely_command_rate", value=self._minutely_command_count)
-
-    def _load_count(self, key: str) -> int:
-        record = WidgetState.find(key)
-        return int(record.value) if record else 0
-
-    def _save_counts(self) -> None:
-        for key, value in (
-            ("daily_message_rate", self._daily_message_count),
-            ("minutely_message_rate", self._minutely_message_count),
-            ("minutely_command_rate", self._minutely_command_count),
-        ):
-            record = WidgetState.find(key)
-            if record is None:
-                WidgetState.create(key=key, value=str(value))
-            else:
-                record.update(value=str(value))
-
-    def _reset_daily_count(self) -> None:
-        self._daily_message_count = 0
-        dachshund.emit("daily_message_rate", value=self._daily_message_count)
-
-        self._save_counts()
 
     def _report_member_count(self) -> None:
         guild_id = self.bot.app.config.get("client", "guild_id")
@@ -117,15 +65,11 @@ class DashboardCog(
         dachshund.emit("members")
 
     @Cog.listener()
-    async def on_message(self, _message: Message) -> None:
-        self._minutely_message_count += 1
-        dachshund.emit("minutely_message_rate", value=self._minutely_message_count)
-
-        self._daily_message_count += 1
-        dachshund.emit("daily_message_rate", value=self._daily_message_count)
+    async def on_message(self, message: Message) -> None:
         dachshund.emit(
-            "weekly_message_counts",
+            "message",
             date=datetime.now(self.timezone).date().isoformat(),
+            author=None if message.author.bot else str(message.author.id),
             value=1,
         )
 
@@ -133,9 +77,6 @@ class DashboardCog(
     async def on_command(self, ctx: Context) -> None:
         if ctx.command:
             dachshund.emit("on_command", name=ctx.command.qualified_name, value=1)
-
-        self._minutely_command_count += 1
-        dachshund.emit("minutely_command_rate", value=self._minutely_command_count)
 
     @Cog.listener()
     async def on_command_error(self, ctx: Context, error: Exception) -> None:

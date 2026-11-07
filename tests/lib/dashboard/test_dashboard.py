@@ -19,6 +19,7 @@ def test_build_dashboard__expect_every_page_and_widget_included(monkeypatch):
             "average_latency_gauge",
             "daily_message_rate",
             "member_count",
+            "active_members",
             "members",
             "weekly_message_counts",
             "on_command",
