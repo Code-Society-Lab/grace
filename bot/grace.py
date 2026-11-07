@@ -19,6 +19,8 @@ class Grace(Bot):
             app,
             intents=Intents.all(),
             activity=Activity(type=ActivityType.playing, name="::help"),
+            # For on_socket_event_type, which the dashboard counts.
+            enable_debug_events=True,
         )
 
         self.help_command = PrettyHelp(color=self.default_color)

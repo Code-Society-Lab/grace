@@ -26,8 +26,9 @@ def mock_ctx():
 @pytest.mark.asyncio
 @patch("bot.extensions.name_moderation_cog.notice")
 @patch("bot.extensions.name_moderation_cog.make_random_name")
+@patch("bot.extensions.name_moderation_cog.record_moderation")
 async def test_name_moderation_on_member_join__with_none_blacklisted_name__expect_nothing(
-    mock_random, mock_notice, name_moderation_cog
+    mock_emit, mock_random, mock_notice, name_moderation_cog
 ):
     member = AsyncMock()
     member.display_name = "Normal Name"
@@ -39,13 +40,15 @@ async def test_name_moderation_on_member_join__with_none_blacklisted_name__expec
     member.edit.assert_not_awaited()
     member.send.assert_not_awaited()
     mock_notice.assert_not_called()
+    mock_emit.assert_not_called()
 
 
 @pytest.mark.asyncio
+@patch("bot.extensions.name_moderation_cog.record_moderation")
 @patch("bot.extensions.name_moderation_cog.notice")
 @patch("bot.extensions.name_moderation_cog.make_random_name")
 async def test_name_moderation_on_member_join__with_blacklisted_name__expect_change_and_message(
-    mock_random, mock_notice, name_moderation_cog
+    mock_random, mock_notice, mock_emit, name_moderation_cog
 ):
     member = AsyncMock()
     member.display_name = "Bad Name"
@@ -68,6 +71,9 @@ async def test_name_moderation_on_member_join__with_blacklisted_name__expect_cha
     )
 
     mock_notice.assert_called_once_with("NAME", "Username of Bad Name was changed.")
+    mock_emit.assert_called_once_with(
+        "rename", member="Bad Name", details="renamed to Good Name"
+    )
     mock_log.add_field.assert_called_once_with(
         "Reason: ",
         "User Bad Name joined with an inappropriate name, thus it was changed to Good Name.",

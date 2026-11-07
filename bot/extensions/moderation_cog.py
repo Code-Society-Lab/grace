@@ -8,6 +8,7 @@ from discord.ext.commands import Cog, Context, has_permissions, hybrid_command
 from emoji import demojize
 
 from bot import app
+from bot.helpers.dashboard_helper import record_moderation
 from bot.helpers.log_helper import danger, notice
 from bot.models.channel import Channel
 
@@ -45,6 +46,11 @@ class ModerationCog(
         log.add_field("Reason", reason)
 
         await ctx.channel.purge(limit=int(limit) + 1, bulk=True, reason=reason)
+        record_moderation(
+            "purge",
+            by=str(ctx.author),
+            details=f"{limit} message(s) in #{ctx.channel} · {reason}",
+        )
         await log.send(self.moderation_channel or ctx.channel)
 
     @Cog.listener()
@@ -114,6 +120,12 @@ class ModerationCog(
                 f"Your account needs to be {minimum_account_age} days old or more to join the server."
             )
             await member.guild.kick(user=member, reason="Account age restriction")
+            record_moderation(
+                "kick",
+                member=str(member),
+                details=f"account {account_age_in_days} day(s) old, "
+                f"minimum {minimum_account_age}",
+            )
 
             if self.moderation_channel:
                 await log.send(self.moderation_channel)

@@ -1,11 +1,14 @@
 from dachshund import Page
-from dachshund.widgets import BarChart, Text, TimeSeriesChart
+from dachshund.widgets import BarChart, Number, Text, TimeSeriesChart
 from lib.dashboard.widgets.gauge import Gauge
 
 overview_page = Page("overview", title="Overview", public=True)
 
 with overview_page.row():
     overview_page.add(Text("summary"))
+
+    with overview_page.column(span=4):
+        overview_page.add(Number("member_count"))
 
 with overview_page.row():
     with overview_page.column(span=4):
