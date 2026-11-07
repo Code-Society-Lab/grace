@@ -65,10 +65,10 @@ class Grace(Bot):
         self.metrics = await DashboardMetrics.load()
         dashboard.init_dachshund()
         dashboard.build_dashboard()
-        dashboard.start_dashboard({"bot": self})
         self.auth = AuthService(
             self, dashboard.DASHBOARD_URL, AuthSettings.from_config(self.app.config)
         )
+        dashboard.start_dashboard({"bot": self}, **self.auth.dashboard_access())
         await self.auth.start()
 
     async def close(self):

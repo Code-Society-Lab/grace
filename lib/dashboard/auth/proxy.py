@@ -6,8 +6,9 @@ from typing import Awaitable, Callable, Mapping
 from aiohttp import ClientSession, ClientWebSocketResponse, WSMsgType, web
 from yarl import URL
 
+# Host is kept, so the dashboard builds its URLs, like a login's `next`, with
+# the public address rather than its own.
 HOP_HEADERS = {
-    "host",
     "connection",
     "upgrade",
     "keep-alive",

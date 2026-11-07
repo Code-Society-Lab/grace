@@ -52,6 +52,8 @@ def test_current_user__without_cookie__expect_none():
         ("https://evil.example", "/"),
         ("//evil.example", "/"),
         ("/\\evil.example", "/"),
+        ("http://127.0.0.1:1213/admin?tab=x", "/admin?tab=x"),
+        ("javascript:alert(1)", "/"),
     ],
 )
 def test_safe_next(value, expected):

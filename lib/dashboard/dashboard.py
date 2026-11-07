@@ -3,6 +3,7 @@ from yarl import URL
 
 from bot import app
 from lib.dashboard.pages.activity import activity_page
+from lib.dashboard.pages.admin import admin_page
 from lib.dashboard.pages.overview import overview_page
 from lib.dashboard.sqlmodel_storage import SQLModelStorage
 
@@ -17,7 +18,8 @@ def init_dachshund():
     dachshund.default(path=DACHSHUND_EVENT_STORE, storage=SQLModelStorage())
 
 
-def start_dashboard(context: dict):
+def start_dashboard(context: dict, **access) -> None:
+    """Start dachshund, with `access` (`authorize`, `login_url`) guarding its private pages."""
     dachshund.init(
         "Grace",
         description="Code Society's Discord Bot",
@@ -25,9 +27,10 @@ def start_dashboard(context: dict):
         port=DASHBOARD_URL.port,
         timezone="US/Eastern",
         context=context,
+        **access,
     )
 
 
 def build_dashboard() -> None:
-    for page in (overview_page, activity_page):
+    for page in (overview_page, activity_page, admin_page):
         dachshund.include(page)

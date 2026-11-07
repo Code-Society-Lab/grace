@@ -3,6 +3,7 @@
 import hashlib
 import hmac
 import time
+from urllib.parse import urlsplit
 
 from aiohttp import web
 
@@ -51,11 +52,17 @@ class Sessions:
 
 
 def safe_next(value: str | None) -> str:
-    """`value` if it's a path on this site, `/` otherwise."""
-    if not value or not value.startswith("/") or value.startswith(("//", "/\\")):
+    """The path and query of `value`, `/` if that isn't a path on this site.
+
+    The dashboard sends its own full URL, behind the proxy, so only the path is kept.
+    """
+    parts = urlsplit(value or "")
+    path = parts.path
+
+    if not path.startswith("/") or path.startswith(("//", "/\\")):
         return "/"
 
-    return value
+    return f"{path}?{parts.query}" if parts.query else path
 
 
 def set_cookie(response: web.Response, name: str, value: str, max_age: int) -> None:

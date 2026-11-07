@@ -2,7 +2,6 @@
 
 import logging
 from typing import Any
-from urllib.parse import urlencode
 
 from aiohttp import web
 from yarl import URL
@@ -16,13 +15,13 @@ logger = logging.getLogger(__name__)
 
 
 class AuthService:
-    """Serves `upstream` on `PORT`, behind a Discord login when enabled.
+    """Serves `upstream` on `PORT`, with a Discord login when enabled.
 
-    Guild administrators get in, and members with the configured role.
+    The dashboard decides which pages are private and asks `authorize`, which
+    lets in guild administrators and members with the configured role.
     """
 
     PORT = 1212
-    PUBLIC_PREFIX = "/auth/"
 
     def __init__(self, bot: Any, upstream: URL, settings: AuthSettings) -> None:
         self.bot = bot
@@ -43,27 +42,24 @@ class AuthService:
             role.id == self.settings.role_id for role in member.roles
         )
 
-    @web.middleware
-    async def require_login(self, request: web.Request, handler):
-        # Runs on the bot's loop, so reading the member cache is safe, and
-        # losing access ends the session on the next request.
-        if request.path.startswith(self.PUBLIC_PREFIX) or self.is_allowed(
-            self.sessions.current_user(request)
-        ):
-            return await handler(request)
+    async def authorize(self, request: web.Request) -> bool:
+        """The dashboard's `authorize`, run on the bot's loop, so reading the
+        member cache is safe. Losing access ends the session on the next request.
+        """
+        return self.is_allowed(self.sessions.current_user(request))
 
-        if request.method == "GET" and "text/html" in request.headers.get("Accept", ""):
-            query = urlencode({"next": request.path_qs})
-            raise web.HTTPFound(f"{self.oauth.LOGIN_PATH}?{query}")
+    def dashboard_access(self) -> dict[str, Any]:
+        """The `authorize` and `login_url` to start the dashboard with, none when the login is off."""
+        if not self.settings.enabled:
+            return {}
 
-        raise web.HTTPUnauthorized()
+        return {"authorize": self.authorize, "login_url": self.oauth.LOGIN_PATH}
 
     def build_app(self) -> web.Application:
-        secured = self.settings.enabled
-        app = web.Application(middlewares=[self.require_login] if secured else [])
+        app = web.Application()
         app.cleanup_ctx.append(client_session)
 
-        if secured:
+        if self.settings.enabled:
             app.add_routes(self.oauth.routes())
 
         app.add_routes([web.route("*", "/{tail:.*}", proxy_to(self.upstream))])
@@ -74,7 +70,9 @@ class AuthService:
         if not self.settings.enabled:
             logger.warning("Dashboard login is off, serving it on this machine only.")
 
-        self._runner = web.AppRunner(self.build_app())
+        # No access log: dachshund already logs each request, and these lines,
+        # logged on the bot's thread, would feed the Logs widget its own refreshes.
+        self._runner = web.AppRunner(self.build_app(), access_log=None)
         await self._runner.setup()
         await web.TCPSite(self._runner, self.settings.host, self.PORT).start()
 
