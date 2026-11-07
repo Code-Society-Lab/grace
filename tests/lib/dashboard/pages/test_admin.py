@@ -9,7 +9,6 @@ from lib.dashboard.widgets.stat import Stat
 from lib.dashboard.handlers import extensions, jobs, members
 from lib.dashboard.pages.admin import admin_page
 
-
 DEPLOYMENT_FIELDS = [
     "environment",
     "started",
