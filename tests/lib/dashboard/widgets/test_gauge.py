@@ -1,5 +1,5 @@
 import pytest
-from dachshund.storage.events import Event
+from dachshund.storage import Event
 
 from lib.dashboard.widgets.gauge import Gauge
 

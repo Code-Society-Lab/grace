@@ -7,6 +7,7 @@ from grace.bot import Bot
 from pretty_help import PrettyHelp
 
 from lib.dashboard import dashboard
+from lib.dashboard.auth import AuthService, AuthSettings
 from bot.models.channel import Channel
 from bot.models.extension import Extension
 from bot.services.dashboard_metrics_service import DashboardMetrics
@@ -18,10 +19,13 @@ class Grace(Bot):
             app,
             intents=Intents.all(),
             activity=Activity(type=ActivityType.playing, name="::help"),
+            # For on_socket_event_type, which the dashboard counts.
+            enable_debug_events=True,
         )
 
         self.help_command = PrettyHelp(color=self.default_color)
         self.metrics = DashboardMetrics()
+        self.auth: AuthService | None = None
 
     @property
     def default_color(self):
@@ -63,7 +67,12 @@ class Grace(Bot):
         self.metrics = await DashboardMetrics.load()
         dashboard.init_dachshund()
         dashboard.build_dashboard()
-        dashboard.start_dashboard({"bot": self})
+        self.auth = AuthService(self, AuthSettings.from_config(self.app.config))
+
+        if not self.auth.settings.enabled:
+            logger.warning("Dashboard login is off, serving it on this machine only.")
+
+        dashboard.start_dashboard({"bot": self}, **self.auth.dashboard_access())
 
     async def on_ready(self):
         logger.info(f"{self.user.name}#{self.user.id} is online and ready to use!")

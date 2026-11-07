@@ -2,8 +2,8 @@ from dataclasses import KW_ONLY, dataclass
 from pathlib import Path
 from typing import Any, ClassVar, Sequence
 
-from dachshund import Widget
-from dachshund.storage.events import Event
+from dachshund.storage import Event
+from dachshund.widgets import Widget
 
 
 @dataclass
@@ -16,7 +16,8 @@ class Gauge(Widget):
     ## Example
 
     ```python
-    dachshund.row(Gauge("cpu", title="CPU Load", max=100, unit="%"))
+    with dachshund.row():
+        dachshund.add(Gauge("cpu", title="CPU Load", max=100, unit="%"))
     dachshund.emit("cpu", value=42)
     ```
     """

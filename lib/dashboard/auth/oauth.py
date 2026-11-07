@@ -1,0 +1,118 @@
+"""Discord OAuth2 login, with the `identify` scope."""
+
+import hmac
+import secrets
+
+from typing import Awaitable, Callable
+
+from aiohttp import BasicAuth, ClientSession, web
+from discord.utils import oauth_url
+
+from lib.dashboard.auth.session import Sessions, redirect, safe_next, set_cookie
+from lib.dashboard.auth.settings import AuthSettings
+
+DISCORD_API_URL = "https://discord.com/api/v10"
+
+Handler = Callable[[web.Request], Awaitable[web.StreamResponse]]
+# Told of each login attempt and logout: the request, its outcome and the user, if known.
+LoginRecorder = Callable[[web.Request, str, int | None], Awaitable[None]]
+
+
+async def _ignore(_request: web.Request, _result: str, _user_id: int | None) -> None:
+    pass
+
+
+class DiscordOAuth:
+    """The login, callback and logout handlers, served by the dashboard at `/_auth/<name>`."""
+
+    STATE_COOKIE = "grace_oauth_state"
+    STATE_TTL = 10 * 60
+
+    def __init__(
+        self,
+        settings: AuthSettings,
+        sessions: Sessions,
+        record: LoginRecorder = _ignore,
+    ) -> None:
+        self.settings = settings
+        self.sessions = sessions
+        self.record = record
+
+    def handlers(self) -> dict[str, Handler]:
+        """The dashboard's `login`."""
+        return {"login": self.login, "callback": self.callback, "logout": self.logout}
+
+    async def login(self, request: web.Request) -> web.Response:
+        """Send the visitor to Discord, remembering `next` and a fresh `state`."""
+        state = secrets.token_urlsafe(32)
+        response = redirect(
+            oauth_url(
+                self.settings.client_id,
+                redirect_uri=self.settings.redirect_uri,
+                scopes=["identify"],
+                state=state,
+            )
+        )
+        next_path = safe_next(request.query.get("next"))
+        set_cookie(response, self.STATE_COOKIE, f"{state}|{next_path}", self.STATE_TTL)
+
+        return response
+
+    async def callback(self, request: web.Request) -> web.Response:
+        """Finish the login: check `state`, start a session, return to `next`."""
+        cookie = request.cookies.get(self.STATE_COOKIE, "")
+        expected, _, next_path = cookie.partition("|")
+        state = request.query.get("state", "")
+        code = request.query.get("code")
+
+        if not expected or not code or not hmac.compare_digest(state, expected):
+            await self.record(request, "invalid", None)
+            raise web.HTTPBadRequest(text="Invalid login attempt.")
+
+        try:
+            user_id = await self.fetch_user_id(code)
+        except Exception as exc:
+            await self.record(request, "error", None)
+            raise web.HTTPBadGateway(text="Could not reach Discord.") from exc
+
+        await self.record(request, "login", user_id)
+
+        response = redirect(safe_next(next_path))
+        response.del_cookie(self.STATE_COOKIE, path="/")
+        set_cookie(response, Sessions.COOKIE, self.sessions.sign(user_id), Sessions.TTL)
+
+        return response
+
+    async def logout(self, request: web.Request) -> web.Response:
+        """End the session and return to the dashboard's home."""
+        await self.record(request, "logout", self.sessions.current_user(request))
+
+        response = redirect("/")
+        response.del_cookie(Sessions.COOKIE, path="/")
+
+        return response
+
+    async def fetch_user_id(self, code: str) -> int:
+        """Exchange an OAuth2 `code` for the id of the Discord user who granted it.
+
+        The token is only used for this, then dropped.
+        """
+        async with ClientSession() as http:
+            async with http.post(
+                f"{DISCORD_API_URL}/oauth2/token",
+                data={
+                    "grant_type": "authorization_code",
+                    "code": code,
+                    "redirect_uri": self.settings.redirect_uri,
+                },
+                auth=BasicAuth(self.settings.client_id, self.settings.client_secret),
+            ) as response:
+                response.raise_for_status()
+                token = (await response.json())["access_token"]
+
+            async with http.get(
+                f"{DISCORD_API_URL}/users/@me",
+                headers={"Authorization": f"Bearer {token}"},
+            ) as response:
+                response.raise_for_status()
+                return int((await response.json())["id"])

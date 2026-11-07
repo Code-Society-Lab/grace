@@ -1,6 +1,8 @@
 import logging
 from datetime import UTC, datetime
 
+import dachshund
+
 logger = logging.getLogger(__name__)
 
 from discord import Member, Message, Reaction
@@ -45,6 +47,13 @@ class ModerationCog(
         log.add_field("Reason", reason)
 
         await ctx.channel.purge(limit=int(limit) + 1, bulk=True, reason=reason)
+        dachshund.emit(
+            "recent_moderation",
+            action="purge",
+            member="",
+            by=str(ctx.author),
+            details=f"{limit} message(s) in #{ctx.channel} · {reason}",
+        )
         await log.send(self.moderation_channel or ctx.channel)
 
     @Cog.listener()
@@ -114,6 +123,14 @@ class ModerationCog(
                 f"Your account needs to be {minimum_account_age} days old or more to join the server."
             )
             await member.guild.kick(user=member, reason="Account age restriction")
+            dachshund.emit(
+                "recent_moderation",
+                action="kick",
+                member=str(member),
+                by="auto",
+                details=f"account {account_age_in_days} day(s) old, "
+                f"minimum {minimum_account_age}",
+            )
 
             if self.moderation_channel:
                 await log.send(self.moderation_channel)

@@ -1,5 +1,6 @@
 import logging
 
+import dachshund
 from discord import Member
 from discord.errors import Forbidden
 from discord.ext.commands import Cog
@@ -47,6 +48,13 @@ class NameModerationCog(
         try:
             good_name = make_random_name()
             await member.edit(nick=good_name)
+            dachshund.emit(
+                "recent_moderation",
+                action="rename",
+                member=name,
+                by="auto",
+                details=f"renamed to {good_name}",
+            )
 
             log = notice("NAME", f"Username of {name} was changed.")
             log.add_field(

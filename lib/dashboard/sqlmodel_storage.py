@@ -1,7 +1,7 @@
 import json
 from typing import Any
 
-from dachshund.storage.protocol import SyncStorage
+from dachshund.storage import SyncStorage
 
 from bot.models.extensions.widget_state import WidgetState
 
