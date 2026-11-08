@@ -39,11 +39,11 @@ with activity_page.row():
     activity_page.add(
         Number(
             "recent_joins",
-            title="Joins (last hour)",
+            title="Joins (last 24h)",
             source="member_flow",
             y="joined",
             aggregate="sum",
-            over=timedelta(hours=1),
+            over=timedelta(hours=24),
         )
     )
 

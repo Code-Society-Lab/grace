@@ -72,14 +72,14 @@ def test_activity_page__expect_messages_per_day_fed_by_messages():
     assert activity_page.widgets["weekly_message_counts"].source == "message"
 
 
-def test_activity_page__with_recent_joins__expect_joins_summed_over_an_hour():
+def test_activity_page__with_recent_joins__expect_joins_summed_over_a_day():
     number = activity_page.widgets["recent_joins"]
 
     assert isinstance(number, Number)
     assert number.source == "member_flow"
     assert number.y == "joined"
     assert number.aggregate == "sum"
-    assert number.over == timedelta(hours=1)
+    assert number.over == timedelta(hours=24)
 
 
 def test_activity_page__with_member_flow__expect_daily_joins_and_leaves():
