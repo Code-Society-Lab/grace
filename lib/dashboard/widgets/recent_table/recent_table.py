@@ -49,6 +49,10 @@ class RecentTable(Table):
 
         self._zone = ZoneInfo(self.timezone)
 
+    def raw_events(self) -> int | None:
+        """Its newest `keep` events."""
+        return self.keep
+
     def render(self, events: Sequence[Event]) -> dict[str, Any]:
         """The newest `keep` rows, newest first, each stamped with its event's time."""
         payload = super().render(events)
