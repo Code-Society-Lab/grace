@@ -35,7 +35,7 @@ def test_admin_page__expect_health_then_commands_then_moderation_then_tables():
         Row([Column([f"deployment_{field}"]) for field in DEPLOYMENT_FIELDS]),
         Row([Column(["process_memory", "process_cpu"], 4), Column(["process"])]),
         Row([Column(["error_rate"], 4), Column(["gateway_events"])]),
-        Row([Column(["logs"])]),
+        Row([Column(["logs"]), Column(["error_logs"])]),
         Row([Column(["command_duration"]), Column(["command_error"])]),
         Row([Column(["recent_commands"]), Column(["recent_moderation"])]),
         Row([Column(["admin_member_count"], 4), Column(["members"])]),
@@ -147,6 +147,13 @@ def test_admin_page__with_logins__expect_newest_hundred():
 
 def test_admin_page__with_logs__expect_logs_widget():
     assert isinstance(admin_page.widgets["logs"], Logs)
+
+
+def test_admin_page__with_error_logs__expect_last_500_errors():
+    widget = admin_page.widgets["error_logs"]
+
+    assert isinstance(widget, Logs)
+    assert (widget.level, widget.keep) == ("ERROR", 500)
 
 
 def test_admin_page__with_command_errors__expect_persisted_bar_chart():
