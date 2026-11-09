@@ -17,6 +17,7 @@ def test_build_dashboard__expect_every_page_and_widget_included(monkeypatch):
             "summary",
             "latency",
             "logs",
+            "error_logs",
             "average_latency_gauge",
             "daily_message_rate",
             "member_count",

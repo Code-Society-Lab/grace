@@ -86,6 +86,7 @@ with admin_page.row():
 
 with admin_page.row():
     admin_page.add(Logs("logs", title="Logs"))
+    admin_page.add(Logs("error_logs", title="Error Logs", level="ERROR", keep=500))
 
 
 with admin_page.row():
