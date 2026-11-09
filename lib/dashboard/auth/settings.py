@@ -3,6 +3,8 @@
 from dataclasses import dataclass
 from typing import Any
 
+from dachshund.runtime.boot import DEFAULT_PORT
+
 REQUIRED = ("client_id", "client_secret", "redirect_uri", "session_secret")
 
 
@@ -12,6 +14,8 @@ class AuthSettings:
 
     The login is on unless the environment sets `dashboard_auth = False`, so
     an environment that doesn't mention it never serves the dashboard openly.
+    The environment's `dashboard_host` (`DASHBOARD_HOST`) overrides `host`, and
+    its `dashboard_port` (`DASHBOARD_PORT`) sets `port`.
     """
 
     enabled: bool
@@ -21,6 +25,8 @@ class AuthSettings:
     redirect_uri: str = ""
     session_secret: str = ""
     role_id: int | None = None
+    host_override: str = ""
+    port: int = DEFAULT_PORT
 
     def __post_init__(self) -> None:
         missing = [key for key in REQUIRED if self.enabled and not getattr(self, key)]
@@ -40,17 +46,29 @@ class AuthSettings:
         def get(key: str) -> str:
             return str(config.get("dashboard", key) or "")
 
+        environment = config.environment
+        port = environment.get("dashboard_port", fallback="").strip()
+
+        if port and not port.isdigit():
+            raise RuntimeError(f"The dashboard port must be a number, not {port!r}.")
+
         return cls(
-            enabled=config.environment.getboolean("dashboard_auth", fallback=True),
+            enabled=environment.getboolean("dashboard_auth", fallback=True),
             guild_id=config.get("client", "guild_id"),
             client_id=get("client_id"),
             client_secret=get("client_secret"),
             redirect_uri=get("redirect_uri"),
             session_secret=get("session_secret"),
             role_id=int(get("role_id")) if get("role_id") else None,
+            # Not `config.get`, which reads "0.0.0.0" as a Python literal.
+            host_override=environment.get("dashboard_host", fallback="").strip(),
+            port=int(port) if port else DEFAULT_PORT,
         )
 
     @property
     def host(self) -> str:
-        """Where the dashboard listens: only this machine when the login is off."""
+        """Where the dashboard listens: `host_override`, else only this machine when the login is off."""
+        if self.host_override:
+            return self.host_override
+
         return "0.0.0.0" if self.enabled else "127.0.0.1"
