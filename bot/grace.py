@@ -64,9 +64,9 @@ class Grace(Bot):
     async def setup_hook(self):
         await super().setup_hook()
 
-        self.metrics = await DashboardMetrics.load()
         dashboard.init_dachshund()
         dashboard.build_dashboard()
+        self.metrics = await DashboardMetrics.load()
         self.auth = AuthService(self, AuthSettings.from_config(self.app.config))
 
         if not self.auth.settings.enabled:
