@@ -68,10 +68,11 @@ class Grace(Bot):
                 logger.info(f"{module} is disabled, it will not be loaded.")
 
     async def setup_hook(self):
-        await super().setup_hook()
-
         dashboard.init_dachshund()
         dashboard.build_dashboard()
+
+        await super().setup_hook()
+
         self.metrics = await DashboardMetrics.load()
         self.auth = AuthService(self, AuthSettings.from_config(self.app.config))
 
@@ -82,6 +83,10 @@ class Grace(Bot):
             DashboardContext(bot=self),
             **self.auth.dashboard_access(),
         )
+
+    async def close(self):
+        dashboard.stop_dashboard()
+        await super().close()
 
     async def on_ready(self):
         logger.info(f"{self.user.name}#{self.user.id} is online and ready to use!")

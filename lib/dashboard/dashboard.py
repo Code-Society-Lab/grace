@@ -7,7 +7,7 @@ from lib.dashboard.pages.admin import admin_page
 from lib.dashboard.pages.overview import overview_page
 from lib.dashboard.sqlmodel_storage import SQLModelStorage
 
-DACHSHUND_EVENT_STORE = app.config.get("dachshund", "event_store", "dachshund.db")
+DACHSHUND_EVENT_STORE = app.config.get("dachshund", "event_store") or "dachshund.db"
 
 
 def init_dachshund():
@@ -22,9 +22,15 @@ def start_dashboard(context: DashboardContext, **access) -> None:
         "Grace",
         description="Code Society's Discord Bot",
         timezone=context.bot.timezone.key,
+        path=DACHSHUND_EVENT_STORE,
         context=context,
         **access,
     )
+
+
+def stop_dashboard() -> None:
+    """Stop serving before Python's exit shuts down the event store's thread."""
+    dachshund.shutdown()
 
 
 def build_dashboard() -> None:
