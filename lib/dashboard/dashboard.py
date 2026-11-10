@@ -20,7 +20,7 @@ def start_dashboard(context: dict, **access) -> None:
     dachshund.init(
         "Grace",
         description="Code Society's Discord Bot",
-        timezone="US/Eastern",
+        timezone=context["bot"].timezone.key,
         context=context,
         **access,
     )

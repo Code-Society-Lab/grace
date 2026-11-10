@@ -15,12 +15,10 @@ from discord.ext.commands import (
     Context,
     HybridCommandError,
 )
-from pytz import timezone
 
 from bot.grace import Grace
 from bot.services.process_stats_service import ProcessStats
 
-TIMEZONE = timezone("US/Eastern")
 STARTED_AT = "_dashboard_started_at"
 # Bar charts with a bar per date, which keep only the last DAILY_DAYS days.
 DAILY_SOURCES = ("commands_per_day", "reactions_per_day")
@@ -78,11 +76,6 @@ def _commit() -> str:
         return "unknown"
 
 
-def _today() -> str:
-    """Today's date, the day starting at midnight Eastern."""
-    return datetime.now(TIMEZONE).date().isoformat()
-
-
 def _emoji_name(payload: RawReactionActionEvent) -> str:
     """A unicode emoji as is, a custom one as `:name:`."""
     emoji = payload.emoji
@@ -126,7 +119,7 @@ class DashboardCog(
     def __init__(self, bot: Grace):
         self.bot: Grace = bot
         self.jobs: list[Job] = []
-        self.timezone: tzinfo = TIMEZONE
+        self.timezone: tzinfo = bot.timezone
         self.process = ProcessStats()
         self.commit = _commit()
         self.gateway_events = 0
@@ -167,9 +160,13 @@ class DashboardCog(
         dachshund.emit("gateway_events", value=self.gateway_events)
         self.gateway_events = 0
 
+    def _today(self) -> str:
+        """Today's date, the day starting at midnight in the bot's timezone."""
+        return datetime.now(self.timezone).date().isoformat()
+
     def _trim_daily_charts(self, now: date | None = None) -> None:
         """Remove the bars older than DAILY_DAYS from the per-day charts."""
-        now = now or date.fromisoformat(_today())
+        now = now or date.fromisoformat(self._today())
 
         for days_ago in range(DAILY_DAYS + 1, DAILY_DAYS + 1 + TRIM_SPAN):
             old = (now - timedelta(days=days_ago)).isoformat()
@@ -217,7 +214,7 @@ class DashboardCog(
         if payload.guild_id is None or (payload.member and payload.member.bot):
             return
 
-        dachshund.emit("reactions_per_day", date=_today(), value=1)
+        dachshund.emit("reactions_per_day", date=self._today(), value=1)
         dachshund.emit("reaction_emojis", emoji=_emoji_name(payload), value=1)
 
     @Cog.listener()
@@ -240,7 +237,7 @@ class DashboardCog(
 
         if ctx.command:
             dachshund.emit("on_command", name=ctx.command.qualified_name, value=1)
-            dachshund.emit("commands_per_day", date=_today(), value=1)
+            dachshund.emit("commands_per_day", date=self._today(), value=1)
 
     @Cog.listener()
     async def on_command_completion(self, ctx: Context) -> None:

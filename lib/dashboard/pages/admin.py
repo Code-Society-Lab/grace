@@ -110,7 +110,6 @@ with admin_page.row():
         RecentTable(
             "recent_commands",
             title="Recent Commands",
-            timezone="US/Eastern",
             columns=["time", "command", "user", "status", "ms", "error"],
             keep=100,
         )
@@ -120,7 +119,6 @@ with admin_page.row():
         RecentTable(
             "recent_moderation",
             title="Recent Moderation",
-            timezone="US/Eastern",
             columns=["time", "action", "member", "by", "details"],
             keep=100,
         )
@@ -184,7 +182,6 @@ with admin_page.row():
         RecentTable(
             "dashboard_logins",
             title="Dashboard Logins",
-            timezone="US/Eastern",
             columns=["time", "user", "id", "result", "ip"],
             keep=100,
         )

@@ -8,7 +8,6 @@ from discord import Embed, Interaction, TextStyle
 from discord.app_commands import Choice, autocomplete
 from discord.ext.commands import Cog, Context, has_permissions, hybrid_group
 from discord.ui import Modal, TextInput
-from pytz import timezone
 
 from bot.classes.recurrence import Recurrence
 from bot.extensions.command_error_handler import send_command_help
@@ -101,7 +100,7 @@ class ThreadsCog(Cog, name="Threads"):
         self.bot = bot
         self.jobs = []
         self.threads_channel_id = self.required_config
-        self.timezone = timezone("US/Eastern")
+        self.timezone = bot.timezone
 
     def cog_load(self):
         # Runs every day at 12:30

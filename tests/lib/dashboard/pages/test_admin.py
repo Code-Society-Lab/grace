@@ -133,8 +133,8 @@ def test_admin_page__with_gateway_events__expect_per_minute_counts_over_a_day():
 @pytest.mark.parametrize(
     "name", ["recent_commands", "recent_moderation", "dashboard_logins"]
 )
-def test_admin_page__recent_tables__expect_times_in_eastern(name):
-    assert admin_page.widgets[name].timezone == "US/Eastern"
+def test_admin_page__recent_tables__expect_the_dashboard_timezone(name):
+    assert admin_page.widgets[name].timezone is None
 
 
 def test_admin_page__with_logins__expect_newest_hundred():

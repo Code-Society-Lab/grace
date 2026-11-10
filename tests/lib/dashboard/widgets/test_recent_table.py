@@ -55,6 +55,26 @@ def test_render__by_default__expect_utc():
     assert rows[0]["fields"]["time"] == "2025-02-21 03:00:00"
 
 
+def test_render__on_a_dashboard__expect_its_timezone():
+    event = Event("errors", {"n": 0}, at=datetime(2025, 2, 21, 3, 0, tzinfo=UTC))
+    table = _table([event])
+    table.bind(Dashboard(path=":memory:", timezone="US/Eastern"))
+
+    rows = table.render([])["rows"]
+
+    assert rows[0]["fields"]["time"] == "2025-02-20 22:00:00"
+
+
+def test_render__with_timezone_on_a_dashboard__expect_its_own():
+    event = Event("errors", {"n": 0}, at=datetime(2025, 2, 21, 3, 0, tzinfo=UTC))
+    table = _table([event], timezone="UTC")
+    table.bind(Dashboard(path=":memory:", timezone="US/Eastern"))
+
+    rows = table.render([])["rows"]
+
+    assert rows[0]["fields"]["time"] == "2025-02-21 03:00:00"
+
+
 def test_persist__expect_always_on():
     assert RecentTable("errors", columns=["n"]).persist is True
 
