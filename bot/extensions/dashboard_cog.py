@@ -7,7 +7,7 @@ from datetime import date, datetime, timedelta, tzinfo
 import dachshund
 import discord
 from apscheduler.job import Job
-from discord import Member, Message, RawReactionActionEvent
+from discord import AuditLogEntry, Member, Message, RawReactionActionEvent
 from discord.ext.commands import (
     CommandInvokeError,
     CommandNotFound,
@@ -84,6 +84,37 @@ def _emoji_name(payload: RawReactionActionEvent) -> str:
         return f":{emoji.name or 'custom'}:"
 
     return str(emoji)
+
+
+def _stayed(member: Member) -> str:
+    """Time on the server, like "3d 4h" or "12m"."""
+    if member.joined_at is None:
+        return "unknown"
+
+    stayed = datetime.now(member.joined_at.tzinfo) - member.joined_at
+    hours, seconds = divmod(stayed.seconds, 3600)
+    minutes = seconds // 60
+
+    if stayed.days:
+        return f"{stayed.days}d {hours}h"
+
+    return f"{hours}h {minutes}m" if hours else f"{minutes}m"
+
+
+def _audit_target(entry: AuditLogEntry) -> str:
+    target = entry.target
+
+    if target is None:
+        return ""
+
+    return str(getattr(target, "name", None) or f"id {target.id}")
+
+
+def _audit_changes(entry: AuditLogEntry) -> str:
+    changed = {attribute for attribute, _ in entry.changes.after}
+    changed |= {attribute for attribute, _ in entry.changes.before}
+
+    return ", ".join(sorted(changed))
 
 
 def _is_moderation(ctx: Context) -> bool:
@@ -204,10 +235,29 @@ class DashboardCog(
         dachshund.emit("member_flow", joined=1, left=0)
 
     @Cog.listener()
-    async def on_member_remove(self, _member: Member) -> None:
+    async def on_member_remove(self, member: Member) -> None:
         self._report_member_count()
         dachshund.emit("members")
         dachshund.emit("member_flow", joined=0, left=1)
+        dachshund.emit(
+            "recent_leaves",
+            id=str(member.id),
+            name=member.name,
+            nickname=member.nick,
+            stayed=_stayed(member),
+            account_created=member.created_at.strftime("%d %b %Y"),
+        )
+
+    @Cog.listener()
+    async def on_audit_log_entry_create(self, entry: AuditLogEntry) -> None:
+        dachshund.emit(
+            "audit_log",
+            action=entry.action.name.replace("_", " "),
+            by=str(entry.user) if entry.user else f"id {entry.user_id}",
+            target=_audit_target(entry),
+            reason=entry.reason or "",
+            changes=_audit_changes(entry),
+        )
 
     @Cog.listener()
     async def on_raw_reaction_add(self, payload: RawReactionActionEvent) -> None:

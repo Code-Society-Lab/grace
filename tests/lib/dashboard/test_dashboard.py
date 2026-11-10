@@ -11,19 +11,31 @@ def test_build_dashboard__expect_every_page_and_widget_included(monkeypatch):
 
     build_dashboard()
 
-    assert list(dashboard.pages) == ["overview", "activity", "admin"]
+    assert list(dashboard.pages) == [
+        "overview",
+        "activity",
+        "admin",
+        "admin/health",
+        "admin/members",
+        "admin/commands",
+        "admin/extensions",
+    ]
     assert sorted(dashboard.widgets) == sorted(
         [
             "summary",
             "latency",
             "logs",
             "error_logs",
+            "scheduler_logs",
+            "dashboard_logs",
             "average_latency_gauge",
             "daily_message_rate",
             "member_count",
             "active_members",
             "members",
-            "admin_member_count",
+            "recent_members",
+            "recent_leaves",
+            "audit_log",
             "weekly_message_counts",
             "on_command",
             "command_error",

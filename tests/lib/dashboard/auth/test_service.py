@@ -91,7 +91,7 @@ def test_dashboard_access__when_enabled__expect_authorize_and_the_login_handlers
     service = _service()
     access = service.dashboard_access()
 
-    assert access["host"] == "0.0.0.0"
+    assert (access["host"], access["port"]) == ("0.0.0.0", 1212)
     assert access["authorize"] == service.authorize
     assert sorted(access["login"]) == ["callback", "login", "logout"]
 
@@ -99,7 +99,7 @@ def test_dashboard_access__when_enabled__expect_authorize_and_the_login_handlers
 def test_dashboard_access__when_disabled__expect_this_machine_only():
     service = _service(settings=AuthSettings(enabled=False, guild_id=99))
 
-    assert service.dashboard_access() == {"host": "127.0.0.1"}
+    assert service.dashboard_access() == {"host": "127.0.0.1", "port": 1212}
 
 
 @pytest.mark.asyncio

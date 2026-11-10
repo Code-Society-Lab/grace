@@ -61,7 +61,40 @@ def test_host__when_enabled__expect_every_interface():
     assert SETTINGS.host == "0.0.0.0"
 
 
+@pytest.mark.parametrize("auth", ["True", "False"])
+def test_from_config__with_dashboard_host__expect_it_overrides_host(auth):
+    environment = {"dashboard_auth": auth, "dashboard_host": " 0.0.0.0 "}
+    config = FakeConfig(environment, DASHBOARD)
+
+    assert AuthSettings.from_config(config).host == "0.0.0.0"
+
+
+def test_from_config__with_empty_dashboard_host__expect_default_host():
+    config = FakeConfig({"dashboard_auth": "False", "dashboard_host": ""})
+
+    assert AuthSettings.from_config(config).host == "127.0.0.1"
+
+
 @pytest.mark.parametrize("client_id", ["1234# Developer portal", "abc", "12 34"])
 def test_enabled__with_non_numeric_client_id__expect_error(client_id):
     with pytest.raises(RuntimeError, match="client_id"):
         replace(SETTINGS, client_id=client_id)
+
+
+def test_from_config__with_dashboard_port__expect_that_port():
+    config = FakeConfig({"dashboard_auth": "False", "dashboard_port": " 8080 "})
+
+    assert AuthSettings.from_config(config).port == 8080
+
+
+def test_from_config__with_empty_dashboard_port__expect_dachshund_default():
+    config = FakeConfig({"dashboard_auth": "False", "dashboard_port": ""})
+
+    assert AuthSettings.from_config(config).port == 1212
+
+
+def test_from_config__with_non_numeric_dashboard_port__expect_error():
+    config = FakeConfig({"dashboard_auth": "False", "dashboard_port": "eighty"})
+
+    with pytest.raises(RuntimeError, match="port"):
+        AuthSettings.from_config(config)

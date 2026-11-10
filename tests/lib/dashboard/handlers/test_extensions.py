@@ -6,7 +6,12 @@ from dachshund.widgets import TableQuery
 from discord.ext.commands import ExtensionAlreadyLoaded, ExtensionNotLoaded
 
 from bot.classes.state import State
+from lib.dashboard.context import DashboardContext
 from lib.dashboard.handlers import extensions
+
+
+def _ctx(bot):
+    return DashboardContext(bot=bot)
 
 
 def _extension(module, state=State.ENABLED):
@@ -38,7 +43,7 @@ def _bot(*loaded):
 async def test_load__expect_that_state_only(model, loader, state):
     model.by_state.return_value.all.return_value = [_extension("pun_cog")]
 
-    rows, total = await loader({"bot": _bot("bot.extensions.pun_cog")}, _query())
+    rows, total = await loader(_ctx(_bot("bot.extensions.pun_cog")), _query())
 
     model.by_state.assert_called_once_with(state)
     assert total == 1
@@ -60,7 +65,7 @@ async def test_load__expect_buttons_get_the_full_module_name(model):
     from dachshund.widgets.table.table import _fields
 
     model.by_state.return_value.all.return_value = [_extension("pun_cog")]
-    rows, _ = await extensions.load_enabled({"bot": _bot()}, _query())
+    rows, _ = await extensions.load_enabled(_ctx(_bot()), _query())
 
     fields = _fields(rows[0])
     assert fields["module"] == "pun_cog"
@@ -77,7 +82,7 @@ async def test_load__sorted_and_searched__expect_matching_rows(model):
     ]
 
     rows, total = await extensions.load_enabled(
-        {"bot": _bot()}, _query(search="UN", sort_by="extension")
+        _ctx(_bot()), _query(search="UN", sort_by="extension")
     )
 
     assert total == 2
@@ -103,7 +108,7 @@ async def test_actions__expect_bot_updated_state_saved_and_table_refreshed(
     side_effect = already("bot.extensions.pun_cog") if was_already else None
     bot = MagicMock(**{bot_method: AsyncMock(side_effect=side_effect)})
 
-    result = await action({"bot": bot}, module_name="bot.extensions.pun_cog")
+    result = await action(_ctx(bot), module_name="bot.extensions.pun_cog")
 
     getattr(bot, bot_method).assert_awaited_once_with("bot.extensions.pun_cog")
     getattr(extension, saved).assert_called_once()
@@ -118,4 +123,4 @@ async def test_actions__with_unknown_module__expect_error(model, action):
     model.find_by.return_value = None
 
     with pytest.raises(ValueError, match="nope"):
-        await action({"bot": MagicMock()}, module_name="nope")
+        await action(_ctx(MagicMock()), module_name="nope")

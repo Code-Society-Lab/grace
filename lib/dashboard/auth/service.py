@@ -85,12 +85,14 @@ class AuthService:
         return self.is_allowed(self.sessions.current_user(request))
 
     def dashboard_access(self) -> dict[str, Any]:
-        """The dashboard's `host`, and its `authorize` and `login` when the login is on."""
+        """The dashboard's `host` and `port`, and its `authorize` and `login` when the login is on."""
+        address = {"host": self.settings.host, "port": self.settings.port}
+
         if not self.settings.enabled:
-            return {"host": self.settings.host}
+            return address
 
         return {
-            "host": self.settings.host,
+            **address,
             "authorize": self.authorize,
             "login": self.oauth.handlers(),
         }

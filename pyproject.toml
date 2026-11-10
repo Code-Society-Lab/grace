@@ -27,7 +27,7 @@ dependencies = [
     "pygithub",
     "googletrans==4.0.0-rc1",
     "openai==0.26.1",
-    "dachshund==0.1.0",
+    "dachshund==0.3.0",
 ]
 
 [project.optional-dependencies]

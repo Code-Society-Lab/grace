@@ -23,166 +23,213 @@ DEPLOYMENT = [
     ("python", "Python"),
 ]
 
-with admin_page.row():
-    for field, title in DEPLOYMENT:
-        admin_page.add(
-            Stat(f"deployment_{field}", title=title, source="deployment", y=field)
-        )
 
-with admin_page.row():
-    with admin_page.column(span=4):
-        admin_page.add(
-            Number(
-                "process_memory",
-                title="Memory",
-                source="process",
-                y="memory_mb",
-                unit="MB",
+with admin_page.tab("health", title="Health"):
+    with admin_page.row():
+        for field, title in DEPLOYMENT:
+            admin_page.add(
+                Stat(f"deployment_{field}", title=title, source="deployment", y=field)
             )
-        )
-        admin_page.add(
-            Number(
-                "process_cpu",
-                title="CPU",
-                source="process",
-                y="cpu_percent",
-                unit="%",
-            )
-        )
-    admin_page.add(
-        TimeSeriesChart(
-            "process",
-            title="Memory (24 h)",
-            y=["memory_mb"],
-            aggregate="average",
-            every=timedelta(minutes=10),
-            over=timedelta(days=1),
-        )
-    )
 
-with admin_page.row():
-    with admin_page.column(span=4):
+    with admin_page.row():
+        with admin_page.column(span=4):
+            admin_page.add(
+                Number(
+                    "process_memory",
+                    title="Memory",
+                    source="process",
+                    y="memory_mb",
+                    unit="MB",
+                )
+            )
+            admin_page.add(
+                Number(
+                    "process_cpu",
+                    title="CPU",
+                    source="process",
+                    y="cpu_percent",
+                    unit="%",
+                )
+            )
         admin_page.add(
-            Number(
-                "error_rate",
-                title="Error Rate (last 24h)",
-                source="command_outcome",
-                y="failed",
+            TimeSeriesChart(
+                "process",
+                title="Memory (24 h)",
+                y=["memory_mb"],
                 aggregate="average",
-                over=timedelta(hours=24),
-                unit="%",
+                every=timedelta(minutes=10),
+                over=timedelta(days=1),
             )
         )
-    admin_page.add(
-        TimeSeriesChart(
-            "gateway_events",
-            title="Gateway Events / min",
-            aggregate="average",
-            every=timedelta(minutes=10),
-            over=timedelta(days=1),
-        )
-    )
 
-
-with admin_page.row():
-    admin_page.add(Logs("logs", title="Logs"))
-    admin_page.add(Logs("error_logs", title="Error Logs", level="ERROR", keep=500))
-
-
-with admin_page.row():
-    admin_page.add(
-        BarChart(
-            "command_duration",
-            title="Average Command Time (ms)",
-            x="name",
-            aggregate="average",
-            persist=True,
-        )
-    )
-
-    admin_page.add(
-        BarChart("command_error", title="Errors Per Command", x="name", persist=True)
-    )
-
-
-with admin_page.row():
-    admin_page.add(
-        RecentTable(
-            "recent_commands",
-            title="Recent Commands",
-            columns=["time", "command", "user", "status", "ms", "error"],
-            keep=100,
-        )
-    )
-
-    admin_page.add(
-        RecentTable(
-            "recent_moderation",
-            title="Recent Moderation",
-            columns=["time", "action", "member", "by", "details"],
-            keep=100,
-        )
-    )
-
-with admin_page.row():
-    with admin_page.column(span=4):
-        # Overview's card is already named "member_count"; names are unique.
+    with admin_page.row():
+        with admin_page.column(span=4):
+            admin_page.add(
+                Number(
+                    "error_rate",
+                    title="Error Rate (last 24h)",
+                    source="command_outcome",
+                    y="failed",
+                    aggregate="average",
+                    over=timedelta(hours=24),
+                    unit="%",
+                )
+            )
         admin_page.add(
-            Number("admin_member_count", title="Members", source="member_count")
+            TimeSeriesChart(
+                "gateway_events",
+                title="Gateway Events / min",
+                aggregate="average",
+                every=timedelta(minutes=10),
+                over=timedelta(days=1),
+            )
         )
 
-    admin_page.add(
-        Table(
-            "members",
-            columns=members.COLUMNS,
-            search=True,
-            page_size=5,
-            loader=members.load,
+    with admin_page.row():
+        admin_page.add(Logs("logs", title="Logs", exclude=["apscheduler"]))
+        admin_page.add(Logs("error_logs", title="Error Logs", level="ERROR", keep=500))
+
+    with admin_page.row():
+        admin_page.add(
+            Logs(
+                "dashboard_logs",
+                title="Dashboard Logs",
+                include=["dachshund"],
+                page_size=10,
+            )
         )
-    )
+        admin_page.add(
+            RecentTable(
+                "dashboard_logins",
+                title="Dashboard Logins",
+                columns=["time", "user", "id", "result", "ip"],
+                keep=100,
+            )
+        )
 
 
-with admin_page.row():
-    admin_page.add(
-        Table(
-            "enabled_extensions",
-            title="Enabled Extensions",
-            source=extensions.SOURCE,
-            columns=extensions.COLUMNS,
-            page_size=10,
-            loader=extensions.load_enabled,
-            actions=["disable_extension"],
+with admin_page.tab("members", title="Members"):
+    with admin_page.row():
+        admin_page.add(
+            RecentTable(
+                "audit_log",
+                title="Audit Log",
+                columns=["time", "action", "by", "target", "reason", "changes"],
+                keep=200,
+            )
         )
-    )
-    admin_page.add(
-        Table(
-            "disabled_extensions",
-            title="Disabled Extensions",
-            source=extensions.SOURCE,
-            columns=extensions.COLUMNS,
-            page_size=10,
-            loader=extensions.load_disabled,
-            actions=["enable_extension"],
+        admin_page.add(
+            RecentTable(
+                "recent_moderation",
+                title="Recent Moderation",
+                columns=["time", "action", "member", "by", "details"],
+                keep=100,
+            )
         )
-    )
 
-with admin_page.row():
-    admin_page.add(
-        Table(
-            "jobs",
-            title="Scheduled Jobs",
-            columns=jobs.COLUMNS,
-            page_size=10,
-            loader=jobs.load,
+    with admin_page.row():
+        admin_page.add(
+            Table(
+                "recent_members",
+                title="Joined (last 24h)",
+                source="member_flow",
+                columns=members.RECENT_COLUMNS,
+                search=True,
+                page_size=5,
+                loader=members.load_recent,
+            )
         )
-    )
+        admin_page.add(
+            RecentTable(
+                "recent_leaves",
+                title="Recent Leaves",
+                columns=["time", "id", "name", "nickname", "stayed", "account_created"],
+                page_size=5,
+                keep=100,
+            )
+        )
 
-with admin_page.row():
-    admin_page.add(
-        RecentTable(
-            "dashboard_logins",
-            title="Dashboard Logins",
-            columns=["time", "user", "id", "result", "ip"],
-            keep=100,
+    with admin_page.row():
+        admin_page.add(
+            Table(
+                "members",
+                columns=members.COLUMNS,
+                search=True,
+                page_size=10,
+                loader=members.load,
+            )
         )
-    )
+
+
+with admin_page.tab("commands", title="Commands"):
+    with admin_page.row():
+        admin_page.add(
+            BarChart(
+                "command_duration",
+                title="Average Command Time (ms)",
+                x="name",
+                aggregate="average",
+                persist=True,
+            )
+        )
+
+        admin_page.add(
+            BarChart(
+                "command_error", title="Errors Per Command", x="name", persist=True
+            )
+        )
+
+    with admin_page.row():
+        admin_page.add(
+            RecentTable(
+                "recent_commands",
+                title="Recent Commands",
+                columns=["time", "command", "user", "status", "ms", "error"],
+                keep=100,
+            )
+        )
+
+
+with admin_page.tab("extensions", title="Extensions"):
+    with admin_page.row():
+        admin_page.add(
+            Table(
+                "enabled_extensions",
+                title="Enabled Extensions",
+                source=extensions.SOURCE,
+                columns=extensions.COLUMNS,
+                page_size=10,
+                loader=extensions.load_enabled,
+                actions=["disable_extension"],
+            )
+        )
+        admin_page.add(
+            Table(
+                "disabled_extensions",
+                title="Disabled Extensions",
+                source=extensions.SOURCE,
+                columns=extensions.COLUMNS,
+                page_size=10,
+                loader=extensions.load_disabled,
+                actions=["enable_extension"],
+            )
+        )
+
+    with admin_page.row():
+        admin_page.add(
+            Table(
+                "jobs",
+                title="Scheduled Jobs",
+                columns=jobs.COLUMNS,
+                page_size=10,
+                loader=jobs.load,
+            )
+        )
+        admin_page.add(
+            Logs(
+                "scheduler_logs",
+                title="Scheduler Logs",
+                include=["apscheduler"],
+                page_size=10,
+            )
+        )

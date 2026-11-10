@@ -1,3 +1,4 @@
+from datetime import UTC, datetime, timedelta
 from unittest.mock import patch
 
 import pytest
@@ -28,6 +29,20 @@ def _fake_channel(name="general", parent=None, public=True):
             "parent": parent,
             "guild": guild,
             "permissions_for": lambda self, role: permissions,
+        },
+    )()
+
+
+def _fake_member(id=7, name="ada", nick=None, joined_at=None, created_at=None):
+    return type(
+        "Member",
+        (),
+        {
+            "id": id,
+            "name": name,
+            "nick": nick,
+            "joined_at": joined_at or datetime.now(UTC) - timedelta(hours=3),
+            "created_at": created_at or datetime(2020, 1, 2, tzinfo=UTC),
         },
     )()
 
@@ -114,7 +129,7 @@ async def test_on_member_remove__expect_reports_member_count(mock_emit, dashboar
     guild = type("Guild", (), {"member_count": 6})()
     dashboard_cog.bot.get_guild = lambda guild_id: guild
 
-    await dashboard_cog.on_member_remove(object())
+    await dashboard_cog.on_member_remove(_fake_member())
 
     mock_emit.assert_any_call("member_count", value=6)
 
@@ -125,7 +140,7 @@ async def test_on_member_remove__expect_a_members_refresh_ping(
     mock_emit, dashboard_cog
 ):
     """Verify on_member_remove pings the members table to refetch its loader."""
-    await dashboard_cog.on_member_remove(object())
+    await dashboard_cog.on_member_remove(_fake_member())
 
     mock_emit.assert_any_call("members")
 
@@ -191,7 +206,7 @@ async def test_member_flow__expect_join_or_leave_event(
     mock_emit, dashboard_cog, listener, joined, left
 ):
     """Verify joins and leaves feed the joins vs leaves chart."""
-    await getattr(dashboard_cog, listener)(object())
+    await getattr(dashboard_cog, listener)(_fake_member())
 
     mock_emit.assert_any_call("member_flow", joined=joined, left=left)
 
@@ -587,3 +602,92 @@ def test_trim_daily_charts__expect_dates_past_the_window_deleted(
     assert ("commands_per_day", "2025-02-28") in deleted
     assert len(deleted) == TRIM_SPAN * len(DAILY_SOURCES)
     assert DAILY_DAYS == 30
+
+
+@pytest.mark.asyncio
+@patch("bot.extensions.dashboard_cog.dachshund.emit")
+async def test_on_member_remove__expect_a_recent_leaves_row(mock_emit, dashboard_cog):
+    """Verify a leave records who left and how long they stayed."""
+    member = _fake_member(
+        id=12345678901234567,
+        nick="Ada",
+        joined_at=datetime.now(UTC) - timedelta(days=2, hours=5, minutes=1),
+    )
+
+    await dashboard_cog.on_member_remove(member)
+
+    mock_emit.assert_any_call(
+        "recent_leaves",
+        id="12345678901234567",
+        name="ada",
+        nickname="Ada",
+        stayed="2d 5h",
+        account_created="02 Jan 2020",
+    )
+
+
+@pytest.mark.parametrize(
+    "ago, expected",
+    [
+        (timedelta(minutes=12, seconds=5), "12m"),
+        (timedelta(hours=3, minutes=4), "3h 4m"),
+        (timedelta(days=1, hours=2), "1d 2h"),
+    ],
+)
+def test_stayed__expect_largest_two_units(ago, expected):
+    from bot.extensions.dashboard_cog import _stayed
+
+    assert _stayed(_fake_member(joined_at=datetime.now(UTC) - ago)) == expected
+
+
+def _fake_audit_entry(target=None, user="mod#1", reason=None, before=(), after=()):
+    action = type("Action", (), {"name": "member_role_update"})()
+    changes = type("Changes", (), {"before": list(before), "after": list(after)})()
+
+    return type(
+        "Entry",
+        (),
+        {
+            "action": action,
+            "user": user,
+            "user_id": 5,
+            "target": target,
+            "reason": reason,
+            "changes": changes,
+        },
+    )()
+
+
+@pytest.mark.asyncio
+@patch("bot.extensions.dashboard_cog.dachshund.emit")
+async def test_on_audit_log_entry_create__expect_an_audit_row(mock_emit, dashboard_cog):
+    """Verify an audit log entry becomes a row with its changed attributes."""
+    target = type("Target", (), {"name": "ada", "id": 7})()
+    entry = _fake_audit_entry(
+        target, reason="spam", before=[("roles", [])], after=[("nick", "x")]
+    )
+
+    await dashboard_cog.on_audit_log_entry_create(entry)
+
+    mock_emit.assert_called_once_with(
+        "audit_log",
+        action="member role update",
+        by="mod#1",
+        target="ada",
+        reason="spam",
+        changes="nick, roles",
+    )
+
+
+@pytest.mark.asyncio
+@patch("bot.extensions.dashboard_cog.dachshund.emit")
+async def test_on_audit_log_entry_create__with_unknown_user_and_target__expect_ids(
+    mock_emit, dashboard_cog
+):
+    """Verify an entry whose user and target aren't cached shows their ids."""
+    target = type("Object", (), {"id": 42})()
+
+    await dashboard_cog.on_audit_log_entry_create(_fake_audit_entry(target, user=None))
+
+    fields = mock_emit.call_args.kwargs
+    assert (fields["by"], fields["target"], fields["reason"]) == ("id 5", "id 42", "")

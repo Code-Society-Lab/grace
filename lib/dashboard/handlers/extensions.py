@@ -11,6 +11,7 @@ from discord.ext.commands import ExtensionAlreadyLoaded, ExtensionNotLoaded
 
 from bot.classes.state import State
 from bot.models.extension import Extension
+from lib.dashboard.context import DashboardContext
 from lib.dashboard.handlers.paging import Page, page_rows
 
 COLUMNS = ["extension", "module", "loaded"]
@@ -34,14 +35,14 @@ def _rows(bot: Any, state: State) -> list[dict[str, Any]]:
     ]
 
 
-async def load_enabled(ctx: dict, query: TableQuery) -> Page:
+async def load_enabled(ctx: DashboardContext, query: TableQuery) -> Page:
     """The enabled extensions, with whether each is actually loaded."""
-    return page_rows(_rows(ctx["bot"], State.ENABLED), query, COLUMNS)
+    return page_rows(_rows(ctx.bot, State.ENABLED), query, COLUMNS)
 
 
-async def load_disabled(ctx: dict, query: TableQuery) -> Page:
+async def load_disabled(ctx: DashboardContext, query: TableQuery) -> Page:
     """The disabled extensions, with whether each is actually loaded."""
-    return page_rows(_rows(ctx["bot"], State.DISABLED), query, COLUMNS)
+    return page_rows(_rows(ctx.bot, State.DISABLED), query, COLUMNS)
 
 
 def _extension(module_name: str) -> Extension:
@@ -53,12 +54,12 @@ def _extension(module_name: str) -> Extension:
     return extension
 
 
-async def enable(ctx: dict, module_name: str) -> str:
+async def enable(ctx: DashboardContext, module_name: str) -> str:
     """Load an extension and keep it enabled across restarts."""
     extension = _extension(module_name)
 
     try:
-        await ctx["bot"].load_extension(extension.module_name)
+        await ctx.bot.load_extension(extension.module_name)
     except ExtensionAlreadyLoaded:
         pass
 
@@ -68,12 +69,12 @@ async def enable(ctx: dict, module_name: str) -> str:
     return f"{extension.name} enabled."
 
 
-async def disable(ctx: dict, module_name: str) -> str:
+async def disable(ctx: DashboardContext, module_name: str) -> str:
     """Unload an extension and keep it disabled across restarts."""
     extension = _extension(module_name)
 
     try:
-        await ctx["bot"].unload_extension(extension.module_name)
+        await ctx.bot.unload_extension(extension.module_name)
     except ExtensionNotLoaded:
         pass
 
