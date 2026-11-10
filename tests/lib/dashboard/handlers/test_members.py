@@ -1,4 +1,5 @@
 from datetime import UTC, datetime, timedelta
+from types import SimpleNamespace
 from zoneinfo import ZoneInfo
 
 from dachshund.widgets import TableQuery
@@ -12,15 +13,7 @@ def _ctx(bot):
 
 
 def _fake_bot(guild):
-    return type(
-        "Bot",
-        (),
-        {
-            "get_guild": staticmethod(lambda guild_id: guild),
-            "config": {"guild_id": 1},
-            "timezone": ZoneInfo("US/Eastern"),
-        },
-    )()
+    return SimpleNamespace(guild=guild, timezone=ZoneInfo("US/Eastern"))
 
 
 def _fake_member(

@@ -218,9 +218,7 @@ class DashboardCog(
         }
 
     def _report_member_count(self) -> None:
-        guild_id = self.bot.app.config.get("client", "guild_id")
-
-        if guild := self.bot.get_guild(guild_id):
+        if guild := self.bot.guild:
             dachshund.emit("member_count", value=guild.member_count)
 
     @Cog.listener()

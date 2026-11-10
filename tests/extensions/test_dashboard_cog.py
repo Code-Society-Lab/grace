@@ -73,7 +73,7 @@ def test_report_member_count__expect_emits_member_count_for_configured_guild(
 ):
     """Verify _report_member_count emits the member count for the configured guild."""
     guild = type("Guild", (), {"member_count": 15})()
-    dashboard_cog.bot.get_guild = lambda guild_id: guild
+    dashboard_cog.bot.guild = guild
 
     dashboard_cog._report_member_count()
 
@@ -85,7 +85,7 @@ def test_report_member_count__expect_emits_member_count_for_configured_guild(
 async def test_on_ready__expect_reports_member_count(mock_emit, dashboard_cog):
     """Verify on_ready reports the current member count."""
     guild = type("Guild", (), {"member_count": 7})()
-    dashboard_cog.bot.get_guild = lambda guild_id: guild
+    dashboard_cog.bot.guild = guild
 
     await dashboard_cog.on_ready()
 
@@ -106,7 +106,7 @@ async def test_on_ready__expect_a_members_refresh_ping(mock_emit, dashboard_cog)
 async def test_on_member_join__expect_reports_member_count(mock_emit, dashboard_cog):
     """Verify on_member_join reports the current member count."""
     guild = type("Guild", (), {"member_count": 8})()
-    dashboard_cog.bot.get_guild = lambda guild_id: guild
+    dashboard_cog.bot.guild = guild
 
     await dashboard_cog.on_member_join(object())
 
@@ -127,7 +127,7 @@ async def test_on_member_join__expect_a_members_refresh_ping(mock_emit, dashboar
 async def test_on_member_remove__expect_reports_member_count(mock_emit, dashboard_cog):
     """Verify on_member_remove reports the current member count."""
     guild = type("Guild", (), {"member_count": 6})()
-    dashboard_cog.bot.get_guild = lambda guild_id: guild
+    dashboard_cog.bot.guild = guild
 
     await dashboard_cog.on_member_remove(_fake_member())
 

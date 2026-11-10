@@ -3,7 +3,7 @@ from zoneinfo import ZoneInfo
 
 logger = logging.getLogger(__name__)
 
-from discord import Activity, ActivityType, Colour, Intents
+from discord import Activity, ActivityType, Colour, Guild, Intents
 from grace.bot import Bot
 from pretty_help import PrettyHelp
 
@@ -36,6 +36,15 @@ class Grace(Bot):
     @property
     def timezone(self) -> ZoneInfo:
         return ZoneInfo(self.config.get("timezone"))
+
+    @property
+    def guild_id(self) -> int | None:
+        guild_id = self.config.get("guild_id")
+        return int(guild_id) if guild_id else None
+
+    @property
+    def guild(self) -> Guild | None:
+        return self.get_guild(self.guild_id) if self.guild_id else None
 
     @property
     def latency_ms(self):

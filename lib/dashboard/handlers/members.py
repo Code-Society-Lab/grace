@@ -36,7 +36,7 @@ def _matches(member: Member, search: str) -> bool:
 
 
 def _members(ctx: DashboardContext) -> list[Member]:
-    guild = ctx.bot.get_guild(ctx.bot.config.get("guild_id"))
+    guild = ctx.bot.guild
 
     return list(guild.members) if guild else []
 
