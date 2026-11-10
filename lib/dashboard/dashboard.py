@@ -1,6 +1,7 @@
 import dachshund
 
 from bot import app
+from lib.dashboard.context import DashboardContext
 from lib.dashboard.pages.activity import activity_page
 from lib.dashboard.pages.admin import admin_page
 from lib.dashboard.pages.overview import overview_page
@@ -15,12 +16,12 @@ def init_dachshund():
     dachshund.default(path=DACHSHUND_EVENT_STORE, storage=SQLModelStorage())
 
 
-def start_dashboard(context: dict, **access) -> None:
-    """Start dachshund, with `access` (`host`, `authorize`, `login`) guarding its private pages."""
+def start_dashboard(context: DashboardContext, **access) -> None:
+    """Start dachshund, with `access` (`host`, `port`, `authorize`, `login`) guarding its private pages."""
     dachshund.init(
         "Grace",
         description="Code Society's Discord Bot",
-        timezone=context["bot"].timezone.key,
+        timezone=context.bot.timezone.key,
         context=context,
         **access,
     )

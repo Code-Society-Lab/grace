@@ -9,6 +9,7 @@ from pretty_help import PrettyHelp
 
 from lib.dashboard import dashboard
 from lib.dashboard.auth import AuthService, AuthSettings
+from lib.dashboard.context import DashboardContext
 from bot.models.channel import Channel
 from bot.models.extension import Extension
 from bot.services.dashboard_metrics_service import DashboardMetrics
@@ -77,7 +78,10 @@ class Grace(Bot):
         if not self.auth.settings.enabled:
             logger.warning("Dashboard login is off, serving it on this machine only.")
 
-        dashboard.start_dashboard({"bot": self}, **self.auth.dashboard_access())
+        dashboard.start_dashboard(
+            DashboardContext(bot=self),
+            **self.auth.dashboard_access(),
+        )
 
     async def on_ready(self):
         logger.info(f"{self.user.name}#{self.user.id} is online and ready to use!")

@@ -5,7 +5,12 @@ from zoneinfo import ZoneInfo
 import pytest
 from dachshund.widgets import TableQuery
 
+from lib.dashboard.context import DashboardContext
 from lib.dashboard.handlers.jobs import load
+
+
+def _ctx(bot):
+    return DashboardContext(bot=bot)
 
 
 def _query(**kwargs):
@@ -29,7 +34,7 @@ async def test_load__expect_jobs_with_next_run_in_eastern_time():
         timezone=ZoneInfo("US/Eastern"),
     )
 
-    rows, total = await load({"bot": bot}, _query())
+    rows, total = await load(_ctx(bot), _query())
 
     assert total == 2
     assert rows == [
@@ -51,7 +56,7 @@ async def test_load__sorted_and_paged__expect_that_page_and_the_total():
     )
 
     rows, total = await load(
-        {"bot": bot}, _query(sort_by="job", descending=True, offset=1, limit=1)
+        _ctx(bot), _query(sort_by="job", descending=True, offset=1, limit=1)
     )
 
     assert total == 3
