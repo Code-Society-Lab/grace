@@ -1,4 +1,5 @@
 import logging
+from zoneinfo import ZoneInfo
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +31,10 @@ class Grace(Bot):
     @property
     def default_color(self):
         return Colour.from_str(self.config.get("default_color"))
+
+    @property
+    def timezone(self) -> ZoneInfo:
+        return ZoneInfo(self.config.get("timezone"))
 
     @property
     def latency_ms(self):

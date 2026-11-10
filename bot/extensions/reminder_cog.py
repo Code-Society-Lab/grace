@@ -5,7 +5,6 @@ from re import Match
 
 from discord import Embed, File
 from discord.ext.commands import Cog, Context, hybrid_command
-from pytz import timezone
 
 from bot.grace import Grace
 
@@ -20,7 +19,7 @@ class ReminderCog(
     def __init__(self, bot: Grace):
         self.bot: Grace = bot
         self.jobs: list = []
-        self.timezone: tzinfo = timezone("US/Eastern")
+        self.timezone: tzinfo = bot.timezone
         with open("assets/stopwatch.png", "rb") as f:
             # Load the image bytes once during init is
             # faster than reading from disk each time.

@@ -1,5 +1,6 @@
 from datetime import datetime
 from types import SimpleNamespace
+from zoneinfo import ZoneInfo
 
 import pytest
 from dachshund.widgets import TableQuery
@@ -23,7 +24,10 @@ async def test_load__expect_jobs_with_next_run_in_eastern_time():
         _job("reminder", UTC.localize(datetime(2026, 11, 7, 15, 30))),
         _job("paused", None),
     ]
-    bot = SimpleNamespace(scheduler=SimpleNamespace(get_jobs=lambda: jobs))
+    bot = SimpleNamespace(
+        scheduler=SimpleNamespace(get_jobs=lambda: jobs),
+        timezone=ZoneInfo("US/Eastern"),
+    )
 
     rows, total = await load({"bot": bot}, _query())
 
@@ -41,7 +45,10 @@ async def test_load__expect_jobs_with_next_run_in_eastern_time():
 @pytest.mark.asyncio
 async def test_load__sorted_and_paged__expect_that_page_and_the_total():
     jobs = [_job(name, None) for name in ("c", "a", "b")]
-    bot = SimpleNamespace(scheduler=SimpleNamespace(get_jobs=lambda: jobs))
+    bot = SimpleNamespace(
+        scheduler=SimpleNamespace(get_jobs=lambda: jobs),
+        timezone=ZoneInfo("US/Eastern"),
+    )
 
     rows, total = await load(
         {"bot": bot}, _query(sort_by="job", descending=True, offset=1, limit=1)

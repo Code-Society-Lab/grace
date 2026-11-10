@@ -1,6 +1,6 @@
 from collections import deque
 from dataclasses import KW_ONLY, dataclass, field
-from datetime import UTC, datetime
+from datetime import UTC, datetime, tzinfo
 from typing import Any, Sequence
 from zoneinfo import ZoneInfo
 
@@ -16,7 +16,8 @@ class RecentTable(Table):
     """A row per event of its source, newest first, with when it happened.
 
     The newest `keep` rows are kept in the dashboard's `storage`, across
-    restarts. Each row's `time` is its event's, in `timezone`.
+    restarts. Each row's `time` is its event's, in `timezone`, the dashboard's
+    by default.
 
     ## Example
 
@@ -32,12 +33,13 @@ class RecentTable(Table):
     _: KW_ONLY
 
     keep: int = 50
-    timezone: str = "UTC"
+    timezone: str | None = None
     persist: bool = field(default=True, init=False)
 
     _rows: deque[dict[str, Any]] = field(
         default_factory=deque, init=False, repr=False, compare=False
     )
+    _dashboard: Any = field(default=None, init=False, repr=False, compare=False)
 
     def __post_init__(self) -> None:
         if self.key is not None:
@@ -50,8 +52,20 @@ class RecentTable(Table):
         if self.keep < 1:
             raise ValueError(f"{self.name!r} has keep={self.keep}, keep at least 1.")
 
-        self._zone = ZoneInfo(self.timezone)
         self._rows = deque(maxlen=self.keep)
+
+    def bind(self, dashboard: Any) -> None:
+        self._dashboard = dashboard
+
+    def unbind(self) -> None:
+        self._dashboard = None
+
+    @property
+    def zone(self) -> tzinfo:
+        if self.timezone:
+            return ZoneInfo(self.timezone)
+
+        return self._dashboard.timezone if self._dashboard else UTC
 
     def raw_events(self) -> int | None:
         """Only the newest event, its rows are kept in `storage`."""
@@ -83,6 +97,6 @@ class RecentTable(Table):
     def _stamp(self, at: float) -> str:
         return (
             datetime.fromtimestamp(at, tz=UTC)
-            .astimezone(self._zone)
+            .astimezone(self.zone)
             .strftime(TIME_FORMAT)
         )
