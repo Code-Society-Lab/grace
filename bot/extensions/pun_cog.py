@@ -8,7 +8,6 @@ from discord.ext.commands import (
 )
 from emoji import demojize
 from nltk.tokenize import TweetTokenizer
-
 from bot.models.bot import BotSettings
 from bot.models.extensions.language.pun import Pun
 from bot.models.extensions.language.pun_word import PunWord
@@ -48,11 +47,11 @@ class PunCog(
         word_set = {pun_word.word for pun_word in pun_words}
 
         matches = tokenlist.intersection(word_set)
-        invoked_at = message.created_at.replace(tzinfo=None)
+        invoked_at = message.created_at.astimezone(self.bot.timezone)
 
         if matches:
-            matched_pun_words = filter(
-                lambda pun_word: pun_word.word in matches, pun_words
+            matched_pun_words = list(
+                filter(lambda pun_word: pun_word.word in matches, pun_words)
             )
             puns = (Pun.find(pun_word.pun_id) for pun_word in matched_pun_words)
             puns = list(filter(lambda pun: pun.can_invoke_at_time(invoked_at), puns))
